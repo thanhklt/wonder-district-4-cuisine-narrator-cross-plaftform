@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Api/" />
+  <Folder Name="/Api/Controllers/" />
+  <Folder Name="/Api/Services/" />
+  <Folder Name="/Mobile/">
+    <Project Path="MauiProgram/MauiProgram.csproj" Id="cd6b6f4f-38bc-4a2e-86e6-dd2748038b35" />
+  </Folder>
+  <Folder Name="/Mobile/Platforms/" />
+  <Folder Name="/Mobile/Resources/" />
+  <Folder Name="/Mobile/Services/" />
+  <Folder Name="/Mobile/ViewModels/" />
+  <Folder Name="/Mobile/Views/" />
+  <Folder Name="/Shared/" />
+  <Folder Name="/Shared/Entities/" />
+  <Folder Name="/Shared/Enums/" />
+  <Folder Name="/Shared/Models/" />
+  <Folder Name="/WebAdmin/">
+    <Project Path="Program/Program.csproj" Id="b2759122-0328-4df5-a896-fde7ca83526d" />
+  </Folder>
+  <Folder Name="/WebAdmin/Controllers/" />
+  <Folder Name="/WebAdmin/Models/" />
+  <Folder Name="/WebAdmin/Views/" />
+  <Folder Name="/WebAdmin/wwwroot/" />
+</Solution>
