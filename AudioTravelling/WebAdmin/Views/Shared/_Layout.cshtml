@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] — Audio Travelling</title>
+
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<body>
+    <div id="dashboard-app" style="display:none; height:100vh;">
+        <div style="display:flex; height:100vh; overflow:hidden;">
+
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon"><i class="fa-solid fa-store"></i></div>
+                    <div class="sidebar-brand-text">Audio <span>Travelling</span><small>Phiên bản Hội chợ</small></div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a class="nav-link active" data-target="view-dashboard" href="#"><i class="fa-solid fa-chart-pie"></i> Tổng quan</a>
+                    <a class="nav-link" data-target="view-booths" href="#"><i class="fa-solid fa-store"></i> Quản lý gian hàng</a>
+                    <a class="nav-link" data-target="view-finance" href="#"><i class="fa-solid fa-coins"></i> Tài chính</a>
+                    <a class="nav-link" data-target="view-plans" href="#"><i class="fa-solid fa-tags"></i> Gói dịch vụ</a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-link" data-target="view-settings" href="#"><i class="fa-solid fa-gear"></i> Cài đặt</a>
+                </nav>
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" class="sidebar-avatar">
+                        <div class="sidebar-user-info">
+                            <p id="sidebar-name" class="sidebar-user-name">Admin Bảo</p>
+                            <button id="btn-logout" class="btn-signout">Đăng xuất</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="main-area">
+                <header class="top-header">
+                    <h2 id="header-title">@ViewData["HeaderTitle"]</h2>
+                    <button id="theme-toggle" class="btn-icon"><i class="fa-solid fa-moon"></i></button>
+                </header>
+
+                <div class="content-wrapper">
+                    @RenderBody() </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
