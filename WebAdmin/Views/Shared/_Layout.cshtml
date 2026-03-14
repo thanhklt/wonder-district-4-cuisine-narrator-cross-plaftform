@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Travelling — Phiên bản Hội chợ</title>
+    <meta name="description"
+          content="Audio Travelling Phiên bản Hội chợ - Quản lý gian hàng, hội chợ, hoa hồng và tương tác khách truy cập">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="@(Url.Content("~/css/style.css"))">
+
+        <!-- FontAwesome 6 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+        <!-- WaveSurfer.js -->
+        <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Toastify -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+
+    <body>
+
+        <!-- ═══════════════════════════════════════
+         AUTH SCREEN (Login / Register)
+         ═══════════════════════════════════════ -->
+        <div id="auth-screen" class="login-screen">
+            <!-- Floating particles -->
+            <div class="auth-particles">
+                <div class="auth-particle"></div>
+                <div class="auth-particle"></div>
+                <div class="auth-particle"></div>
+                <div class="auth-particle"></div>
+                <div class="auth-particle"></div>
+            </div>
+
+            <div class="auth-card glass-strong">
+
+                <!-- Logo & Branding -->
+                <div class="login-logo">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h1 class="login-title">Audio Travelling</h1>
+                <p class="login-subtitle">Phiên bản Hội chợ</p>
+
+                <!-- Tab Switcher -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login" id="tab-login">
+                        <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                    </button>
+                    <button class="auth-tab" data-tab="register" id="tab-register">
+                        <i class="fa-solid fa-user-plus"></i> Đăng ký
+                    </button>
+                    <div class="auth-tab-indicator" id="auth-tab-indicator"></div>
+                </div>
+
+                <!-- ── LOGIN FORM ── -->
+                <form id="form-login" class="auth-form active" autocomplete="off">
+                    <div class="auth-field">
+                        <label class="auth-label" for="login-email">
+                            <i class="fa-solid fa-envelope"></i> Địa chỉ Email
+                        </label>
+                        <input type="email" id="login-email" class="auth-input" placeholder="admin@audiotravelling.com"
+                               required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="login-password">
+                            <i class="fa-solid fa-lock"></i> Mật khẩu
+                        </label>
+                        <div class="auth-password-wrapper">
+                            <input type="password" id="login-password" class="auth-input" placeholder="••••••••" required
+                                   minlength="6">
+                            <button type="button" class="auth-toggle-pw" data-target="login-password" tabindex="-1">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-row">
+                        <label class="auth-checkbox-label">
+                            <input type="checkbox" id="login-remember" class="auth-checkbox">
+                            <span class="auth-checkmark"></span>
+                            Ghi nhớ
+                        </label>
+                        <a href="#" class="auth-link" onclick="event.preventDefault();">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn" id="btn-login">
+                        <span class="auth-btn-text">Đăng nhập</span>
+                        <i class="fa-solid fa-arrow-right auth-btn-arrow"></i>
+                    </button>
+
+                    <div class="auth-divider">
+                        <span>hoặc tiếp tục với</span>
+                    </div>
+
+                    <button type="button" class="btn-google" id="btn-google-login">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                        Đăng nhập với Google
+                    </button>
+
+                    <p class="auth-error hidden" id="login-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span id="login-error-text">Sai thông tin đăng nhập</span>
+                    </p>
+                </form>
+
+                <!-- ── REGISTER FORM ── -->
+                <form id="form-register" class="auth-form" autocomplete="off">
+                    <div class="auth-field">
+                        <label class="auth-label" for="reg-name">
+                            <i class="fa-solid fa-user"></i> Họ tên
+                        </label>
+                        <input type="text" id="reg-name" class="auth-input" placeholder="Nguyễn Văn A" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="reg-email">
+                            <i class="fa-solid fa-envelope"></i> Địa chỉ Email
+                        </label>
+                        <input type="email" id="reg-email" class="auth-input" placeholder="email@company.com" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="reg-phone">
+                            <i class="fa-solid fa-phone"></i> Số điện thoại
+                        </label>
+                        <input type="tel" id="reg-phone" class="auth-input" placeholder="+84 123 456 789">
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="reg-password">
+                            <i class="fa-solid fa-lock"></i> Mật khẩu
+                        </label>
+                        <div class="auth-password-wrapper">
+                            <input type="password" id="reg-password" class="auth-input" placeholder="Ít nhất 6 ký tự"
+                                   required minlength="6">
+                            <button type="button" class="auth-toggle-pw" data-target="reg-password" tabindex="-1">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="reg-confirm">
+                            <i class="fa-solid fa-shield-halved"></i> Xác nhận mật khẩu
+                        </label>
+                        <div class="auth-password-wrapper">
+                            <input type="password" id="reg-confirm" class="auth-input" placeholder="Nhập lại mật khẩu"
+                                   required>
+                            <button type="button" class="auth-toggle-pw" data-target="reg-confirm" tabindex="-1">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <label class="auth-checkbox-label" style="margin-bottom:4px;">
+                        <input type="checkbox" id="reg-terms" class="auth-checkbox" required>
+                        <span class="auth-checkmark"></span>
+                        Tôi đồng ý với <a href="#" class="auth-link" onclick="event.preventDefault();">
+                        Điều khoản dịch
+                        vụ
+                    </a>
+                    và <a href="#" class="auth-link" onclick="event.preventDefault();">Chính sách bảo mật</a>
+                </label>
+
+                <button type="submit" class="auth-submit-btn" id="btn-register">
+                    <span class="auth-btn-text">Tạo tài khoản</span>
+                    <i class="fa-solid fa-user-plus auth-btn-arrow"></i>
+                </button>
+
+                <p class="auth-error hidden" id="register-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="register-error-text">Đăng ký thất bại</span>
+                </p>
+
+                <p class="auth-success hidden" id="register-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Tạo tài khoản thành công! Đang chuyển hướng đến trang đăng nhập...</span>
+                </p>
+            </form>
+
+            <p class="login-footer">Chỉ dành cho nhân viên có thẩm quyền. Được cung cấp bởi Emergent AI.</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         MAIN DASHBOARD APP
+         ═══════════════════════════════════════ -->
+    <div id="dashboard-app" style="display:none; height:100vh;">
+
+        <div style="display:flex; height:100vh; overflow:hidden;">
+
+            <!-- ── SIDEBAR ── -->
+            <aside class="sidebar" id="app-sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        Audio <span>Travelling</span>
+                        <small>Phiên bản Hội chợ</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav" id="sidebar-nav">
+                    <a class="nav-link active" data-target="view-dashboard" href="#">
+                        <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                    </a>
+                    <a class="nav-link" data-target="view-booths" href="#">
+                        <i class="fa-solid fa-store"></i> Quản lý gian hàng
+                    </a>
+                    <a class="nav-link" data-target="view-finance" href="#">
+                        <i class="fa-solid fa-coins"></i> Tài chính
+                    </a>
+                    <a class="nav-link" data-target="view-plans" href="#">
+                        <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                    </a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-link" data-target="view-settings" href="#">
+                        <i class="fa-solid fa-gear"></i> Cài đặt
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="Admin"
+                             class="sidebar-avatar">
+                        <div class="sidebar-user-info">
+                            <p id="sidebar-name" class="sidebar-user-name">Admin</p>
+                            <button id="btn-logout" class="btn-signout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ── MAIN CONTENT ── -->
+            <main class="main-area">
+                <!-- Top Header Bar -->
+                <header class="top-header">
+                    <h2 id="header-title">Tổng quan</h2>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button id="theme-toggle" class="btn-icon" title="Toggle Theme">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Scrollable Content -->
+                <div class="content-wrapper">
+
+                    @RenderBody()
+                </div> <!-- /content-wrapper -->
+            </main>
+        </div>
+    </div>
+
+    <script src="@(Url.Content("~/js/app.js"))"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

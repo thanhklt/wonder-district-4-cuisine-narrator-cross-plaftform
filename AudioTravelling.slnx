@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Api/Api.csproj" Id="238a662b-4db3-4df1-85dd-eab39815fcc0" />
+  <Project Path="Mobile/Mobile.csproj" Id="98745268-4845-498f-98db-8c5165d53367" />
+  <Project Path="Shared/Shared.csproj" Id="575a35aa-49a8-4442-b1d2-2a3528376978" />
+  <Project Path="WebAdmin/WebAdmin.csproj" Id="3bfed64d-e2fb-403f-a154-7fe2216a1e7a" />
+</Solution>
