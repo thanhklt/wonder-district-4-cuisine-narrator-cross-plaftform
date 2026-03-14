@@ -1,5 +1,32 @@
-public IActionResult Index()
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using WebAdmin.Models;
+
+namespace WebAdmin.Controllers
 {
-	// Đây là nơi C# ra lệnh nạp file Index.cshtml vào Layout
-	return View();
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
 }

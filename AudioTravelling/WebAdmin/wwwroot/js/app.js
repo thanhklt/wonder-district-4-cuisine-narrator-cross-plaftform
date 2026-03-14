@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ═══════════════════════════════════════════════════
  * Audio Travelling — Exhibition Edition
  * Application Logic: SPA, Booths, Finance, WaveSurfer, Leaflet
@@ -1466,12 +1466,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPlans() {
         if (!plansGrid) return;
         const plans = getPlans();
-        
+
         let html = '';
         plans.forEach(plan => {
             const badgeClass = `tier-${plan.id}`;
             const limitText = plan.maxOrders ? `${plan.maxOrders} orders/mo` : 'Unlimited orders';
-            
+
             html += `
                 <div class="glass-card plan-card">
                     <div class="plan-header">
@@ -1502,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         });
-        
+
         plansGrid.innerHTML = html;
 
         // Bind Edit logic
@@ -1527,7 +1527,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const plans = getPlans();
         const plan = plans.find(p => p.id === id);
         if (!plan) return;
-        
+
         const isUnlimited = plan.maxOrders === null;
 
         modalOverlay.innerHTML = `
@@ -1609,7 +1609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Gather values
             plan.name = document.getElementById('edit-plan-name').value.trim();
             plan.price = parseFloat(document.getElementById('edit-plan-price').value) || 0;
-            
+
             if (chkUnlimited.checked) {
                 plan.maxOrders = null;
             } else {
