@@ -1,0 +1,101 @@
+﻿<!-- ════════════════════════════════════
+     SCREEN 3: FINANCE & COMMISSION
+     ════════════════════════════════════ -->
+<div id="view-finance" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Tài chính và hoa hồng</h3>
+            <p class="section-subtitle">
+                Theo dõi đơn hàng và tính toán hoa hồng cho mỗi gian hàng.
+            </p>
+        </div>
+        <div class="booth-search-wrapper">
+            <div class="booth-search-box">
+                <i class="fa-solid fa-magnifying-glass booth-search-icon"></i>
+                <input type="text" id="finance-booth-search" class="booth-search-input"
+                       placeholder="Tìm kiếm gian hàng theo tên..." autocomplete="off">
+                <button type="button" id="finance-search-clear" class="booth-search-clear hidden">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="finance-search-results" class="booth-search-results hidden">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <div class="finance-grid">
+        <!-- Orders Table -->
+        <div class="glass-card" style="padding:24px; overflow-x:auto;">
+            <div class="flex-between mb-4">
+                <h3 style="font-size:16px; font-weight:700;">
+                    <i class="fa-solid fa-receipt text-accent" style="margin-right:8px;"></i>Đơn
+                    hàng thành công
+                </h3>
+                <span id="order-count" style="font-size:12px; color:var(--text-muted);">
+                    0
+                    đơn
+                </span>
+            </div>
+            <table class="orders-table" id="orders-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Tổng</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-body">
+                    <!-- Injected by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Commission Calculator -->
+        <div class="glass-card commission-calc">
+            <div class="booth-panel-title">
+                <i class="fa-solid fa-calculator"></i> Tính toán hoa hồng
+            </div>
+
+            <div class="calc-formula">
+                C = Σ(Price<sub>i</sub> × R<sub>c</sub>) + (n × F)
+            </div>
+
+            <div id="calc-details">
+                <div class="calc-row">
+                    <span class="calc-row-label">Hạng gian hàng</span>
+                    <span class="calc-row-value" id="calc-tier">—</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-row-label">Tỷ lệ hoa hồng (R<sub>c</sub>)</span>
+                    <span class="calc-row-value" id="calc-rc">—</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-row-label">Phí giao dịch (F)</span>
+                    <span class="calc-row-value" id="calc-fee">—</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-row-label">Số lượng đơn hàng (n)</span>
+                    <span class="calc-row-value" id="calc-n">—</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-row-label">Σ(Price<sub>i</sub> × R<sub>c</sub>)</span>
+                    <span class="calc-row-value" id="calc-sum">—</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-row-label">n × F</span>
+                    <span class="calc-row-value" id="calc-nf">—</span>
+                </div>
+            </div>
+
+            <div class="calc-total">
+                <p class="calc-total-label">Tổng hoa hồng (C)</p>
+                <p class="calc-total-value" id="calc-total">0 ₫</p>
+            </div>
+        </div>
+    </div>
+</div>

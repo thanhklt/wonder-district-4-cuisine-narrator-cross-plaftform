@@ -53,10 +53,21 @@
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    /* Range / volume slider colors (theme-aware via overrides) */
+    --range-track: rgba(255, 255, 255, 0.08);
+    --range-thumb: var(--emerald);
+    --range-thumb-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
     /* Tier Colors */
     --tier-basic: #94a3b8;
     --tier-gold: #fbbf24;
     --tier-diamond: #a78bfa;
+}
+
+/* Dark theme overrides for range/volume slider */
+html[data-theme="dark"] {
+    --range-track: rgba(255,255,255,0.08);
+    --range-thumb: var(--emerald);
+    --range-thumb-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
 }
 
 /* ── Base Reset ── */
@@ -227,6 +238,46 @@ body {
         pointer-events: none;
     }
 
+/* Full-viewport background image for auth screen */
+/* Use background image on the login container so it aligns with the card */
+.login-screen {
+    /* background image applied to the container */
+    background-image: url('/images/am_thuc.jpg');
+    /* scale image to cover viewport while keeping focal area visible */
+    background-size: cover;
+    background-position: center right;
+    background-repeat: no-repeat;
+}
+
+/* subtle overlay to increase contrast for the auth card */
+.login-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(6,13,6,0.78) 0%, rgba(6,13,6,0.32) 50%, rgba(6,13,6,0.05) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* When viewport gets narrow, center the background and reduce overlay intensity */
+@media (max-width: 900px) {
+    .login-screen {
+        background-position: center center;
+        background-size: cover;
+    }
+
+    .login-screen::after {
+        background: linear-gradient(180deg, rgba(6,13,6,0.6) 0%, rgba(6,13,6,0.25) 50%, rgba(6,13,6,0.05) 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    /* On very small screens, remove overlay so card spacing is consistent */
+    .login-screen::after {
+        background: rgba(0,0,0,0.25);
+    }
+}
+
 /* Floating Particles */
 .auth-particles {
     position: absolute;
@@ -304,6 +355,7 @@ body {
     width: 100%;
     position: relative;
     animation: cardSlideIn 0.5s ease-out;
+    z-index: 2; /* above auth background image */
 }
 
 @keyframes cardSlideIn {
@@ -1559,7 +1611,7 @@ input[type="range"] {
     appearance: none;
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--range-track);
     border-radius: 4px;
     outline: none;
     cursor: pointer;
@@ -1570,9 +1622,9 @@ input[type="range"] {
         width: 14px;
         height: 14px;
         border-radius: 50%;
-        background: var(--emerald);
+        background: var(--range-thumb);
         cursor: pointer;
-        box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+        box-shadow: var(--range-thumb-shadow);
         transition: transform var(--transition-fast);
     }
 
