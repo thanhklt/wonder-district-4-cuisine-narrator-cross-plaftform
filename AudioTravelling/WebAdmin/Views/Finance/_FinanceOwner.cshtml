@@ -1,0 +1,100 @@
+﻿<div id="view-finance-owner" class="view-section">
+    <div class="flex-between mb-4">
+        <div>
+            <h3 class="section-title">Quản lý Tài chính</h3>
+            <p class="section-subtitle">Theo dõi doanh thu, hoa hồng và yêu cầu rút tiền</p>
+        </div>
+    </div>
+
+    <div class="grid-4 mb-6">
+        <div class="glass-card stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div>
+                <p class="stat-label">Tổng doanh thu</p>
+                <p class="stat-value" id="finance-owner-revenue">0 ₫</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon red"><i class="fa-solid fa-percent"></i></div>
+            <div>
+                <p class="stat-label">Phí & Hoa hồng hệ thống</p>
+                <p class="stat-value" id="finance-owner-commission">0 ₫</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-wallet"></i></div>
+            <div>
+                <p class="stat-label">Số dư khả dụng (Thực nhận)</p>
+                <p class="stat-value" id="finance-owner-balance" style="color: var(--emerald);">0 ₫</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div>
+                <p class="stat-label">Đang chờ rút</p>
+                <p class="stat-value" id="finance-owner-pending">0 ₫</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+        
+        <div class="glass-card" style="padding:24px; overflow-x:auto; align-self: start;">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">
+                <i class="fa-solid fa-list-check text-accent" style="margin-right:8px;"></i>Đơn hàng đã đối soát
+            </h3>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Tổng tiền</th>
+                        <th>Phí giao dịch</th>
+                        <th>Hoa hồng</th>
+                        <th>Thực nhận</th>
+                        <th>Ngày</th>
+                    </tr>
+                </thead>
+                <tbody id="finance-owner-orders-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="glass-card" style="padding:24px; align-self: start;">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">
+                <i class="fa-solid fa-money-bill-transfer text-accent" style="margin-right:8px;"></i>Yêu cầu rút tiền
+            </h3>
+            
+            <div class="mb-4">
+                <label class="form-label">Ngân hàng thụ hưởng</label>
+                <select id="withdraw-bank" class="form-input form-select">
+                    <option value="vcb">Vietcombank - Ngân hàng Ngoại thương</option>
+                    <option value="tcb">Techcombank - Ngân hàng Kỹ thương</option>
+                    <option value="mbb">MB Bank - Ngân hàng Quân đội</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">Số tài khoản</label>
+                <input type="text" id="withdraw-account" class="form-input" placeholder="VD: 1903...">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Số tiền cần rút (VNĐ)</label>
+                <input type="number" id="withdraw-amount" class="form-input" placeholder="Tối thiểu 100,000 ₫">
+                <p style="font-size:11px; color:var(--text-dim); margin-top:6px;">
+                    Phí rút tiền: Miễn phí. Hạn mức: <strong id="withdraw-max-text" style="color:var(--emerald);">0 ₫</strong>
+                </p>
+            </div>
+
+            <button id="btn-withdraw" class="btn-primary w-100 btn-ripple" style="padding:12px;">
+                <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu rút tiền
+            </button>
+            
+            <hr style="border:0; border-top:1px dashed var(--border); margin:20px 0;">
+            
+            <h4 style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text-muted);">LỊCH SỬ RÚT TIỀN</h4>
+            <div id="withdraw-history-list" style="max-height:200px; overflow-y:auto; padding-right:5px;">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,15 +1,26 @@
-﻿/**
- * ═══════════════════════════════════════════════════
- * Audio Travelling — Exhibition Edition
- * Application Logic: SPA, Booths, Finance, WaveSurfer, Leaflet
- * ═══════════════════════════════════════════════════
- */
+/**
+* ═══════════════════════════════════════════════════
+* Audio Travelling — Exhibition Edition
+* Application Logic: SPA, Booths, Finance, WaveSurfer, Leaflet
+* ═══════════════════════════════════════════════════
+*/
 document.addEventListener('DOMContentLoaded', () => {
     // ── State Trackers ──
     let mapInitialized = false;
     let chartInitialized = false;
     let selectedBoothId = null;
     const emerald = '#22c55e';
+    window.myMaps = {}; // Track map instances to prevent re-initialization crashes
+
+    // Hàm tiện ích đặc biệt cho SPA: Lấy đúng Element của màn hình đang Active
+    function getActiveEl(id) {
+        const activeView = document.querySelector('.view-section.active');
+        if (activeView) {
+            const el = activeView.querySelector(`[id="${id}"]`);
+            if (el) return el;
+        }
+        return document.getElementById(id); // Dự phòng
+    }
 
     // Clear old mock data for VNĐ migration validation
     if (!localStorage.getItem('exhib_vn_migrated')) {
@@ -54,27 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultOrders = [
         { id: 'ORD-1001', boothId: 'B001', product: 'Màn hình 8K MicroLED 32"', qty: 2, price: 4500000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1002', boothId: 'B001', product: 'Máy chiếu Holo Mini', qty: 5, price: 890000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1003', boothId: 'B002', product: 'Giỏ quà hữu cơ', qty: 15, price: 450000, status: 'success', date: '2026-03-09' },
-        { id: 'ORD-1004', boothId: 'B002', product: 'Nước ép lạnh (Thùng 12)', qty: 8, price: 650000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1005', boothId: 'B003', product: 'Áo Dài Lụa', qty: 3, price: 3200000, status: 'success', date: '2026-03-09' },
-        { id: 'ORD-1006', boothId: 'B003', product: 'Khăn lụa thêu tay', qty: 10, price: 850000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1007', boothId: 'B004', product: 'Vé tham gia Thiền', qty: 20, price: 250000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1008', boothId: 'B005', product: 'Bộ lắp ráp Robot STEM', qty: 12, price: 750000, status: 'success', date: '2026-03-09' },
-        { id: 'ORD-1009', boothId: 'B006', product: 'Cọc đặt trước xe EV', qty: 4, price: 25000000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1010', boothId: 'B006', product: 'Gói quà lưu niệm AutoDrive', qty: 25, price: 550000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1011', boothId: 'B007', product: 'Bình hoa sơn mài', qty: 6, price: 1800000, status: 'success', date: '2026-03-09' },
-        { id: 'ORD-1012', boothId: 'B007', product: 'Tranh khắc gỗ (CÓ CHỮ KÝ)', qty: 8, price: 1200000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1013', boothId: 'B001', product: 'Hub màn hình thông minh', qty: 3, price: 12000000, status: 'success', date: '2026-03-11' },
-        { id: 'ORD-1014', boothId: 'B008', product: 'Bản quyền Cloud Starter', qty: 10, price: 1990000, status: 'success', date: '2026-03-10' },
-        { id: 'ORD-1015', boothId: 'B002', product: 'Nước Thanh Long (Thùng)', qty: 20, price: 380000, status: 'success', date: '2026-03-11' },
-        { id: 'ORD-1016', boothId: 'B006', product: 'Gói Pin 100kWh', qty: 1, price: 85000000, status: 'success', date: '2026-03-11' }
+        { id: 'ORD-1002', boothId: 'B001', product: 'Máy chiếu Holo Mini', qty: 5, price: 890000, status: 'pending', date: '2026-03-10' },
+        { id: 'ORD-1003', boothId: 'B002', product: 'Giỏ quà hữu cơ', qty: 15, price: 450000, status: 'canceled', date: '2026-03-09' }
     ];
 
     const defaultFairs = [
         { id: 'F001', name: 'Saigon Tech Expo 2026', status: 'active', date: '2026-03-01' },
-        { id: 'F002', name: 'Vietnam Food Festival', status: 'active', date: '2026-03-05' },
-        { id: 'F003', name: 'ASEAN Fashion Week', status: 'upcoming', date: '2026-04-10' }
+        { id: 'F002', name: 'Vietnam Food Festival', status: 'active', date: '2026-03-05' }
     ];
 
     function getBooths() {
@@ -105,48 +102,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultPlans = [
         {
             id: 'basic',
-            name: 'Gói Cơ Bản',
-            price: 699000,
-            maxOrders: 50,
+            name: 'Gói BASIC (Khởi nghiệp)',
+            price: 0, // Giá mẫu
+            target: 'Sạp hàng nhỏ, mới tham gia.',
             features: [
-                { text: 'Standard Map Listing', active: true },
-                { text: 'Basic Audio Description', active: true },
-                { text: '50 Orders/month', active: true },
-                { text: 'AI Translation', active: false },
-                { text: 'Priority Leaderboard', active: false }
+                { text: 'Phí hoa hồng: 10% (Cao nhất)', active: true },
+                { text: 'Phí giao dịch: 5,000 VND', active: true },
+                { text: 'Vị trí hiển thị: Không ưu tiên', active: true },
+                { text: 'Thuyết minh Audio: Tiêu chuẩn (1 phút)', active: true },
+                { text: 'Hỗ trợ AI: Tối ưu kịch bản 10 lần/tháng', active: true },
+                { text: 'Bán kính GPS: 15m (Phải đứng sát mới hiện)', active: true }
             ]
         },
         {
             id: 'gold',
-            name: 'Gói Vàng',
-            price: 1999000,
-            maxOrders: 200,
+            name: 'Gói GOLD (Kinh doanh)',
+            price: 499000, // Giá mẫu
+            target: 'Hộ kinh doanh chuyên nghiệp.',
             features: [
-                { text: 'Featured Map Listing', active: true },
-                { text: 'HD Audio & Transcripts', active: true },
-                { text: '200 Orders/month', active: true },
-                { text: 'AI Translation (3 languages)', active: true },
-                { text: 'Priority Leaderboard', active: false }
+                { text: 'Phí hoa hồng: 8% (Trung bình)', active: true },
+                { text: 'Phí giao dịch: 3,000 VND', active: true },
+                { text: 'Vị trí hiển thị: Ưu tiên Top 10', active: true },
+                { text: 'Thuyết minh Audio: Tiêu chuẩn (2 phút)', active: true },
+                { text: 'Hỗ trợ AI: Tối ưu kịch bản 15 lần/tháng', active: true },
+                { text: 'Bán kính GPS: 30m (Phát hiện từ xa)', active: true }
             ]
         },
         {
             id: 'diamond',
-            name: 'Gói Kim Cương',
-            price: 4999000,
-            maxOrders: null,
+            name: 'Gói DIAMOND (Đẳng cấp)',
+            price: 999000, // Giá mẫu
+            target: 'Doanh nghiệp lớn, thương hiệu.',
             features: [
-                { text: 'Premium Map Placement', active: true },
-                { text: 'Studio Quality Audio', active: true },
-                { text: 'Unlimited Orders', active: true },
-                { text: 'AI Translation (All languages)', active: true },
-                { text: 'Top Priority Leaderboard', active: true }
+                { text: 'Phí hoa hồng: 5% (Thấp nhất)', active: true },
+                { text: 'Phí giao dịch: 1,000 VND', active: true },
+                { text: 'Vị trí hiển thị: Luôn nằm trong Top 3', active: true },
+                { text: 'Thuyết minh Audio: Chất lượng cao (Không giới hạn)', active: true },
+                { text: 'Hỗ trợ AI: Tối ưu không giới hạn', active: true },
+                { text: 'Bán kính GPS: 50m (Kéo khách từ sảnh hội chợ)', active: true }
             ]
         }
     ];
 
     function getPlans() {
-        const raw = localStorage.getItem('exhib_plans');
-        if (raw) try { return JSON.parse(raw); } catch (e) { }
+        // CẬP NHẬT MỚI: Bỏ qua việc check LocalStorage cũ, trực tiếp ghi đè dữ liệu mới vào luôn
         localStorage.setItem('exhib_plans', JSON.stringify(defaultPlans));
         return [...defaultPlans];
     }
@@ -162,13 +161,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboardApp = document.getElementById('dashboard-app');
     const btnLogout = document.getElementById('btn-logout');
 
-    // ── Seed a default admin account if none exist ──
     function getAccounts() {
-        const raw = localStorage.getItem('exhib_accounts');
-        if (raw) try { return JSON.parse(raw); } catch (e) { }
         const defaults = [
-            { name: 'Admin User', email: 'admin@audiotravelling.com', phone: '+84 123 456 789', password: btoa('admin123') }
+            { name: 'Admin User', email: 'admin@audiotravelling.com', phone: '+84 123 456 789', password: btoa('admin123') },
+            { name: 'Booth Owner', email: 'owner@audiotravelling.com', phone: '+84 987 654 321', password: btoa('owner123') }
         ];
+
+        const raw = localStorage.getItem('exhib_accounts');
+        let accounts = [];
+        if (raw) {
+            try {
+                accounts = JSON.parse(raw);
+                // Ensure defaults exist and have correct passwords in the cached accounts
+                defaults.forEach(def => {
+                    const existing = accounts.find(a => a.email.toLowerCase() === def.email.toLowerCase());
+                    if (!existing) {
+                        accounts.push(def);
+                    } else {
+                        existing.password = def.password; // Force reset password to default
+                    }
+                });
+                localStorage.setItem('exhib_accounts', JSON.stringify(accounts));
+                return accounts;
+            } catch (e) { }
+        }
+
         localStorage.setItem('exhib_accounts', JSON.stringify(defaults));
         return defaults;
     }
@@ -177,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('exhib_accounts', JSON.stringify(accounts));
     }
 
-    // ── Tab Switcher ──
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
     const tabIndicator = document.getElementById('auth-tab-indicator');
@@ -186,26 +202,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function switchAuthTab(tab) {
         const isLogin = tab === 'login';
-
-        // Tabs
-        tabLogin.classList.toggle('active', isLogin);
-        tabRegister.classList.toggle('active', !isLogin);
-        tabIndicator.classList.toggle('right', !isLogin);
-
-        // Forms
-        formLogin.classList.toggle('active', isLogin);
-        formRegister.classList.toggle('active', !isLogin);
-
-        // Clear errors/success
-        document.getElementById('login-error').classList.add('hidden');
-        document.getElementById('register-error').classList.add('hidden');
-        document.getElementById('register-success').classList.add('hidden');
+        if (tabLogin) tabLogin.classList.toggle('active', isLogin);
+        if (tabRegister) tabRegister.classList.toggle('active', !isLogin);
+        if (tabIndicator) tabIndicator.classList.toggle('right', !isLogin);
+        if (formLogin) formLogin.classList.toggle('active', isLogin);
+        if (formRegister) formRegister.classList.toggle('active', !isLogin);
+        document.getElementById('login-error')?.classList.add('hidden');
+        document.getElementById('register-error')?.classList.add('hidden');
+        document.getElementById('register-success')?.classList.add('hidden');
     }
 
-    tabLogin.addEventListener('click', () => switchAuthTab('login'));
-    tabRegister.addEventListener('click', () => switchAuthTab('register'));
+    tabLogin?.addEventListener('click', () => switchAuthTab('login'));
+    tabRegister?.addEventListener('click', () => switchAuthTab('register'));
 
-    // ── Password Visibility Toggle ──
     document.querySelectorAll('.auth-toggle-pw').forEach(btn => {
         btn.addEventListener('click', () => {
             const targetId = btn.getAttribute('data-target');
@@ -221,29 +230,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ── Remember Me — auto-fill email ──
     const savedEmail = localStorage.getItem('exhib_rememberEmail');
-    if (savedEmail) {
+    if (savedEmail && document.getElementById('login-email')) {
         document.getElementById('login-email').value = savedEmail;
         document.getElementById('login-remember').checked = true;
     }
 
-    // ── Login Handler ──
     function doLogin(name, email) {
-        // Store current session
-        localStorage.setItem('exhib_session', JSON.stringify({ name, email, loggedIn: true }));
+        const role = email.toLowerCase() === 'admin@audiotravelling.com' ? 'Admin' : 'Owner';
+        localStorage.setItem('exhib_session', JSON.stringify({ name, email, loggedIn: true, role }));
+        if (document.getElementById('sidebar-name')) document.getElementById('sidebar-name').textContent = name;
+        if (authScreen) authScreen.style.display = 'none';
+        if (dashboardApp) dashboardApp.style.display = 'block';
 
-        // Update sidebar
-        document.getElementById('sidebar-name').textContent = name;
+        // Reset chart so it re-initialises on the correct canvas for this role
+        chartInitialized = false;
+        if (window.dashboardChart && typeof window.dashboardChart.destroy === 'function') {
+            window.dashboardChart.destroy();
+            window.dashboardChart = null;
+        }
 
-        // Transition
-        authScreen.style.display = 'none';
-        dashboardApp.style.display = 'block';
+        // Hide/Show menu items based on role
+        document.querySelectorAll('.nav-item').forEach(el => {
+            if (el.getAttribute('data-role') && el.getAttribute('data-role') !== role && role !== 'Admin') {
+                el.style.display = 'none';
+            } else {
+                el.style.display = 'block';
+            }
+        });
+
         switchView('view-dashboard');
         showToast(`Welcome back, ${name.split(' ')[0]}!`, 'success');
     }
 
-    formLogin.addEventListener('submit', e => {
+    formLogin?.addEventListener('submit', e => {
         e.preventDefault();
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
@@ -254,164 +274,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         errorEl.classList.add('hidden');
 
-        // Validate
         const accounts = getAccounts();
         const account = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
 
-        if (!account) {
-            errorText.textContent = 'No account found with this email address.';
+        if (!account || account.password !== btoa(password)) {
+            errorText.textContent = !account ? 'No account found with this email address.' : 'Incorrect password.';
             errorEl.classList.remove('hidden');
             return;
         }
 
-        if (account.password !== btoa(password)) {
-            errorText.textContent = 'Incorrect password. Please try again.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
+        if (remember) localStorage.setItem('exhib_rememberEmail', email);
+        else localStorage.removeItem('exhib_rememberEmail');
 
-        // Remember me
-        if (remember) {
-            localStorage.setItem('exhib_rememberEmail', email);
-        } else {
-            localStorage.removeItem('exhib_rememberEmail');
-        }
-
-        // Loading state
         btn.disabled = true;
         btn.querySelector('.auth-btn-text').textContent = 'Signing in...';
-        btn.querySelector('.auth-btn-arrow').className = 'fa-solid fa-circle-notch fa-spin auth-btn-arrow';
-
         setTimeout(() => {
             btn.disabled = false;
             btn.querySelector('.auth-btn-text').textContent = 'Sign In';
-            btn.querySelector('.auth-btn-arrow').className = 'fa-solid fa-arrow-right auth-btn-arrow';
             doLogin(account.name, account.email);
         }, 800);
     });
 
-    // ── Google Social Login ──
-    document.getElementById('btn-google-login')?.addEventListener('click', () => {
-        const btn = document.getElementById('btn-google-login');
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;"></i> Connecting...';
-        btn.style.pointerEvents = 'none';
-
-        setTimeout(() => {
-            // Create or find Google account
-            const accounts = getAccounts();
-            let googleAcc = accounts.find(a => a.email === 'admin@audiotravelling.com');
-            if (!googleAcc) {
-                googleAcc = { name: 'Admin User', email: 'admin@audiotravelling.com', phone: '', password: btoa('google_sso') };
-                accounts.push(googleAcc);
-                saveAccounts(accounts);
-            }
-
-            btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width:20px;height:20px;" alt="Google"> Emergent Social Login';
-            btn.style.pointerEvents = '';
-            doLogin(googleAcc.name, googleAcc.email);
-        }, 1000);
-    });
-
-    // ── Register Handler ──
-    formRegister.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = document.getElementById('reg-name').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const phone = document.getElementById('reg-phone').value.trim();
-        const password = document.getElementById('reg-password').value;
-        const confirm = document.getElementById('reg-confirm').value;
-        const terms = document.getElementById('reg-terms').checked;
-        const errorEl = document.getElementById('register-error');
-        const errorText = document.getElementById('register-error-text');
-        const successEl = document.getElementById('register-success');
-        const btn = document.getElementById('btn-register');
-
-        errorEl.classList.add('hidden');
-        successEl.classList.add('hidden');
-
-        // Validate
-        if (password !== confirm) {
-            errorText.textContent = 'Passwords do not match. Please try again.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
-
-        if (password.length < 6) {
-            errorText.textContent = 'Password must be at least 6 characters.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
-
-        if (!terms) {
-            errorText.textContent = 'You must agree to the Terms of Service.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
-
-        const accounts = getAccounts();
-        if (accounts.find(a => a.email.toLowerCase() === email.toLowerCase())) {
-            errorText.textContent = 'An account with this email already exists.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
-
-        // Loading state
-        btn.disabled = true;
-        btn.querySelector('.auth-btn-text').textContent = 'Creating account...';
-        btn.querySelector('.auth-btn-arrow').className = 'fa-solid fa-circle-notch fa-spin auth-btn-arrow';
-
-        setTimeout(() => {
-            // Save account
-            accounts.push({
-                name,
-                email,
-                phone,
-                password: btoa(password)
-            });
-            saveAccounts(accounts);
-
-            btn.disabled = false;
-            btn.querySelector('.auth-btn-text').textContent = 'Create Account';
-            btn.querySelector('.auth-btn-arrow').className = 'fa-solid fa-user-plus auth-btn-arrow';
-
-            // Show success, then switch to login
-            successEl.classList.remove('hidden');
-            formRegister.reset();
-
-            setTimeout(() => {
-                switchAuthTab('login');
-                document.getElementById('login-email').value = email;
-                successEl.classList.add('hidden');
-                showToast('Account created! You can now sign in.', 'success');
-            }, 1500);
-        }, 1000);
-    });
-
-    // ── Logout ──
-    btnLogout.addEventListener('click', () => {
+    btnLogout?.addEventListener('click', () => {
         localStorage.removeItem('exhib_session');
-        dashboardApp.style.display = 'none';
-        authScreen.style.display = '';
-        formLogin.reset();
-        // Restore remembered email
-        const rem = localStorage.getItem('exhib_rememberEmail');
-        if (rem) {
-            document.getElementById('login-email').value = rem;
-            document.getElementById('login-remember').checked = true;
-        }
+        if (dashboardApp) dashboardApp.style.display = 'none';
+        if (authScreen) authScreen.style.display = '';
+        if (formLogin) formLogin.reset();
         switchAuthTab('login');
         if (wavesurfer && wavesurfer.isPlaying()) wavesurfer.stop();
     });
 
-    // ── Auto-login from session ──
     const existingSession = localStorage.getItem('exhib_session');
     if (existingSession) {
         try {
             const session = JSON.parse(existingSession);
             if (session.loggedIn) {
-                authScreen.style.display = 'none';
-                dashboardApp.style.display = 'block';
-                document.getElementById('sidebar-name').textContent = session.name;
+                if (authScreen) authScreen.style.display = 'none';
+                if (dashboardApp) dashboardApp.style.display = 'block';
+                if (document.getElementById('sidebar-name')) document.getElementById('sidebar-name').textContent = session.name;
+
+                // Role visibility
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    if (el.getAttribute('data-role') && el.getAttribute('data-role') !== session.role && session.role !== 'Admin') {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                });
+
                 setTimeout(() => switchView('view-dashboard'), 50);
             }
         } catch (e) { }
@@ -421,53 +331,340 @@ document.addEventListener('DOMContentLoaded', () => {
        3. SPA NAVIGATION
        ══════════════════════════════════════════════ */
     const navLinks = document.querySelectorAll('#sidebar-nav .nav-link[data-target]');
-    const views = document.querySelectorAll('.view-section');
     const headerTitle = document.getElementById('header-title');
 
-    const titles = {
-        'view-dashboard': 'Dashboard Overview',
-        'view-booths': 'Booth Manager',
-        'view-finance': 'Finance & Commission',
-        'view-plans': 'Subscription Plans',
-        'view-settings': 'Admin Profile & Settings'
-    };
+    // ==========================================
+    // TÀI CHÍNH - OWNER
+    // ==========================================
+    function renderFinanceOwner() {
+        const container = getActiveEl('view-finance-owner');
+        if (!container) return;
 
-    function switchView(targetId) {
-        views.forEach(v => v.classList.remove('active'));
+        const ownerBoothIds = ['B001', 'B002'];
+        const booths = getBooths();
+        const orders = getOrders().filter(o => ownerBoothIds.includes(o.boothId) && o.status === 'success');
+        const tierCfg = getTierConfig();
 
-        const target = document.getElementById(targetId);
-        if (target) target.classList.add('active');
+        let totalRevenue = 0;
+        let totalCommission = 0;
+        let rowsHtml = '';
 
-        headerTitle.textContent = titles[targetId] || 'Admin Portal';
+        orders.forEach(o => {
+            const booth = booths.find(b => b.id === o.boothId);
+            const cfg = booth ? (tierCfg[booth.tier] || tierCfg.Basic) : tierCfg.Basic;
 
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-target') === targetId) {
-                link.classList.add('active');
-            }
+            const revenue = o.price * o.qty;
+            const commission = (revenue * cfg.rc) + cfg.fee;
+            const net = revenue - commission;
+
+            totalRevenue += revenue;
+            totalCommission += commission;
+
+            rowsHtml += `
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding:10px; font-weight:500;">${o.id}</td>
+                <td style="padding:10px;">${o.product} <span style="color:var(--text-dim); font-size:11px;">(x${o.qty})</span></td>
+                <td style="padding:10px; color:var(--emerald);">${formatCurrency(revenue)} ₫</td>
+                <td style="padding:10px; color:#ef4444;">-${formatCurrency(commission)} ₫</td>
+                <td style="padding:10px; font-weight:600;">${formatCurrency(net)} ₫</td>
+                <td style="padding:10px; color:var(--text-dim); font-size:12px;">${o.date}</td>
+            </tr>
+        `;
         });
 
-        // Lazy init components
-        if (targetId === 'view-dashboard') {
-            renderDashboard();
+        const tbody = document.getElementById('finance-owner-orders-body');
+        if (tbody) {
+            tbody.innerHTML = orders.length === 0
+                ? `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-dim);">Chưa có đơn hàng thành công nào</td></tr>`
+                : rowsHtml;
         }
-        if (targetId === 'view-booths') {
-            renderBoothList();
-            if (!mapInitialized) {
-                setTimeout(() => initMap(), 150);
+
+        const netIncome = totalRevenue - totalCommission;
+        let withdrawals = JSON.parse(localStorage.getItem('exhib_withdrawals') || '[]');
+        let pendingAmount = withdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + w.amount, 0);
+        let withdrawnAmount = withdrawals.filter(w => w.status === 'success').reduce((sum, w) => sum + w.amount, 0);
+        let availableBalance = netIncome - pendingAmount - withdrawnAmount;
+
+        document.getElementById('finance-owner-revenue').textContent = formatCurrency(totalRevenue) + ' ₫';
+        document.getElementById('finance-owner-commission').textContent = formatCurrency(totalCommission) + ' ₫';
+        document.getElementById('finance-owner-balance').textContent = formatCurrency(availableBalance) + ' ₫';
+        document.getElementById('finance-owner-pending').textContent = formatCurrency(pendingAmount) + ' ₫';
+        if (document.getElementById('withdraw-max-text')) document.getElementById('withdraw-max-text').textContent = formatCurrency(availableBalance) + ' ₫';
+
+        const historyList = document.getElementById('withdraw-history-list');
+        if (historyList) {
+            if (withdrawals.length === 0) {
+                historyList.innerHTML = `<p style="font-size:12px; color:var(--text-dim); text-align:center;">Chưa có lịch sử rút tiền</p>`;
             } else {
-                setTimeout(() => map.invalidateSize(), 50);
+                historyList.innerHTML = withdrawals.map(w => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <p style="font-size:13px; font-weight:600;">${formatCurrency(w.amount)} ₫</p>
+                        <p style="font-size:11px; color:var(--text-dim); margin-top:2px;">
+                            ${w.date} • ${w.bank.toUpperCase()} (*${w.account.slice(-4)})
+                        </p>
+                    </div>
+                    <span style="font-size:11px; padding:4px 8px; border-radius:6px; background:${w.status === 'pending' ? 'rgba(251,191,36,0.1)' : 'rgba(34,197,94,0.1)'}; color:${w.status === 'pending' ? '#fbbf24' : 'var(--emerald)'};">
+                        ${w.status === 'pending' ? 'Đang chờ' : 'Thành công'}
+                    </span>
+                </div>
+            `).join('');
             }
         }
+
+        const btnWithdraw = document.getElementById('btn-withdraw');
+        if (btnWithdraw) {
+            const newBtn = btnWithdraw.cloneNode(true);
+            btnWithdraw.parentNode.replaceChild(newBtn, btnWithdraw);
+
+            newBtn.addEventListener('click', () => {
+                const amount = parseFloat(document.getElementById('withdraw-amount').value);
+                const bank = document.getElementById('withdraw-bank').value;
+                const account = document.getElementById('withdraw-account').value;
+
+                if (!account) return showToast('Vui lòng nhập số tài khoản hợp lệ.', 'error');
+                if (isNaN(amount) || amount < 100000) return showToast('Số tiền rút tối thiểu là 100,000 ₫.', 'error');
+                if (amount > availableBalance) return showToast('Số dư khả dụng không đủ để thực hiện.', 'error');
+
+                withdrawals.unshift({
+                    id: 'WD-' + Date.now(),
+                    amount: amount,
+                    bank: bank,
+                    account: account,
+                    status: 'pending',
+                    date: new Date().toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+                });
+
+                localStorage.setItem('exhib_withdrawals', JSON.stringify(withdrawals));
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-account').value = '';
+
+                showToast('Đã gửi yêu cầu rút tiền! Chờ quản trị viên duyệt.', 'success');
+                renderFinanceOwner();
+            });
+        }
+    }
+
+    // ==========================================
+    // TÀI CHÍNH - ADMIN
+    // ==========================================
+    let selectedAdminOrderId = null;
+
+    window.initFinanceModule = function () {
+        const tbody = document.getElementById('finance-admin-orders-body');
+        const countSpan = document.getElementById('finance-admin-order-count');
+        const searchInput = document.getElementById('finance-admin-search');
+        if (!tbody) return;
+
+        let orders = getOrders();
+        let booths = getBooths();
+
+        if (searchInput) {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm) {
+                orders = orders.filter(o => {
+                    const b = booths.find(x => x.id === o.boothId);
+                    const boothName = b ? b.name.toLowerCase() : '';
+                    return o.id.toLowerCase().includes(searchTerm) || boothName.includes(searchTerm);
+                });
+            }
+        }
+
+        if (countSpan) countSpan.textContent = `${orders.length} đơn`;
+
+        if (orders.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-dim);">Không tìm thấy đơn hàng nào</td></tr>`;
+            return;
+        }
+
+        orders.sort((a, b) => b.date.localeCompare(a.date));
+
+        tbody.innerHTML = orders.map(o => {
+            const b = booths.find(x => x.id === o.boothId);
+            const boothName = b ? b.name : 'Không rõ';
+            const total = o.price * o.qty;
+
+            let statusColor = '#60a5fa';
+            let statusText = 'Đang xử lý';
+            if (o.status === 'success') { statusColor = 'var(--emerald)'; statusText = 'Thành công'; }
+            if (o.status === 'cancelled' || o.status === 'canceled') { statusColor = '#ef4444'; statusText = 'Đã hủy'; }
+
+            const isSelected = o.id === selectedAdminOrderId;
+
+            return `
+            <tr class="admin-order-row ${isSelected ? 'active-row' : ''}" data-id="${o.id}" style="border-bottom: 1px solid var(--border); cursor: pointer; background: ${isSelected ? 'rgba(34,197,94,0.1)' : 'transparent'};">
+                <td style="padding:10px; font-weight:600;">${o.id}</td>
+                <td style="padding:10px;">${boothName}</td>
+                <td style="padding:10px; font-weight:600;">${formatCurrency(total)} ₫</td>
+                <td style="padding:10px;">
+                    <span style="font-size:11px; padding:4px 8px; border-radius:6px; background:${statusColor}20; color:${statusColor};">
+                        ${statusText}
+                    </span>
+                </td>
+                <td style="padding:10px; color:var(--text-dim); font-size:12px;">${o.date}</td>
+            </tr>
+        `;
+        }).join('');
+
+        document.querySelectorAll('.admin-order-row').forEach(row => {
+            row.addEventListener('click', function () {
+                selectedAdminOrderId = this.getAttribute('data-id');
+                window.initFinanceModule();
+                renderAdminOrderDetails(selectedAdminOrderId);
+            });
+        });
+
+        if (!selectedAdminOrderId && orders.length > 0) {
+            selectedAdminOrderId = orders[0].id;
+            renderAdminOrderDetails(selectedAdminOrderId);
+            const firstRow = document.querySelector('.admin-order-row');
+            if (firstRow) firstRow.style.background = 'rgba(34,197,94,0.1)';
+        }
+
+        if (searchInput && !searchInput.dataset.bound) {
+            searchInput.dataset.bound = "true";
+            searchInput.addEventListener('input', window.initFinanceModule);
+        }
+    };
+
+    function renderAdminOrderDetails(orderId) {
+        const container = document.getElementById('finance-admin-order-details');
+        if (!container) return;
+
+        const order = getOrders().find(o => o.id === orderId);
+        if (!order) return;
+
+        const booth = getBooths().find(b => b.id === order.boothId);
+        const tierCfg = getTierConfig();
+        const cfg = booth ? (tierCfg[booth.tier] || tierCfg.Basic) : tierCfg.Basic;
+
+        const revenue = order.price * order.qty;
+        const commission = (revenue * cfg.rc) + cfg.fee;
+        const net = revenue - commission;
+
+        let statusColor = '#60a5fa';
+        let statusText = 'Đang xử lý';
+        if (order.status === 'success') { statusColor = 'var(--emerald)'; statusText = 'Thành công'; }
+        if (order.status === 'cancelled' || order.status === 'canceled') { statusColor = '#ef4444'; statusText = 'Đã hủy'; }
+
+        container.innerHTML = `
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:12px;">Mã đơn hàng:</span>
+                <strong style="font-size:14px;">${order.id}</strong>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:12px;">Trạng thái:</span>
+                <span style="font-size:12px; font-weight:600; color:${statusColor};">${statusText}</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:12px;">Ngày tạo:</span>
+                <span style="font-size:13px;">${order.date}</span>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
+            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">THÔNG TIN SẢN PHẨM</h4>
+            <p style="font-weight:500; margin-bottom:4px;">${order.product}</p>
+            <div class="flex-between">
+                <span style="color:var(--text-dim); font-size:13px;">${formatCurrency(order.price)} ₫ x ${order.qty}</span>
+                <strong>${formatCurrency(revenue)} ₫</strong>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
+            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">ĐỐI SOÁT GIAN HÀNG</h4>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;">Gian hàng:</span>
+                <span style="font-size:13px; font-weight:500;">${booth ? booth.name : 'N/A'}</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;">Gói dịch vụ:</span>
+                <span class="tier-badge tier-${booth ? booth.tier.toLowerCase() : 'basic'}" style="font-size:10px;">${booth ? booth.tier.toUpperCase() : 'BASIC'}</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;">Hoa hồng (${cfg.rc * 100}%):</span>
+                <span style="color:#ef4444; font-size:13px;">-${formatCurrency(revenue * cfg.rc)} ₫</span>
+            </div>
+            <div class="flex-between">
+                <span style="color:var(--text-dim); font-size:13px;">Phí cố định:</span>
+                <span style="color:#ef4444; font-size:13px;">-${formatCurrency(cfg.fee)} ₫</span>
+            </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.15); padding: 16px; border-radius: 8px;">
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:14px;">Tổng doanh thu:</span>
+                <span style="font-weight:600;">${formatCurrency(revenue)} ₫</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:#ef4444; font-size:14px;">Phí sàn thu:</span>
+                <span style="font-weight:600; color:#ef4444;">${formatCurrency(commission)} ₫</span>
+            </div>
+            <div class="flex-between mt-3 pt-3" style="border-top: 1px solid var(--border);">
+                <span style="font-weight:600; font-size:14px;">Thực trả gian hàng:</span>
+                <span style="font-weight:700; font-size:18px; color:var(--emerald);">${formatCurrency(net)} ₫</span>
+            </div>
+        </div>
+    `;
+    }
+
+    function switchView(targetId) {
+        const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+        const role = session.role || 'Admin';
+
+        // 1. Xác định ID màn hình thực tế dựa theo Role
+        let actualTargetId = targetId;
+        if (targetId === 'view-dashboard') actualTargetId = `view-dashboard-${role.toLowerCase()}`;
+        if (targetId === 'view-booths') actualTargetId = `view-booths-${role.toLowerCase()}`;
+        if (targetId === 'view-finance') actualTargetId = role === 'Owner' ? 'view-finance-owner' : 'view-finance';
+
+        // 2. Chuyển đổi class 'active' để hiển thị đúng màn hình
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        const targetView = document.getElementById(actualTargetId);
+        if (targetView) targetView.classList.add('active');
+
+        // 3. Cập nhật Header
+        if (typeof headerTitle !== 'undefined' && headerTitle) {
+            const titles = {
+                'view-dashboard': 'Dashboard Overview',
+                'view-booths': 'Booth Manager',
+                'view-finance': 'Finance & Commission',
+                'view-plans': 'Subscription Plans',
+                'view-settings': 'Admin Settings'
+            };
+            headerTitle.textContent = titles[targetId] || 'Portal';
+        }
+
+        // 4. Cập nhật Sidebar Navigation
+        if (typeof navLinks !== 'undefined') {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-target') === targetId) link.classList.add('active');
+            });
+        }
+
+        // 5. Gọi hàm load dữ liệu tương ứng cho màn hình
+        if (targetId === 'view-dashboard') renderDashboard();
+        if (targetId === 'view-booths') {
+            try { if (typeof window.initBoothModule === 'function') window.initBoothModule(); } catch (e) { console.warn(e); }
+            setTimeout(() => initMap(), 150);
+        }
         if (targetId === 'view-finance') {
-            populateFinanceBoothSelect();
+            if (role === 'Owner') {
+                if (typeof renderFinanceOwner === 'function') renderFinanceOwner();
+            } else {
+                try { if (typeof window.initFinanceModule === 'function') window.initFinanceModule(); } catch (e) { console.warn(e); }
+            }
         }
         if (targetId === 'view-plans') {
-            renderPlans();
+            if (typeof renderPlans === 'function') renderPlans();
         }
         if (targetId === 'view-settings') {
-            loadProfileData();
-            loadTierConfigUI();
+            try {
+                if (typeof loadProfileData === 'function') loadProfileData();
+                if (typeof loadTierConfigUI === 'function') loadTierConfigUI();
+            } catch (e) { console.warn(e); }
         }
     }
 
@@ -482,73 +679,99 @@ document.addEventListener('DOMContentLoaded', () => {
        4. THEME TOGGLE
        ══════════════════════════════════════════════ */
     const themeBtn = document.getElementById('theme-toggle');
-    let darkMode = false; // Default is light
-
-    const savedTheme = localStorage.getItem('exhib_theme');
-    if (savedTheme === 'dark') {
-        darkMode = true;
+    let darkMode = localStorage.getItem('exhib_theme') === 'dark';
+    if (darkMode) {
         document.documentElement.removeAttribute('data-theme');
-        themeBtn.querySelector('i').className = 'fa-solid fa-moon';
+        if (themeBtn) themeBtn.querySelector('i').className = 'fa-solid fa-moon';
     } else {
-        darkMode = false;
         document.documentElement.setAttribute('data-theme', 'light');
-        themeBtn.querySelector('i').className = 'fa-solid fa-sun';
+        if (themeBtn) themeBtn.querySelector('i').className = 'fa-solid fa-sun';
     }
 
-    themeBtn.addEventListener('click', () => {
+    themeBtn?.addEventListener('click', () => {
         darkMode = !darkMode;
         if (darkMode) {
             document.documentElement.removeAttribute('data-theme');
             localStorage.setItem('exhib_theme', 'dark');
             themeBtn.querySelector('i').className = 'fa-solid fa-moon';
-            showToast('Dark mode active', 'info');
         } else {
             document.documentElement.setAttribute('data-theme', 'light');
             localStorage.setItem('exhib_theme', 'light');
             themeBtn.querySelector('i').className = 'fa-solid fa-sun';
-            showToast('Light mode active', 'info');
         }
     });
 
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('vi-VN').format(value || 0);
+    }
+
     /* ══════════════════════════════════════════════
-       5. DASHBOARD — Stats, Chart, Leaderboard
+       5. DASHBOARD - STATS, CHARTS & LEADERBOARD
        ══════════════════════════════════════════════ */
     function renderDashboard() {
+        const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+        const role = session.role || 'Admin';
         const booths = getBooths();
         const orders = getOrders();
         const fairs = getFairs();
         const tierCfg = getTierConfig();
 
-        // Stats
-        document.getElementById('stat-fairs').textContent = fairs.length;
-        document.getElementById('stat-booths').textContent = booths.length;
-
-        // Total Revenue = sum of subscription revenue + commission
+        const successOrders = orders.filter(o => o.status === 'success');
+        const pendingOrders = orders.filter(o => o.status === 'pending');
+        const cancelledOrders = orders.filter(o => o.status === 'cancelled');
         let totalRevenue = 0;
-        orders.filter(o => o.status === 'success').forEach(o => {
-            totalRevenue += o.price * o.qty;
-        });
-        document.getElementById('stat-revenue').textContent = formatCurrency(totalRevenue) + ' ₫';
+        successOrders.forEach(o => { totalRevenue += o.price * o.qty; });
 
-        // Visitor Engagement
-        const totalEngagement = booths.reduce((sum, b) => sum + (b.engagement || 0), 0);
-        document.getElementById('stat-visitors').textContent = totalEngagement >= 1000 ? (totalEngagement / 1000).toFixed(1) + 'k' : totalEngagement;
+        if (role === 'Owner') {
+            // Owner dashboard stats
+            const elRevenue = getActiveEl('stat-revenue-owner');
+            const elSuccess = getActiveEl('stat-success-owner');
+            const elPending = getActiveEl('stat-pending-owner');
+            const elCancelled = getActiveEl('stat-cancelled-owner');
+            if (elRevenue) elRevenue.textContent = formatCurrency(totalRevenue) + ' ₫';
+            if (elSuccess) elSuccess.textContent = successOrders.length;
+            if (elPending) elPending.textContent = pendingOrders.length;
+            if (elCancelled) elCancelled.textContent = cancelledOrders.length;
+        } else {
+            // Admin dashboard stats
+            const elFairs = getActiveEl('stat-fairs');
+            const elBooths = getActiveEl('stat-booths');
+            const elRevenue = getActiveEl('stat-revenue');
+            const elVisitors = getActiveEl('stat-visitors');
+            if (elFairs) elFairs.textContent = fairs.length;
+            if (elBooths) elBooths.textContent = booths.length;
+            if (elRevenue) elRevenue.textContent = formatCurrency(totalRevenue) + ' ₫';
+            const totalEngagement = booths.reduce((sum, b) => sum + (b.engagement || 0), 0);
+            if (elVisitors) elVisitors.textContent = totalEngagement >= 1000 ? (totalEngagement / 1000).toFixed(1) + 'k' : totalEngagement;
+        }
 
-        // Chart
+        // Render Biểu đồ, Hoạt động gần đây và Bảng xếp hạng
         if (!chartInitialized) initRevenueChart(orders, tierCfg, booths);
-
-        // Activity
         renderActivity(orders);
-
-        // Leaderboard
-        renderLeaderboard(booths, orders, tierCfg);
+        if (role !== 'Owner') renderLeaderboard(booths, orders, tierCfg);
     }
 
     function initRevenueChart(orders, tierCfg, booths) {
-        chartInitialized = true;
-        const ctx = document.getElementById('revenueChart').getContext('2d');
+        if (typeof Chart === 'undefined') {
+            setTimeout(() => initRevenueChart(orders, tierCfg, booths), 200);
+            return;
+        }
 
-        // Compute daily commissions for the last 7 days
+        chartInitialized = true;
+        const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+        const role = session.role || 'Admin';
+        const canvasId = role === 'Owner' ? 'revenueChart-owner' : 'revenueChart';
+        const canvas = getActiveEl(canvasId);
+        if (!canvas) return;
+
+        let ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        if (window.dashboardChart && typeof window.dashboardChart.destroy === 'function') {
+            window.dashboardChart.destroy();
+            window.dashboardChart = null;
+        }
+
         const dayLabels = [];
         const dayData = [];
         for (let i = 6; i >= 0; i--) {
@@ -557,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateStr = d.toISOString().split('T')[0];
             dayLabels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
 
-            // Calculate commission for this day
             let dayCommission = 0;
             const dayOrders = orders.filter(o => o.date === dateStr && o.status === 'success');
             dayOrders.forEach(o => {
@@ -570,9 +792,9 @@ document.addEventListener('DOMContentLoaded', () => {
             dayData.push(dayCommission);
         }
 
-        // Pad with simulated data for visual appeal
+        // Tạo dữ liệu mô phỏng nếu chưa có đơn hàng nào trong 7 ngày qua để đồ thị hiển thị đẹp mắt
         if (dayData.every(v => v === 0)) {
-            const simulated = [320, 480, 580, 420, 750, 890, 1120];
+            const simulated = [320000, 480000, 580000, 420000, 750000, 890000, 1120000];
             simulated.forEach((v, i) => dayData[i] = v);
         }
 
@@ -609,7 +831,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         borderColor: 'rgba(34, 197, 94, 0.3)',
                         borderWidth: 1,
                         titleFont: { family: 'Inter', weight: '600' },
-                        bodyFont: { family: 'Inter' },
                         padding: 12,
                         cornerRadius: 10,
                         callbacks: {
@@ -620,16 +841,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                        ticks: {
-                            color: '#6b8f7a',
-                            font: { family: 'Inter', size: 11 },
-                            callback: v => formatCurrency(v) + ' ₫'
-                        }
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: '#6b8f7a', callback: v => formatCurrency(v) + ' ₫' }
                     },
                     x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { color: '#6b8f7a', font: { family: 'Inter', size: 11 } }
+                        grid: { display: false },
+                        ticks: { color: '#6b8f7a' }
                     }
                 }
             }
@@ -637,25 +854,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderActivity(orders) {
-        const container = document.getElementById('activity-list');
-        const recent = [...orders].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-        const colors = ['var(--emerald)', '#60a5fa', '#fbbf24', '#a78bfa', '#f472b6'];
+        const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+        const role = session.role || 'Admin';
+        const listId = role === 'Owner' ? 'activity-list-owner' : 'activity-list';
+        const container = getActiveEl(listId);
+        if (!container) return;
 
-        container.innerHTML = recent.map((o, i) => `
-            <div class="activity-item">
-                <div class="activity-dot" style="background:${colors[i % colors.length]};"></div>
+        // Lấy 5 đơn hàng mới nhất
+        const recent = [...orders].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+
+        // Hàm helper để lấy màu theo trạng thái đơn hàng
+        const getStatusColor = (status) => {
+            if (status === 'success') return 'var(--emerald, #22c55e)'; // Xanh lá
+            if (status === 'pending') return '#fbbf24'; // Vàng
+            if (status === 'canceled' || status === 'cancelled') return '#ef4444'; // Đỏ
+            return '#60a5fa'; // Mặc định (xanh dương)
+        };
+
+        // 1. Tạo HTML cho phần chú giải (Legend)
+        const legendHTML = `
+        <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; font-size:11px; color:var(--text-muted); border-bottom:1px dashed var(--border); padding-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:var(--emerald, #22c55e);"></div> Thành công
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#fbbf24;"></div> Đang xử lý
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#ef4444;"></div> Bị hủy
+            </div>
+        </div>
+    `;
+
+        // 2. Tạo HTML cho danh sách đơn hàng
+        const listHTML = recent.map((o) => {
+            const statusColor = getStatusColor(o.status);
+
+            // Em giữ lại thông tin sản phẩm và thêm ngày thực hiện xuống dưới cùng
+            // để danh sách hiển thị đầy đủ thông tin nhất
+            return `
+            <div class="activity-item" style="display:flex; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                <div style="width:10px; height:10px; border-radius:50%; margin-top:5px; background:${statusColor}; box-shadow: 0 0 8px ${statusColor}40;"></div>
                 <div>
-                    <p class="activity-text">Order <strong>${o.id}</strong> — ${o.product} (×${o.qty})</p>
-                    <p class="activity-time">${o.date}</p>
+                    <p style="font-size:13px; font-weight:500; margin-bottom:2px;">Đơn hàng <strong>${o.id}</strong></p>
+                    <p style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">${o.product} (×${o.qty})</p>
+                    <p style="font-size:11px; color:var(--text-muted);">
+                        <i class="fa-regular fa-calendar" style="margin-right:4px;"></i> ${o.date}
+                    </p>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
+
+        // Gộp chú giải và danh sách lại rồi render
+        container.innerHTML = legendHTML + listHTML;
     }
 
     function renderLeaderboard(booths, orders, tierCfg) {
-        const tbody = document.getElementById('leaderboard-body');
+        const tbody = getActiveEl('leaderboard-body');
+        if (!tbody) return;
 
-        // Calculate priority score: P = TierWeight × (OrderCount + Engagement/100)
         const boothStats = booths.map(b => {
             const boothOrders = orders.filter(o => o.boothId === b.id && o.status === 'success');
             const orderCount = boothOrders.length;
@@ -668,16 +926,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tbody.innerHTML = boothStats.map((b, i) => {
             const rank = i + 1;
-            const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
-            const tierClass = `tier-${b.tier.toLowerCase()}`;
+            const rankClass = rank <= 3 ? `color:var(--emerald); font-weight:bold;` : `color:var(--text-dim);`;
             return `
-                <tr>
-                    <td><span class="leaderboard-rank ${rankClass}">${rank}</span></td>
-                    <td style="font-weight:600;">${b.name}</td>
-                    <td style="color:var(--text-muted);">${b.company}</td>
-                    <td><span class="tier-badge ${tierClass}">${b.tier.toUpperCase()}</span></td>
-                    <td>${b.orderCount}</td>
-                    <td style="text-align:right;"><span class="priority-score">${b.priority.toFixed(1)}</span></td>
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding:10px; text-align:center;"><span style="${rankClass}">${rank}</span></td>
+                    <td style="padding:10px; font-weight:600;">${b.name}</td>
+                    <td style="padding:10px; color:var(--text-muted);">${b.company}</td>
+                    <td style="padding:10px;"><span class="tier-badge tier-${b.tier.toLowerCase()}" style="font-size:11px; padding:3px 8px;">${b.tier.toUpperCase()}</span></td>
+                    <td style="padding:10px; text-align:center;">${b.orderCount}</td>
+                    <td style="padding:10px; text-align:right;"><span style="font-family:monospace; color:var(--emerald);">${b.priority.toFixed(1)}</span></td>
                 </tr>
             `;
         }).join('');
@@ -686,229 +943,302 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ══════════════════════════════════════════════
        6. BOOTH MANAGER
        ══════════════════════════════════════════════ */
-    const boothName = document.getElementById('booth-name');
-    const boothCompany = document.getElementById('booth-company');
-    const boothCategory = document.getElementById('booth-category');
-    const boothTier = document.getElementById('booth-tier');
-    const boothScript = document.getElementById('booth-script');
-    const inputLat = document.getElementById('input-lat');
-    const inputLng = document.getElementById('input-lng');
-    const radiusSlider = document.getElementById('radius-slider');
-    const radiusVal = document.getElementById('radius-val');
+    let boothEventsBound = false;
 
-    function renderBoothList() {
-        const booths = getBooths();
-        const list = document.getElementById('booth-list');
-        list.innerHTML = '';
+    window.initBoothModule = function () {
+        function renderBoothList() {
+            const booths = getBooths();
+            const list = document.querySelector('.view-section.active .booth-list');
+            if (!list) return;
+            list.innerHTML = '';
 
-        booths.forEach(b => {
-            const item = document.createElement('div');
-            item.className = 'booth-list-item' + (selectedBoothId === b.id ? ' active' : '');
-            const tierClass = `tier-${b.tier.toLowerCase()}`;
-            item.innerHTML = `
-                <div class="booth-list-item-name">${b.name}</div>
-                <div class="booth-list-item-company">${b.company}</div>
-                <div class="booth-list-item-meta">
-                    <span class="tier-badge ${tierClass}" style="font-size:10px; padding:2px 8px;">${b.tier}</span>
-                    <span style="font-size:11px; color:var(--text-dim);">${b.category}</span>
-                </div>
-            `;
-            item.addEventListener('click', () => selectBooth(b.id));
-            list.appendChild(item);
-        });
+            booths.forEach(b => {
+                const item = document.createElement('div');
+                item.className = 'booth-list-item' + (selectedBoothId === b.id ? ' active' : '');
+                item.innerHTML = `
+                    <div class="booth-list-item-name">${b.name}</div>
+                    <div class="booth-list-item-company">${b.company}</div>
+                    <div class="booth-list-item-meta">
+                        <span class="tier-badge tier-${b.tier.toLowerCase()}" style="font-size:10px; padding:2px 8px;">${b.tier}</span>
+                        <span style="font-size:11px; color:var(--text-dim);">${b.category}</span>
+                    </div>
+                `;
+                item.addEventListener('click', () => selectBooth(b.id));
+                list.appendChild(item);
+            });
 
-        // If no booth selected, select first
-        if (!selectedBoothId && booths.length > 0) {
-            selectBooth(booths[0].id);
-        } else if (selectedBoothId) {
-            loadBoothIntoForm(selectedBoothId);
-        }
-    }
-
-    function selectBooth(id) {
-        selectedBoothId = id;
-        // Update active states
-        document.querySelectorAll('.booth-list-item').forEach(el => el.classList.remove('active'));
-        const items = document.querySelectorAll('.booth-list-item');
-        const booths = getBooths();
-        const idx = booths.findIndex(b => b.id === id);
-        if (idx >= 0 && items[idx]) items[idx].classList.add('active');
-
-        loadBoothIntoForm(id);
-    }
-
-    function loadBoothIntoForm(id) {
-        const booths = getBooths();
-        const b = booths.find(x => x.id === id);
-        if (!b) return;
-
-        boothName.value = b.name;
-        boothCompany.value = b.company;
-        boothCategory.value = b.category;
-        boothTier.value = b.tier;
-        boothScript.value = b.script || '';
-        inputLat.value = b.lat || 10.7680;
-        inputLng.value = b.lng || 106.7050;
-        radiusSlider.value = b.radius || 30;
-        radiusVal.textContent = (b.radius || 30) + 'm';
-
-        updateWordCount();
-        updateMapFromInputs();
-    }
-
-    // Save Booth
-    document.getElementById('btn-save-booth')?.addEventListener('click', () => {
-        if (!selectedBoothId) {
-            showToast('Please select or add a booth first.', 'error');
-            return;
+            if (!selectedBoothId && booths.length > 0) selectBooth(booths[0].id);
+            else if (selectedBoothId) loadBoothIntoForm(selectedBoothId);
         }
 
-        const booths = getBooths();
-        const idx = booths.findIndex(b => b.id === selectedBoothId);
-        if (idx < 0) return;
+        function selectBooth(id) {
+            selectedBoothId = id;
+            document.querySelectorAll('.booth-list-item').forEach(el => el.classList.remove('active'));
+            renderBoothList();
+        }
 
-        booths[idx].name = boothName.value;
-        booths[idx].company = boothCompany.value;
-        booths[idx].category = boothCategory.value;
-        booths[idx].tier = boothTier.value;
-        booths[idx].script = boothScript.value;
-        booths[idx].lat = parseFloat(inputLat.value);
-        booths[idx].lng = parseFloat(inputLng.value);
-        booths[idx].radius = parseInt(radiusSlider.value);
+        function loadBoothIntoForm(id) {
+            const b = getBooths().find(x => x.id === id);
+            if (!b) return;
 
-        saveBooths(booths);
+            // Helper: find the active element, trying plain ID then -owner suffix
+            function getField(base) {
+                return getActiveEl(base) || getActiveEl(base + '-owner');
+            }
+
+            const fieldMap = {
+                'booth-name': 'name',
+                'booth-company': 'company',
+                'booth-category': 'category',
+                'booth-tier': 'tier',
+                'input-lat': 'lat',
+                'input-lng': 'lng',
+                'radius-slider': 'radius'
+            };
+            Object.entries(fieldMap).forEach(([field, key]) => {
+                const el = getField(field);
+                if (el) el.value = b[key] || '';
+            });
+
+            const scriptEl = getField('booth-script');
+            if (scriptEl) scriptEl.value = b.script || '';
+
+            const radiusVal = getField('radius-val');
+            if (radiusVal) radiusVal.textContent = (b.radius || 30) + 'm';
+
+            updateWordCount();
+            updateMapFromInputs();
+        }
+
+        if (!boothEventsBound) {
+            // Event Delegation for buttons
+            document.addEventListener('click', (e) => {
+                const btnSave = e.target.closest('#btn-save-booth');
+                if (btnSave) {
+                    if (!selectedBoothId) return showToast('Please select or add a booth first.', 'error');
+
+                    const booths = getBooths();
+                    const idx = booths.findIndex(b => b.id === selectedBoothId);
+                    if (idx < 0) return;
+
+                    booths[idx].name = getActiveEl('booth-name')?.value || booths[idx].name;
+                    booths[idx].company = getActiveEl('booth-company')?.value || booths[idx].company;
+                    booths[idx].category = getActiveEl('booth-category')?.value || booths[idx].category;
+                    booths[idx].tier = getActiveEl('booth-tier')?.value || booths[idx].tier;
+                    booths[idx].script = getActiveEl('booth-script')?.value || booths[idx].script;
+                    booths[idx].lat = parseFloat(getActiveEl('input-lat')?.value) || booths[idx].lat;
+                    booths[idx].lng = parseFloat(getActiveEl('input-lng')?.value) || booths[idx].lng;
+                    booths[idx].radius = parseInt(getActiveEl('radius-slider')?.value) || booths[idx].radius;
+
+                    saveBooths(booths);
+                    renderBoothList();
+
+                    const lastSaved = getActiveEl('last-saved-time');
+                    if (lastSaved) lastSaved.textContent = `Saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                    showToast('Booth saved successfully!', 'success');
+                }
+
+                const btnAdd = e.target.closest('#btn-add-booth');
+                if (btnAdd) {
+                    const booths = getBooths();
+                    const newId = 'B' + String(booths.length + 1).padStart(3, '0');
+                    booths.push({ id: newId, name: 'New Booth', company: 'Company', category: 'Other', tier: 'Basic', lat: 10.7720, lng: 106.6980, radius: 20, script: '' });
+                    saveBooths(booths);
+                    selectedBoothId = newId;
+                    renderBoothList();
+                    showToast(`Booth ${newId} created!`, 'success');
+                }
+            });
+
+            boothEventsBound = true;
+        }
+
         renderBoothList();
-
-        const lastSaved = document.getElementById('last-saved-time');
-        lastSaved.textContent = `Saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        showToast('Booth saved successfully!', 'success');
-    });
-
-    // Add Booth
-    document.getElementById('btn-add-booth')?.addEventListener('click', () => {
-        const booths = getBooths();
-        const newId = 'B' + String(booths.length + 1).padStart(3, '0');
-        const newBooth = {
-            id: newId,
-            name: 'New Booth',
-            company: 'Company Name',
-            category: 'Other',
-            tier: 'Basic',
-            lat: 10.7720,
-            lng: 106.6980,
-            radius: 20,
-            script: '',
-            engagement: 0
-        };
-        booths.push(newBooth);
-        saveBooths(booths);
-        selectedBoothId = newId;
-        renderBoothList();
-        showToast(`Booth ${newId} created!`, 'success');
-    });
+    };
 
     /* ══════════════════════════════════════════════
-       7. WAVESURFER — Audio Editor
+       7. WAVESURFER & AI OPTIMIZER
        ══════════════════════════════════════════════ */
     let wavesurfer = null;
-    const uploadOverlay = document.getElementById('audio-upload-overlay');
-    const audioInput = document.getElementById('audio-input');
-    const btnPlay = document.getElementById('btn-play');
-    const btnStop = document.getElementById('btn-stop');
-    const btnClearAudio = document.getElementById('btn-clear-audio');
-    const audioStatus = document.getElementById('audio-status');
-    const volumeSlider = document.getElementById('volume-slider');
 
     function initWaveSurferInstance() {
         if (wavesurfer) wavesurfer.destroy();
+        // Try Admin waveform first, fall back to Owner waveform
+        const container = getActiveEl('waveform') || getActiveEl('waveform-owner');
+        if (!container) return;
+
+        // Determine suffix based on which waveform container was found
+        const sfx = container.id === 'waveform-owner' ? '-owner' : '';
+        const ga = id => document.getElementById(id + sfx);
 
         wavesurfer = WaveSurfer.create({
-            container: '#waveform',
+            container: container,
             waveColor: '#1e3524',
             progressColor: emerald,
             cursorColor: '#059669',
-            barWidth: 2,
-            barGap: 1,
-            barRadius: 2,
-            height: 80,
-            normalize: true
+            barWidth: 2, barGap: 1, barRadius: 2, height: 80, normalize: true
         });
 
         wavesurfer.on('ready', () => {
-            document.getElementById('time-total').textContent = formatTime(wavesurfer.getDuration());
-            btnPlay.disabled = false;
-            btnStop.disabled = false;
-            uploadOverlay.classList.add('hidden');
-            btnClearAudio.classList.remove('hidden');
-            audioStatus.textContent = 'Ready to play';
-            audioStatus.style.color = emerald;
+            if (ga('time-total')) ga('time-total').textContent = formatTime(wavesurfer.getDuration());
+            if (ga('btn-play')) ga('btn-play').disabled = false;
+            if (ga('btn-stop')) ga('btn-stop').disabled = false;
+            if (ga('audio-upload-overlay')) ga('audio-upload-overlay').classList.add('hidden');
+            if (ga('btn-clear-audio')) ga('btn-clear-audio').classList.remove('hidden');
+            if (ga('audio-status')) {
+                ga('audio-status').textContent = 'Ready to play';
+                ga('audio-status').style.color = emerald;
+            }
         });
 
         wavesurfer.on('audioprocess', () => {
-            document.getElementById('time-current').textContent = formatTime(wavesurfer.getCurrentTime());
+            if (ga('time-current')) ga('time-current').textContent = formatTime(wavesurfer.getCurrentTime());
         });
 
         wavesurfer.on('finish', () => {
-            btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+            if (ga('btn-play')) ga('btn-play').innerHTML = '<i class="fa-solid fa-play"></i>';
         });
     }
 
-    uploadOverlay.addEventListener('click', () => audioInput.click());
-    uploadOverlay.addEventListener('dragover', e => { e.preventDefault(); uploadOverlay.classList.add('dragging'); });
-    uploadOverlay.addEventListener('dragleave', () => { uploadOverlay.classList.remove('dragging'); });
-    uploadOverlay.addEventListener('drop', e => {
-        e.preventDefault();
-        uploadOverlay.classList.remove('dragging');
-        if (e.dataTransfer.files[0]) processAudioFile(e.dataTransfer.files[0]);
-    });
-
-    audioInput.addEventListener('change', e => {
-        if (e.target.files[0]) processAudioFile(e.target.files[0]);
-    });
-
     function processAudioFile(file) {
-        if (!file.type.startsWith('audio/')) {
-            showToast('Please upload a valid audio file.', 'error');
-            return;
+        if (!file.type.startsWith('audio/')) return showToast('Please upload a valid audio file.', 'error');
+        if (getActiveEl('audio-status')) {
+            getActiveEl('audio-status').textContent = 'Loading waveform...';
+            getActiveEl('audio-status').style.color = '';
         }
-        audioStatus.textContent = 'Loading waveform...';
-        audioStatus.style.color = '';
         initWaveSurferInstance();
         wavesurfer.load(URL.createObjectURL(file));
     }
 
-    btnPlay.addEventListener('click', () => {
-        if (!wavesurfer) return;
-        wavesurfer.playPause();
-        btnPlay.innerHTML = wavesurfer.isPlaying()
-            ? '<i class="fa-solid fa-pause"></i>'
-            : '<i class="fa-solid fa-play"></i>';
+    // Helper: resolve audio/script element IDs based on active view role
+    function getAudioId(base) {
+        const activeView = document.querySelector('.view-section.active');
+        if (activeView && activeView.id && activeView.id.includes('owner')) return base + '-owner';
+        return base;
+    }
+
+    // Event Delegation for Audio, AI, and Scripts
+    document.addEventListener('click', e => {
+        const uploadOverlay = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
+        if (uploadOverlay) {
+            const inputId = uploadOverlay.id === 'audio-upload-overlay-owner' ? 'audio-input-owner' : 'audio-input';
+            document.getElementById(inputId)?.click();
+        }
+
+        const btnPlay = e.target.closest('#btn-play, #btn-play-owner');
+        if (btnPlay && wavesurfer) {
+            wavesurfer.playPause();
+            btnPlay.innerHTML = wavesurfer.isPlaying() ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+        }
+
+        const btnStop = e.target.closest('#btn-stop, #btn-stop-owner');
+        if (btnStop && wavesurfer) {
+            wavesurfer.stop();
+            const playId = getAudioId('btn-play');
+            const currId = getAudioId('time-current');
+            if (document.getElementById(playId)) document.getElementById(playId).innerHTML = '<i class="fa-solid fa-play"></i>';
+            if (document.getElementById(currId)) document.getElementById(currId).textContent = '0:00';
+        }
+
+        const btnClear = e.target.closest('#btn-clear-audio, #btn-clear-audio-owner');
+        if (btnClear) {
+            if (wavesurfer) { wavesurfer.destroy(); wavesurfer = null; }
+            const suffix = btnClear.id.includes('owner') ? '-owner' : '';
+            const g = id => document.getElementById(id + suffix);
+            if (g('audio-upload-overlay')) g('audio-upload-overlay').classList.remove('hidden');
+            if (g('btn-clear-audio')) g('btn-clear-audio').classList.add('hidden');
+            if (g('btn-play')) g('btn-play').disabled = true;
+            if (g('btn-stop')) g('btn-stop').disabled = true;
+            if (g('audio-input')) g('audio-input').value = '';
+            if (g('time-current')) g('time-current').textContent = '0:00';
+            if (g('time-total')) g('time-total').textContent = '0:00';
+            if (g('btn-play')) g('btn-play').innerHTML = '<i class="fa-solid fa-play"></i>';
+            if (g('audio-status')) { g('audio-status').textContent = 'No file loaded'; g('audio-status').style.color = ''; }
+        }
+
+        const btnAi = e.target.closest('#btn-ai-optimize, #btn-ai-optimize-owner');
+        if (btnAi && !btnAi.disabled) {
+            const isOwner = btnAi.id.includes('owner');
+            const suffix = isOwner ? '-owner' : '';
+            const g = id => document.getElementById(id + suffix);
+            btnAi.disabled = true;
+            btnAi.classList.remove('pulse-glow');
+            const scriptArea = g('booth-script');
+            if (scriptArea) scriptArea.disabled = true;
+            if (g('ai-loading-overlay')) g('ai-loading-overlay').classList.remove('hidden');
+
+            const btnAiIcon = btnAi.querySelector('.ai-icon');
+            const btnAiText = btnAi.querySelector('.ai-text');
+            if (btnAiIcon) btnAiIcon.className = 'fa-solid fa-circle-notch fa-spin ai-icon';
+            if (btnAiText) btnAiText.textContent = 'Optimizing...';
+
+            const currentName = g('booth-name')?.value || getActiveEl('booth-name')?.value || 'this booth';
+            const lang = g('lang-select')?.value || 'EN';
+
+            setTimeout(() => {
+                const optimizedScripts = {
+                    'EN': `🎯 Welcome to ${currentName}!\n\nStep into an extraordinary experience where innovation meets inspiration. Our carefully curated products represent the pinnacle of quality and design in their category.\n\nExplore our interactive displays, engage with our expert team, and discover solutions tailored just for you.\n\nThank you for visiting ${currentName}. Let's create something amazing together! 🌟`,
+                    'VI': `🎯 Chào mừng đến với ${currentName}!\n\nBước vào một trải nghiệm phi thường nơi sự đổi mới gặp gỡ cảm hứng. Các sản phẩm được tuyển chọn kỹ lưỡng của chúng tôi đại diện cho đỉnh cao của chất lượng và thiết kế.\n\nCảm ơn quý khách đã ghé thăm ${currentName}! 🌟`
+                };
+
+                if (scriptArea) {
+                    scriptArea.value = optimizedScripts[lang] || optimizedScripts['EN'];
+                    updateWordCount();
+                    scriptArea.disabled = false;
+                }
+
+                btnAi.disabled = false;
+                btnAi.classList.add('pulse-glow');
+                if (g('ai-loading-overlay')) g('ai-loading-overlay').classList.add('hidden');
+                if (btnAiIcon) btnAiIcon.className = 'fa-solid fa-wand-magic-sparkles ai-icon';
+                if (btnAiText) btnAiText.textContent = 'Tối ưu bằng AI';
+
+                showToast(`Script optimized for ${lang} by Emergent AI!`, 'success');
+            }, 2000);
+        }
     });
 
-    btnStop.addEventListener('click', () => {
-        if (!wavesurfer) return;
-        wavesurfer.stop();
-        btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-        document.getElementById('time-current').textContent = '0:00';
+    // Drag events for audio upload overlay (both Admin and Owner)
+    document.addEventListener('dragover', e => {
+        const o = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
+        if (o) { e.preventDefault(); o.classList.add('dragging'); }
+    });
+    document.addEventListener('dragleave', e => {
+        const o = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
+        if (o) o.classList.remove('dragging');
+    });
+    document.addEventListener('drop', e => {
+        const o = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
+        if (o) {
+            e.preventDefault(); o.classList.remove('dragging');
+            if (e.dataTransfer.files[0]) processAudioFile(e.dataTransfer.files[0]);
+        }
     });
 
-    volumeSlider?.addEventListener('input', e => {
-        if (wavesurfer) wavesurfer.setVolume(Number(e.target.value));
+    document.addEventListener('change', e => {
+        if ((e.target.id === 'audio-input' || e.target.id === 'audio-input-owner') && e.target.files[0]) processAudioFile(e.target.files[0]);
+        if (e.target.id === 'lang-select' || e.target.id === 'lang-select-owner') {
+            const suffix = e.target.id.includes('owner') ? '-owner' : '';
+            const t = document.getElementById('script-title' + suffix);
+            if (t) t.textContent = `Lời thoại (${e.target.value})`;
+        }
     });
 
-    btnClearAudio.addEventListener('click', () => {
-        if (wavesurfer) { wavesurfer.destroy(); wavesurfer = null; }
-        uploadOverlay.classList.remove('hidden');
-        btnClearAudio.classList.add('hidden');
-        btnPlay.disabled = true;
-        btnStop.disabled = true;
-        audioInput.value = '';
-        document.getElementById('time-current').textContent = '0:00';
-        document.getElementById('time-total').textContent = '0:00';
-        btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-        audioStatus.textContent = 'No file loaded';
-        audioStatus.style.color = '';
+    document.addEventListener('input', e => {
+        if ((e.target.id === 'volume-slider' || e.target.id === 'volume-slider-owner') && wavesurfer) wavesurfer.setVolume(Number(e.target.value));
+        if (e.target.id === 'booth-script' || e.target.id === 'booth-script-owner') updateWordCount();
     });
+
+    function updateWordCount() {
+        const scriptArea = getActiveEl('booth-script') || getActiveEl('booth-script-owner');
+        const wordCountEl = getActiveEl('word-count') || getActiveEl('word-count-owner');
+        if (!scriptArea || !wordCountEl) return;
+
+        const text = scriptArea.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const estSec = Math.round((words / 150) * 60);
+        wordCountEl.textContent = `${words} từ · Độ dài ước tính: ${formatTime(estSec)}`;
+    }
 
     function formatTime(sec) {
         const min = Math.floor(sec / 60);
@@ -917,723 +1247,181 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ══════════════════════════════════════════════
-       8. LEAFLET MAP & GEOFENCING
+       8. LEAFLET MAP & GEOFENCING (FIXED DUPLICATE SCOPE)
        ══════════════════════════════════════════════ */
-    let map, marker, circle;
-
     function initMap() {
-        mapInitialized = true;
-        const lat = parseFloat(inputLat.value) || 10.7680;
-        const lng = parseFloat(inputLng.value) || 106.7050;
-        const radius = parseFloat(radiusSlider.value) || 30;
+        const isOwnerActive = document.getElementById('view-booths-owner').classList.contains('active');
+        const mapContainer = document.getElementById(isOwnerActive ? 'map-owner' : 'map');
+        if (!mapContainer) return;
 
-        map = L.map('map', { zoomControl: true, attributionControl: true }).setView([lat, lng], 17);
+        mapInitialized = true;
+
+        const inputLat = getActiveEl('input-lat');
+        const inputLng = getActiveEl('input-lng');
+        const radiusSlider = getActiveEl('radius-slider');
+
+        const lat = parseFloat(inputLat?.value) || 10.7680;
+        const lng = parseFloat(inputLng?.value) || 106.7050;
+        const radius = parseFloat(radiusSlider?.value) || 30;
+
+        const mapId = mapContainer.id || 'map';
+
+        // Check if Leaflet instance already exists for this container
+        if (mapContainer._leaflet_id && window.myMaps[mapId]) {
+            const m = window.myMaps[mapId];
+            m.invalidateSize();
+            m.setView([lat, lng], 17);
+            if (m._myMarker) m._myMarker.setLatLng([lat, lng]);
+            if (m._myCircle) { m._myCircle.setLatLng([lat, lng]); m._myCircle.setRadius(radius); }
+            return;
+        }
+
+        const map = L.map(mapContainer, { zoomControl: true, attributionControl: true }).setView([lat, lng], 17);
+        window.myMaps[mapId] = map;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-
-        circle = L.circle([lat, lng], {
-            color: emerald,
-            fillColor: emerald,
-            fillOpacity: 0.15,
-            weight: 2,
-            radius: radius
+        const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+        const circle = L.circle([lat, lng], {
+            color: emerald, fillColor: emerald, fillOpacity: 0.15, weight: 2, radius: radius
         }).addTo(map);
+
+        map._myMarker = marker;
+        map._myCircle = circle;
 
         marker.on('dragend', function () {
             const pos = marker.getLatLng();
-            inputLat.value = pos.lat.toFixed(6);
-            inputLng.value = pos.lng.toFixed(6);
+            const cLat = getActiveEl('input-lat');
+            const cLng = getActiveEl('input-lng');
+            if (cLat) cLat.value = pos.lat.toFixed(6);
+            if (cLng) cLng.value = pos.lng.toFixed(6);
             circle.setLatLng(pos);
             map.panTo(pos);
         });
     }
 
     function updateMapFromInputs() {
+        const mapContainer = getActiveEl('map') || getActiveEl('map-owner');
+        if (!mapContainer || !mapContainer._leaflet_id) return;
+        const map = window.myMaps[mapContainer.id || 'map'];
         if (!map) return;
-        const lat = parseFloat(inputLat.value);
-        const lng = parseFloat(inputLng.value);
+
+        const lat = parseFloat((getActiveEl('input-lat') || getActiveEl('input-lat-owner'))?.value);
+        const lng = parseFloat((getActiveEl('input-lng') || getActiveEl('input-lng-owner'))?.value);
         if (isNaN(lat) || isNaN(lng)) return;
 
         const pos = [lat, lng];
-        marker.setLatLng(pos);
-        circle.setLatLng(pos);
+        if (map._myMarker) map._myMarker.setLatLng(pos);
+        if (map._myCircle) map._myCircle.setLatLng(pos);
         map.panTo(pos);
     }
 
-    inputLat.addEventListener('input', updateMapFromInputs);
-    inputLng.addEventListener('input', updateMapFromInputs);
-
-    radiusSlider.addEventListener('input', e => {
-        const val = e.target.value;
-        radiusVal.textContent = `${val}m`;
-        if (circle) circle.setRadius(Number(val));
-    });
-
-    /* ══════════════════════════════════════════════
-       9. AI OPTIMIZER
-       ══════════════════════════════════════════════ */
-    const btnAi = document.getElementById('btn-ai-optimize');
-    const btnAiIcon = btnAi.querySelector('.ai-icon');
-    const btnAiText = btnAi.querySelector('.ai-text');
-    const scriptArea = document.getElementById('booth-script');
-    const aiOverlay = document.getElementById('ai-loading-overlay');
-    const wordCountEl = document.getElementById('word-count');
-    const langSelect = document.getElementById('lang-select');
-    const scriptTitle = document.getElementById('script-title');
-
-    scriptArea.addEventListener('input', updateWordCount);
-
-    function updateWordCount() {
-        const text = scriptArea.value.trim();
-        const words = text ? text.split(/\s+/).length : 0;
-        const estSec = Math.round((words / 150) * 60);
-        wordCountEl.textContent = `${words} words · Est. duration: ${formatTime(estSec)}`;
-    }
-
-    langSelect.addEventListener('change', e => {
-        scriptTitle.textContent = `Audio Script (${e.target.value})`;
-    });
-
-    btnAi.addEventListener('click', () => {
-        if (btnAi.disabled) return;
-        btnAi.disabled = true;
-        btnAi.classList.remove('pulse-glow');
-        scriptArea.disabled = true;
-        aiOverlay.classList.remove('hidden');
-        btnAiIcon.className = 'fa-solid fa-circle-notch fa-spin ai-icon';
-        btnAiText.textContent = 'Optimizing...';
-
-        const currentName = boothName.value || 'this booth';
-        const lang = langSelect.value;
-
-        setTimeout(() => {
-            const optimizedScripts = {
-                'EN': `🎯 Welcome to ${currentName}!\n\nStep into an extraordinary experience where innovation meets inspiration. Our carefully curated products represent the pinnacle of quality and design in their category.\n\nExplore our interactive displays, engage with our expert team, and discover solutions tailored just for you. Whether you're a first-time visitor or a returning partner, we have something special waiting.\n\nDon't miss our exclusive exhibition-only offers — available for a limited time. Scan the QR code at our booth for instant access to our digital catalog and special pricing.\n\nThank you for visiting ${currentName}. Let's create something amazing together! 🌟`,
-                'VI': `🎯 Chào mừng đến với ${currentName}!\n\nBước vào một trải nghiệm phi thường nơi sự đổi mới gặp gỡ cảm hứng. Các sản phẩm được tuyển chọn kỹ lưỡng của chúng tôi đại diện cho đỉnh cao của chất lượng và thiết kế.\n\nKhám phá các màn hình tương tác, trao đổi với đội ngũ chuyên gia, và khám phá giải pháp phù hợp dành riêng cho bạn.\n\nCảm ơn quý khách đã ghé thăm ${currentName}! 🌟`,
-                'JA': `🎯 ${currentName}へようこそ！\n\nイノベーションとインスピレーションが出会う特別な体験へ。厳選された製品は、品質とデザインの頂点を代表しています。\n\nインタラクティブなディスプレイを探索し、専門チームと交流しましょう。\n\n${currentName}をご訪問いただきありがとうございます！🌟`,
-                'FR': `🎯 Bienvenue chez ${currentName} !\n\nEntrez dans une expérience extraordinaire où l'innovation rencontre l'inspiration. Nos produits soigneusement sélectionnés représentent le summum de la qualité et du design.\n\nExplorez nos présentations interactives et découvrez des solutions sur mesure.\n\nMerci de visiter ${currentName} ! 🌟`,
-                'KO': `🎯 ${currentName}에 오신 것을 환영합니다!\n\n혁신과 영감이 만나는 특별한 경험을 시작하세요. 엄선된 제품들로 최고의 품질과 디자인을 경험하실 수 있습니다.\n\n${currentName}을 방문해 주셔서 감사합니다! 🌟`,
-                'ZH': `🎯 欢迎来到 ${currentName}！\n\n步入创新与灵感交汇的非凡体验。我们精心策划的产品代表着品质与设计的巅峰。\n\n感谢您访问 ${currentName}！🌟`
-            };
-
-            scriptArea.value = optimizedScripts[lang] || optimizedScripts['EN'];
-            updateWordCount();
-
-            btnAi.disabled = false;
-            btnAi.classList.add('pulse-glow');
-            scriptArea.disabled = false;
-            aiOverlay.classList.add('hidden');
-            btnAiIcon.className = 'fa-solid fa-wand-magic-sparkles ai-icon';
-            btnAiText.textContent = 'AI Optimize';
-
-            showToast(`Script optimized for ${lang} by Emergent AI!`, 'success');
-        }, 2500);
-    });
-
-    /* ══════════════════════════════════════════════
-       10. FINANCE & COMMISSION
-       ══════════════════════════════════════════════ */
-    const financeSearchInput = document.getElementById('finance-booth-search');
-    const financeSearchResults = document.getElementById('finance-search-results');
-    const financeSearchClear = document.getElementById('finance-search-clear');
-    let selectedFinanceBoothId = 'all';
-
-    function populateFinanceBoothSelect() {
-        // Show all orders by default when navigating to Finance
-        selectedFinanceBoothId = 'all';
-        financeSearchInput.value = '';
-        financeSearchClear.classList.add('hidden');
-        financeSearchResults.classList.add('hidden');
-        renderFinanceData('all');
-    }
-
-    // ── Search Input Handler ──
-    financeSearchInput.addEventListener('input', () => {
-        const query = financeSearchInput.value.trim().toLowerCase();
-
-        // Show/hide clear button
-        if (query.length > 0) {
-            financeSearchClear.classList.remove('hidden');
-        } else {
-            financeSearchClear.classList.add('hidden');
+    document.addEventListener('input', e => {
+        if (e.target.id === 'input-lat' || e.target.id === 'input-lng' ||
+            e.target.id === 'input-lat-owner' || e.target.id === 'input-lng-owner') {
+            updateMapFromInputs();
         }
+        if (e.target.id === 'radius-slider' || e.target.id === 'radius-slider-owner') {
+            const val = e.target.value;
+            const rVal = getActiveEl('radius-val') || getActiveEl('radius-val-owner');
+            if (rVal) rVal.textContent = `${val}m`;
 
-        showSearchResults(query);
-    });
-
-    financeSearchInput.addEventListener('focus', () => {
-        const query = financeSearchInput.value.trim().toLowerCase();
-        showSearchResults(query);
-    });
-
-    // ── Show Search Results Dropdown ──
-    function showSearchResults(query) {
-        const booths = getBooths();
-        const orders = getOrders();
-
-        let html = '';
-
-        // "Show All" option
-        html += `
-            <div class="booth-search-all" data-booth-id="all">
-                <i class="fa-solid fa-layer-group"></i> Show All Booths
-            </div>
-        `;
-
-        // Filter booths
-        const filtered = query
-            ? booths.filter(b => b.name.toLowerCase().includes(query) || b.company.toLowerCase().includes(query))
-            : booths;
-
-        if (filtered.length === 0) {
-            html += `
-                <div class="booth-search-empty">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    No booths found for "${escapeHtml(query)}"
-                </div>
-            `;
-        } else {
-            filtered.forEach(b => {
-                const boothOrders = orders.filter(o => o.boothId === b.id && o.status === 'success');
-                const tierClass = 'tier-' + b.tier.toLowerCase();
-
-                // Highlight matching text
-                let nameHtml = escapeHtml(b.name);
-                if (query) {
-                    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-                    nameHtml = escapeHtml(b.name).replace(regex, '<mark>$1</mark>');
-                }
-
-                const isActive = selectedFinanceBoothId === b.id ? ' active' : '';
-
-                html += `
-                    <div class="booth-search-item${isActive}" data-booth-id="${b.id}">
-                        <div class="booth-search-item-info">
-                            <div class="booth-search-item-name">${nameHtml}</div>
-                            <div class="booth-search-item-company">${escapeHtml(b.company)} · ${boothOrders.length} orders</div>
-                        </div>
-                        <span class="tier-badge ${tierClass}" style="font-size:10px; padding:2px 8px;">${b.tier}</span>
-                    </div>
-                `;
-            });
-        }
-
-        financeSearchResults.innerHTML = html;
-        financeSearchResults.classList.remove('hidden');
-
-        // Bind click handlers
-        financeSearchResults.querySelectorAll('[data-booth-id]').forEach(el => {
-            el.addEventListener('click', () => {
-                const id = el.getAttribute('data-booth-id');
-                selectFinanceBooth(id);
-            });
-        });
-    }
-
-    function selectFinanceBooth(id) {
-        selectedFinanceBoothId = id;
-        financeSearchResults.classList.add('hidden');
-
-        if (id === 'all') {
-            financeSearchInput.value = '';
-            financeSearchClear.classList.add('hidden');
-        } else {
-            const booths = getBooths();
-            const booth = booths.find(b => b.id === id);
-            if (booth) {
-                financeSearchInput.value = booth.name;
-                financeSearchClear.classList.remove('hidden');
+            const mapContainer = getActiveEl('map') || getActiveEl('map-owner');
+            if (mapContainer && window.myMaps[mapContainer.id || 'map']) {
+                const map = window.myMaps[mapContainer.id || 'map'];
+                if (map._myCircle) map._myCircle.setRadius(Number(val));
             }
         }
-
-        renderFinanceData(id);
-    }
-
-    // ── Clear Button ──
-    financeSearchClear.addEventListener('click', () => {
-        financeSearchInput.value = '';
-        financeSearchClear.classList.add('hidden');
-        selectedFinanceBoothId = 'all';
-        renderFinanceData('all');
-        financeSearchResults.classList.add('hidden');
-    });
-
-    // ── Close dropdown on outside click ──
-    document.addEventListener('click', e => {
-        if (!e.target.closest('.booth-search-wrapper')) {
-            financeSearchResults.classList.add('hidden');
-        }
-    });
-
-    function escapeHtml(str) {
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function escapeRegex(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    function renderFinanceData(boothId) {
-        if (!boothId) boothId = selectedFinanceBoothId;
-        const orders = getOrders();
-        const booths = getBooths();
-        const tierCfg = getTierConfig();
-
-        // Filter orders
-        const filtered = boothId === 'all'
-            ? orders.filter(o => o.status === 'success')
-            : orders.filter(o => o.boothId === boothId && o.status === 'success');
-
-        // Render orders table
-        const tbody = document.getElementById('orders-body');
-        document.getElementById('order-count').textContent = `${filtered.length} orders`;
-
-        tbody.innerHTML = filtered.map(o => {
-            const total = o.price * o.qty;
-            return `
-                <tr>
-                    <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-muted);">${o.id}</td>
-                    <td style="font-weight:600;">${o.product}</td>
-                    <td>${o.qty}</td>
-                    <td>${formatCurrency(o.price)} ₫</td>
-                    <td style="font-weight:700;">${formatCurrency(total)} ₫</td>
-                    <td><span class="order-status success"><i class="fa-solid fa-circle-check" style="font-size:10px;"></i> Success</span></td>
-                    <td style="color:var(--text-muted);">${o.date}</td>
-                </tr>
-            `;
-        }).join('');
-
-        // Commission Calculator
-        if (boothId === 'all') {
-            // Calculate total commission across all booths
-            let totalCommission = 0;
-            let totalN = filtered.length;
-            let sumPriceRc = 0;
-            let sumNF = 0;
-
-            filtered.forEach(o => {
-                const booth = booths.find(b => b.id === o.boothId);
-                if (!booth) return;
-                const cfg = tierCfg[booth.tier] || tierCfg.Basic;
-                sumPriceRc += o.price * o.qty * cfg.rc;
-                sumNF += cfg.fee;
-            });
-
-            totalCommission = sumPriceRc + sumNF;
-
-            document.getElementById('calc-tier').textContent = 'Mixed';
-            document.getElementById('calc-rc').textContent = 'Varies';
-            document.getElementById('calc-fee').textContent = 'Varies';
-            document.getElementById('calc-n').textContent = totalN;
-            document.getElementById('calc-sum').textContent = formatCurrency(sumPriceRc) + ' ₫';
-            document.getElementById('calc-nf').textContent = formatCurrency(sumNF) + ' ₫';
-            document.getElementById('calc-total').textContent = formatCurrency(totalCommission) + ' ₫';
-        } else {
-            const booth = booths.find(b => b.id === boothId);
-            if (!booth) return;
-
-            const cfg = tierCfg[booth.tier] || tierCfg.Basic;
-            const n = filtered.length;
-            let sumPriceRc = 0;
-            filtered.forEach(o => {
-                sumPriceRc += o.price * o.qty * cfg.rc;
-            });
-            const nF = n * cfg.fee;
-            const totalCommission = sumPriceRc + nF;
-
-            document.getElementById('calc-tier').innerHTML = `<span class="tier-badge tier-${booth.tier.toLowerCase()}">${booth.tier.toUpperCase()}</span>`;
-            document.getElementById('calc-rc').textContent = (cfg.rc * 100).toFixed(1) + '%';
-            document.getElementById('calc-fee').textContent = formatCurrency(cfg.fee) + ' ₫';
-            document.getElementById('calc-n').textContent = n;
-            document.getElementById('calc-sum').textContent = formatCurrency(sumPriceRc) + ' ₫';
-            document.getElementById('calc-nf').textContent = formatCurrency(nF) + ' ₫';
-            document.getElementById('calc-total').textContent = formatCurrency(totalCommission) + ' ₫';
-        }
-    }
-
-    /* ══════════════════════════════════════════════
-       11. PROFILE EDITING
-       ══════════════════════════════════════════════ */
-    const profileElements = {
-        btnEdit: document.getElementById('btn-edit-profile'),
-        btnSave: document.getElementById('btn-save-profile'),
-        btnCancel: document.getElementById('btn-cancel-profile'),
-        editActions: document.getElementById('profile-edit-actions'),
-        inputs: document.querySelectorAll('.profile-editable'),
-        avatarInput: document.getElementById('profile-avatar-input'),
-        avatarPreview: document.getElementById('profile-avatar-preview'),
-        avatarOverlay: document.getElementById('profile-avatar-overlay'),
-        nameInput: document.getElementById('set-name'),
-        phoneInput: document.getElementById('set-phone'),
-        bioInput: document.getElementById('set-bio'),
-        sidebarName: document.getElementById('sidebar-name'),
-        sidebarAvatar: document.getElementById('sidebar-avatar')
-    };
-
-    let originalProfile = {};
-
-    function loadProfileData() {
-        const raw = localStorage.getItem('exhib_profile');
-        if (!raw) return;
-        try {
-            const p = JSON.parse(raw);
-            if (p.name) { profileElements.nameInput.value = p.name; profileElements.sidebarName.textContent = p.name; }
-            if (p.phone) profileElements.phoneInput.value = p.phone;
-            if (p.bio) profileElements.bioInput.value = p.bio;
-            if (p.avatar) { profileElements.avatarPreview.src = p.avatar; profileElements.sidebarAvatar.src = p.avatar; }
-        } catch (e) { }
-    }
-
-    profileElements.btnEdit?.addEventListener('click', () => {
-        originalProfile = {
-            name: profileElements.nameInput.value,
-            phone: profileElements.phoneInput.value,
-            bio: profileElements.bioInput.value,
-            avatar: profileElements.avatarPreview.src
-        };
-
-        profileElements.btnEdit.classList.add('hidden');
-        profileElements.editActions.classList.remove('hidden');
-        profileElements.editActions.style.display = 'flex';
-
-        profileElements.inputs.forEach(inp => {
-            inp.disabled = false;
-            inp.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-            inp.style.background = 'rgba(255,255,255,0.05)';
-        });
-
-        profileElements.avatarOverlay.classList.add('editable');
-        profileElements.avatarOverlay.style.pointerEvents = 'auto';
-    });
-
-    profileElements.btnCancel?.addEventListener('click', () => {
-        profileElements.nameInput.value = originalProfile.name;
-        profileElements.phoneInput.value = originalProfile.phone;
-        profileElements.bioInput.value = originalProfile.bio;
-        profileElements.avatarPreview.src = originalProfile.avatar;
-        disableProfileEdit();
-    });
-
-    profileElements.btnSave?.addEventListener('click', () => {
-        const data = {
-            name: profileElements.nameInput.value,
-            phone: profileElements.phoneInput.value,
-            bio: profileElements.bioInput.value,
-            avatar: profileElements.avatarPreview.src
-        };
-
-        localStorage.setItem('exhib_profile', JSON.stringify(data));
-        profileElements.sidebarName.textContent = data.name;
-        profileElements.sidebarAvatar.src = data.avatar;
-
-        disableProfileEdit();
-        showToast('Profile updated successfully!', 'success');
-    });
-
-    function disableProfileEdit() {
-        profileElements.btnEdit.classList.remove('hidden');
-        profileElements.editActions.classList.add('hidden');
-        profileElements.editActions.style.display = '';
-
-        profileElements.inputs.forEach(inp => {
-            inp.disabled = true;
-            inp.style.borderColor = '';
-            inp.style.background = '';
-        });
-
-        profileElements.avatarOverlay.classList.remove('editable');
-        profileElements.avatarOverlay.style.pointerEvents = '';
-    }
-
-    profileElements.avatarOverlay?.addEventListener('click', () => {
-        if (profileElements.avatarOverlay.classList.contains('editable')) {
-            profileElements.avatarInput.click();
-        }
-    });
-
-    profileElements.avatarInput?.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-            showToast('Please select an image file.', 'error');
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = ev => { profileElements.avatarPreview.src = ev.target.result; };
-        reader.readAsDataURL(file);
-    });
-
-    /* ══════════════════════════════════════════════
-       12. SETTINGS — Tier Config Save
-       ══════════════════════════════════════════════ */
-    function loadTierConfigUI() {
-        const cfg = getTierConfig();
-        document.getElementById('rc-basic').value = cfg.Basic?.rc ?? 0.10;
-        document.getElementById('fee-basic').value = cfg.Basic?.fee ?? 1.50;
-        document.getElementById('rc-gold').value = cfg.Gold?.rc ?? 0.08;
-        document.getElementById('fee-gold').value = cfg.Gold?.fee ?? 1.00;
-        document.getElementById('rc-diamond').value = cfg.Diamond?.rc ?? 0.05;
-        document.getElementById('fee-diamond').value = cfg.Diamond?.fee ?? 0.50;
-    }
-
-    document.getElementById('btn-save-settings')?.addEventListener('click', () => {
-        const cfg = {
-            Basic: {
-                rc: parseFloat(document.getElementById('rc-basic').value) || 0.10,
-                fee: parseFloat(document.getElementById('fee-basic').value) || 1.50,
-                weight: 1
-            },
-            Gold: {
-                rc: parseFloat(document.getElementById('rc-gold').value) || 0.08,
-                fee: parseFloat(document.getElementById('fee-gold').value) || 1.00,
-                weight: 2
-            },
-            Diamond: {
-                rc: parseFloat(document.getElementById('rc-diamond').value) || 0.05,
-                fee: parseFloat(document.getElementById('fee-diamond').value) || 0.50,
-                weight: 3
-            }
-        };
-
-        saveTierConfig(cfg);
-        showToast('Configuration saved! Commission rates updated.', 'success');
     });
 
     /* ══════════════════════════════════════════════
        13. TOAST NOTIFICATIONS
        ══════════════════════════════════════════════ */
     function showToast(message, type = 'success') {
+        if (typeof Toastify === 'undefined') return alert(message);
         const bgs = {
             success: 'linear-gradient(135deg, #059669, #22c55e)',
-            error: 'linear-gradient(135deg, #dc2626, #ef4444)',
-            info: 'linear-gradient(135deg, #0369a1, #0ea5e9)'
+            error: 'linear-gradient(135deg, #dc2626, #ef4444)'
         };
-
         Toastify({
-            text: message,
-            duration: 3000,
-            gravity: 'bottom',
-            position: 'right',
-            stopOnFocus: true,
-            style: {
-                background: bgs[type],
-                borderRadius: '12px',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '13px',
-                fontWeight: '500',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-                padding: '12px 20px'
-            }
+            text: message, duration: 3000, gravity: 'bottom', position: 'right',
+            style: { background: bgs[type], borderRadius: '12px', fontSize: '13px', padding: '12px 20px' }
         }).showToast();
     }
 
     /* ══════════════════════════════════════════════
        14. RIPPLE EFFECT
        ══════════════════════════════════════════════ */
-    function createRipple(e, element) {
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple-effect';
-        const rect = element.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-        element.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-    }
-
     document.addEventListener('click', e => {
         const btn = e.target.closest('.btn-ripple');
-        if (btn) createRipple(e, btn);
+        if (btn) {
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple-effect';
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
     });
 
-    /* ══════════════════════════════════════════════
-       15. UTILITY
-       ══════════════════════════════════════════════ */
-    function formatCurrency(num) {
-        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    /* ══════════════════════════════════════════════
-       16. SUBSCRIPTION PLANS
-       ══════════════════════════════════════════════ */
-    const plansGrid = document.getElementById('plans-grid');
-
     function renderPlans() {
-        if (!plansGrid) return;
-        const plans = getPlans();
+        const container = document.getElementById('plans-grid');
+        const btnAddPlan = document.getElementById('btn-add-plan');
+        if (!container) return;
 
-        let html = '';
-        plans.forEach(plan => {
-            const badgeClass = `tier-${plan.id}`;
-            const limitText = plan.maxOrders ? `${plan.maxOrders} orders/mo` : 'Unlimited orders';
+        // Lấy thông tin Role hiện tại
+        const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+        const role = session.role || 'Admin';
 
-            html += `
-                <div class="glass-card plan-card">
-                    <div class="plan-header">
-                        <div class="plan-name">
-                            ${plan.name}
-                        </div>
-                        <div class="plan-badge ${badgeClass}">${plan.id}</div>
-                    </div>
-                    
-                    <div class="plan-price">
-                        ${formatCurrency(plan.price)} ₫<span>/tháng</span>
-                    </div>
-                    
-                    <ul class="plan-features">
-                        ${plan.features.map(f => `
-                            <li class="${f.active ? '' : 'disabled'}">
-                                <i class="fa-solid fa-${f.active ? 'check' : 'xmark'}"></i>
-                                ${f.text}
-                            </li>
-                        `).join('')}
-                    </ul>
-                    
-                    <div class="plan-actions">
-                        <button class="btn-ghost btn-edit-plan" data-id="${plan.id}">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit Plan
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-
-        plansGrid.innerHTML = html;
-
-        // Bind Edit logic
-        plansGrid.querySelectorAll('.btn-edit-plan').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                openEditPlanModal(id);
-            });
-        });
-    }
-
-    // Modal logic (created dynamically to keep HTML clean)
-    function openEditPlanModal(id) {
-        let modalOverlay = document.getElementById('plan-modal-overlay');
-        if (!modalOverlay) {
-            modalOverlay = document.createElement('div');
-            modalOverlay.id = 'plan-modal-overlay';
-            modalOverlay.className = 'plan-modal-overlay';
-            document.body.appendChild(modalOverlay);
+        // Chỉ Admin mới thấy nút "Gói mới" ở góc trên cùng
+        if (btnAddPlan) {
+            btnAddPlan.style.display = role === 'Owner' ? 'none' : 'inline-flex';
         }
 
         const plans = getPlans();
-        const plan = plans.find(p => p.id === id);
-        if (!plan) return;
 
-        const isUnlimited = plan.maxOrders === null;
+        if (plans.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-dim); text-align:center; grid-column: 1/-1;">Chưa có gói dịch vụ nào. Hãy tạo mới.</p>';
+            return;
+        }
 
-        modalOverlay.innerHTML = `
-            <div class="plan-modal" style="max-height:90vh; display:flex; flex-direction:column;">
-                <div class="plan-modal-header" style="flex-shrink:0;">
-                    <h3 class="plan-modal-title">Plan Details: ${plan.name}</h3>
-                    <button class="plan-modal-close"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:16px; overflow-y:auto; padding-right:8px;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                        <div>
-                            <label class="form-label">Tên gói</label>
-                            <input type="text" id="edit-plan-name" class="form-input" value="${plan.name}">
-                        </div>
-                        <div>
-                            <label class="form-label">Giá mỗi tháng (VNĐ)</label>
-                            <input type="number" id="edit-plan-price" class="form-input mono" value="${plan.price}">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="form-label">Max Orders per month</label>
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <input type="number" id="edit-plan-orders" class="form-input mono" value="${isUnlimited ? '' : plan.maxOrders}" placeholder="Unlimited" ${isUnlimited ? 'disabled' : ''}>
-                            <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); cursor:pointer;">
-                                <input type="checkbox" id="edit-plan-unlimited" class="form-checkbox" ${isUnlimited ? 'checked' : ''}>
-                                Unlimited Orders
-                            </label>
-                        </div>
-                    </div>
+        // Đổi giao diện nút bấm theo Role
+        const buttonText = role === 'Owner' ? '<i class="fa-solid"></i> Đăng ký ngay' : '<i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa gói';
+        const buttonStyle = role === 'Owner' ? 'background: #000000; color: #FFFFFF;' : ''; 
 
-                    <div style="margin-top:8px;">
-                        <label class="form-label">Plan Features</label>
-                        <div style="background:rgba(0,0,0,0.15); border:1px solid var(--border); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:10px;">
-                            ${plan.features.map((f, i) => `
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <input type="checkbox" id="edit-feat-${i}-active" class="form-checkbox" ${f.active ? 'checked' : ''} style="margin-top:2px;">
-                                    <input type="text" id="edit-feat-${i}-text" class="form-input" value="${f.text}" style="padding:6px 10px; font-size:13px;">
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+        container.innerHTML = plans.map(plan => `
+            <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column;">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 6px; color: #000000;">${plan.name}</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; min-height: 38px;">
+                        ${plan.target}
+                    </p>
+                    <p style="font-size: 24px; font-weight: 700; color: #000000;">
+                        ${plan.price === 0 ? 'Miễn phí' : formatCurrency(plan.price) + ' ₫'} 
+                        <span style="font-size: 13px; color: var(--text-dim); font-weight: 400;">/ tháng</span>
+                    </p>
                 </div>
                 
-                <div style="margin-top:20px; flex-shrink:0;">
-                    <button id="btn-save-plan" class="btn-primary" style="width:100%; justify-content:center;">
-                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                    </button>
-                </div>
+                <ul style="list-style: none; padding: 0; margin-bottom: 24px; flex-grow: 1;">
+                    ${plan.features ? plan.features.map(f => `
+                        <li style="margin-bottom: 12px; font-size: 13px; line-height: 1.5; color: ${f.active ? 'inherit' : 'var(--text-dim)'};">
+                            <i class="fa-solid ${f.active ? 'fa-check text-accent' : 'fa-xmark'} " style="margin-right: 8px;"></i> ${f.text}
+                        </li>
+                    `).join('') : ''}
+                </ul>
+                
+                <button class="btn-primary w-100 btn-ripple" style="padding: 10px; border-radius: 8px; background: #000000; color: #FFFFFF; ${buttonStyle}">
+                    ${buttonText}
+                </button>
             </div>
-        `;
-
-        modalOverlay.classList.add('active');
-
-        // Logic for "Unlimited" checkbox
-        const chkUnlimited = modalOverlay.querySelector('#edit-plan-unlimited');
-        const inputOrders = modalOverlay.querySelector('#edit-plan-orders');
-        chkUnlimited.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                inputOrders.disabled = true;
-                inputOrders.value = '';
-            } else {
-                inputOrders.disabled = false;
-                inputOrders.value = plan.maxOrders || 50;
-                inputOrders.focus();
-            }
-        });
-
-        modalOverlay.querySelector('.plan-modal-close').addEventListener('click', () => {
-            modalOverlay.classList.remove('active');
-        });
-
-        // Close on outside click
-        modalOverlay.addEventListener('click', e => {
-            if (e.target === modalOverlay) modalOverlay.classList.remove('active');
-        });
-
-        modalOverlay.querySelector('#btn-save-plan').addEventListener('click', () => {
-            // Gather values
-            plan.name = document.getElementById('edit-plan-name').value.trim();
-            plan.price = parseFloat(document.getElementById('edit-plan-price').value) || 0;
-
-            if (chkUnlimited.checked) {
-                plan.maxOrders = null;
-            } else {
-                plan.maxOrders = parseInt(inputOrders.value) || 0;
-            }
-
-            // Gather features
-            plan.features.forEach((f, i) => {
-                f.active = document.getElementById(`edit-feat-${i}-active`).checked;
-                f.text = document.getElementById(`edit-feat-${i}-text`).value.trim();
-            });
-
-            // If we toggled 'active', we should also re-render features immediately.
-            savePlans(plans);
-            modalOverlay.classList.remove('active');
-            renderPlans();
-            showToast(`${plan.name} updated successfully`, 'success');
-        });
+        `).join('');
     }
 
-    /* ══════════════════════════════════════════════
-       17. INITIAL LOAD
-       ══════════════════════════════════════════════ */
+    // Initial setups
     updateWordCount();
-    loadProfileData();
-
 });
