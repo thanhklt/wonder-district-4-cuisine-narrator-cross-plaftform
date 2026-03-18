@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const emerald = '#22c55e';
     window.myMaps = {}; // Track map instances to prevent re-initialization crashes
 
+    const initialSession = JSON.parse(localStorage.getItem('exhib_session') || '{}');
+    const initialRole = initialSession.role || 'Admin';
+    const navOrders = document.getElementById('nav-orders');
+    if (navOrders) navOrders.style.display = initialRole === 'Owner' ? 'flex' : 'none';
+
+
     // Hàm tiện ích đặc biệt cho SPA: Lấy đúng Element của màn hình đang Active
     function getActiveEl(id) {
         const activeView = document.querySelector('.view-section.active');
@@ -33,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ══════════════════════════════════════════════
-       1. MOCK DATA — Fairs, Booths, Orders, Tiers
+       1. MOCK DATA — Fairs, Booths, Orders, Tiers, Customers
        ══════════════════════════════════════════════ */
 
     const defaultTierConfig = {
@@ -74,6 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'F002', name: 'Vietnam Food Festival', status: 'active', date: '2026-03-05' }
     ];
 
+    const defaultCustomers = [
+        { id: 'KH-1001', name: 'Nguyễn Văn An', phone: '0901 234 567', email: 'an.nguyen@email.com', date: '2026-03-15', totalSpent: 4500000, orderCount: 2, lastVisit: '2026-03-18' },
+        { id: 'KH-1002', name: 'Trần Thị Bích', phone: '0912 345 678', email: 'bich.tran@email.com', date: '2026-03-10', totalSpent: 890000, orderCount: 1, lastVisit: '2026-03-10' },
+        { id: 'KH-1003', name: 'Lê Hoàng Cường', phone: '0923 456 789', email: 'cuong.le@email.com', date: '2026-03-09', totalSpent: 1250000, orderCount: 3, lastVisit: '2026-03-12' },
+        { id: 'KH-1004', name: 'Phạm Minh Tâm', phone: '0934 567 890', email: 'tam.pham@email.com', date: '2026-03-01', totalSpent: 0, orderCount: 0, lastVisit: '2026-03-01' }
+    ];
+
+    function getCustomers() {
+        const raw = localStorage.getItem('exhib_customers');
+        if (raw) try { return JSON.parse(raw); } catch (e) { }
+        localStorage.setItem('exhib_customers', JSON.stringify(defaultCustomers));
+        return [...defaultCustomers];
+    }
+
     function getBooths() {
         const raw = localStorage.getItem('exhib_booths');
         if (raw) try { return JSON.parse(raw); } catch (e) { }
@@ -103,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             id: 'basic',
             name: 'Gói BASIC (Khởi nghiệp)',
-            price: 0, // Giá mẫu
+            price: 0,
             target: 'Sạp hàng nhỏ, mới tham gia.',
             features: [
                 { text: 'Phí hoa hồng: 10% (Cao nhất)', active: true },
@@ -117,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             id: 'gold',
             name: 'Gói GOLD (Kinh doanh)',
-            price: 499000, // Giá mẫu
+            price: 499000,
             target: 'Hộ kinh doanh chuyên nghiệp.',
             features: [
                 { text: 'Phí hoa hồng: 8% (Trung bình)', active: true },
@@ -131,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             id: 'diamond',
             name: 'Gói DIAMOND (Đẳng cấp)',
-            price: 999000, // Giá mẫu
+            price: 999000,
             target: 'Doanh nghiệp lớn, thương hiệu.',
             features: [
                 { text: 'Phí hoa hồng: 5% (Thấp nhất)', active: true },
@@ -145,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function getPlans() {
-        // CẬP NHẬT MỚI: Bỏ qua việc check LocalStorage cũ, trực tiếp ghi đè dữ liệu mới vào luôn
         localStorage.setItem('exhib_plans', JSON.stringify(defaultPlans));
         return [...defaultPlans];
     }
@@ -172,13 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (raw) {
             try {
                 accounts = JSON.parse(raw);
-                // Ensure defaults exist and have correct passwords in the cached accounts
                 defaults.forEach(def => {
                     const existing = accounts.find(a => a.email.toLowerCase() === def.email.toLowerCase());
                     if (!existing) {
                         accounts.push(def);
                     } else {
-                        existing.password = def.password; // Force reset password to default
+                        existing.password = def.password;
                     }
                 });
                 localStorage.setItem('exhib_accounts', JSON.stringify(accounts));
@@ -243,21 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authScreen) authScreen.style.display = 'none';
         if (dashboardApp) dashboardApp.style.display = 'block';
 
-        // Reset chart so it re-initialises on the correct canvas for this role
         chartInitialized = false;
         if (window.dashboardChart && typeof window.dashboardChart.destroy === 'function') {
             window.dashboardChart.destroy();
             window.dashboardChart = null;
         }
 
-        // Hide/Show menu items based on role
-        document.querySelectorAll('.nav-item').forEach(el => {
-            if (el.getAttribute('data-role') && el.getAttribute('data-role') !== role && role !== 'Admin') {
-                el.style.display = 'none';
-            } else {
-                el.style.display = 'block';
-            }
-        });
+        const navOrders = document.getElementById('nav-orders');
+        if (navOrders) navOrders.style.display = role === 'Owner' ? 'flex' : 'none';
 
         switchView('view-dashboard');
         showToast(`Welcome back, ${name.split(' ')[0]}!`, 'success');
@@ -313,14 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dashboardApp) dashboardApp.style.display = 'block';
                 if (document.getElementById('sidebar-name')) document.getElementById('sidebar-name').textContent = session.name;
 
-                // Role visibility
-                document.querySelectorAll('.nav-item').forEach(el => {
-                    if (el.getAttribute('data-role') && el.getAttribute('data-role') !== session.role && session.role !== 'Admin') {
-                        el.style.display = 'none';
-                    } else {
-                        el.style.display = 'block';
-                    }
-                });
+                const navOrders = document.getElementById('nav-orders');
+                if (navOrders) navOrders.style.display = session.role === 'Owner' ? 'flex' : 'none';
 
                 setTimeout(() => switchView('view-dashboard'), 50);
             }
@@ -361,12 +366,12 @@ document.addEventListener('DOMContentLoaded', () => {
             totalCommission += commission;
 
             rowsHtml += `
-            <tr style="border-bottom: 1px solid var(--border);">
+            <tr class="owner-order-row" data-id="${o.id}" style="border-bottom: 1px solid var(--border); cursor:pointer;">
                 <td style="padding:10px; font-weight:500;">${o.id}</td>
-                <td style="padding:10px;">${o.product} <span style="color:var(--text-dim); font-size:11px;">(x${o.qty})</span></td>
                 <td style="padding:10px; color:var(--emerald);">${formatCurrency(revenue)} ₫</td>
-                <td style="padding:10px; color:#ef4444;">-${formatCurrency(commission)} ₫</td>
-                <td style="padding:10px; font-weight:600;">${formatCurrency(net)} ₫</td>
+                <td style="padding:10px; color:#ef4444;">-${formatCurrency(cfg.fee)} ₫</td>
+                <td style="padding:10px; color:#ef4444;">-${formatCurrency(revenue * cfg.rc)} ₫</td>
+                <td style="padding:10px; font-weight:600; color:var(--emerald);">${formatCurrency(net)} ₫</td>
                 <td style="padding:10px; color:var(--text-dim); font-size:12px;">${o.date}</td>
             </tr>
         `;
@@ -412,6 +417,90 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        document.querySelectorAll('.owner-order-row').forEach(row => {
+            row.addEventListener('click', function () {
+                const orderId = this.getAttribute('data-id');
+                const order = orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                const booth = booths.find(b => b.id === order.boothId);
+                const cfg = booth ? (tierCfg[booth.tier] || tierCfg.Basic) : tierCfg.Basic;
+                const revenue = order.price * order.qty;
+                const commissionRate = revenue * cfg.rc;
+                const net = revenue - commissionRate - cfg.fee;
+
+                const modalContent = document.getElementById('owner-order-modal-content');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                    <div class="flex-between mb-3">
+                        <span style="color:var(--text-dim); font-size:13px;">Mã đơn hàng:</span>
+                        <strong style="font-size:15px;">${order.id}</strong>
+                    </div>
+                    <div class="flex-between mb-3">
+                        <span style="color:var(--text-dim); font-size:13px;">Ngày giao dịch:</span>
+                        <span style="font-size:14px;">${order.date}</span>
+                    </div>
+                    <div class="flex-between mb-4 pb-4" style="border-bottom:1px dashed var(--border);">
+                        <span style="color:var(--text-dim); font-size:13px;">Sản phẩm:</span>
+                        <span style="font-size:14px; text-align:right;">${order.product} <br> <span style="font-size:12px; color:var(--text-muted);">(x${order.qty} | ${formatCurrency(order.price)} ₫/cái)</span></span>
+                    </div>
+
+                    <div class="flex-between mb-3">
+                        <span style="color:var(--text-dim); font-size:13px;">Doanh thu gộp:</span>
+                        <span style="font-weight:600;">${formatCurrency(revenue)} ₫</span>
+                    </div>
+                    <div class="flex-between mb-2">
+                        <span style="color:var(--text-dim); font-size:13px;">Hoa hồng hệ thống (${cfg.rc * 100}%):</span>
+                        <span style="color:#ef4444;">-${formatCurrency(commissionRate)} ₫</span>
+                    </div>
+                    <div class="flex-between mb-4 pb-4" style="border-bottom:1px dashed var(--border);">
+                        <span style="color:var(--text-dim); font-size:13px;">Phí giao dịch cố định:</span>
+                        <span style="color:#ef4444;">-${formatCurrency(cfg.fee)} ₫</span>
+                    </div>
+
+                    <div class="flex-between" style="background:rgba(34,197,94,0.1); padding:16px; border-radius:8px;">
+                        <span style="font-weight:700; font-size:15px;">Thực nhận:</span>
+                        <span style="font-weight:800; font-size:20px; color:var(--emerald);">${formatCurrency(net)} ₫</span>
+                    </div>
+                `;
+                }
+
+                const modal = document.getElementById('owner-order-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.style.pointerEvents = 'auto';
+                    setTimeout(() => {
+                        modal.style.opacity = '1';
+                        modal.querySelector('.glass-card').style.transform = 'translateY(0)';
+                    }, 10);
+                }
+            });
+        });
+
+        const closeModal = () => {
+            const modal = document.getElementById('owner-order-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.querySelector('.glass-card').style.transform = 'translateY(20px)';
+                modal.style.pointerEvents = 'none';
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        };
+
+        const btnClose1 = document.getElementById('btn-close-owner-modal');
+        const btnClose2 = document.getElementById('btn-close-owner-modal-bottom');
+
+        if (btnClose1) {
+            const newBtn = btnClose1.cloneNode(true);
+            btnClose1.parentNode.replaceChild(newBtn, btnClose1);
+            newBtn.addEventListener('click', closeModal);
+        }
+        if (btnClose2) {
+            const newBtn = btnClose2.cloneNode(true);
+            btnClose2.parentNode.replaceChild(newBtn, btnClose2);
+            newBtn.addEventListener('click', closeModal);
+        }
+
         const btnWithdraw = document.getElementById('btn-withdraw');
         if (btnWithdraw) {
             const newBtn = btnWithdraw.cloneNode(true);
@@ -446,89 +535,202 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // TÀI CHÍNH - ADMIN
+    // QUẢN LÝ KHÁCH HÀNG - ADMIN
     // ==========================================
-    let selectedAdminOrderId = null;
+    let selectedAdminCustomerId = null;
 
-    window.initFinanceModule = function () {
-        const tbody = document.getElementById('finance-admin-orders-body');
-        const countSpan = document.getElementById('finance-admin-order-count');
-        const searchInput = document.getElementById('finance-admin-search');
+    window.initCustomerModule = function () {
+        const tbody = document.getElementById('customers-admin-body');
+        const countSpan = document.getElementById('customers-admin-count');
+        const searchInput = document.getElementById('customers-admin-search');
         if (!tbody) return;
 
-        let orders = getOrders();
-        let booths = getBooths();
+        let customers = getCustomers();
 
         if (searchInput) {
             const searchTerm = searchInput.value.toLowerCase().trim();
             if (searchTerm) {
-                orders = orders.filter(o => {
-                    const b = booths.find(x => x.id === o.boothId);
-                    const boothName = b ? b.name.toLowerCase() : '';
-                    return o.id.toLowerCase().includes(searchTerm) || boothName.includes(searchTerm);
-                });
+                customers = customers.filter(c =>
+                    c.name.toLowerCase().includes(searchTerm) ||
+                    c.phone.includes(searchTerm) ||
+                    c.email.toLowerCase().includes(searchTerm) ||
+                    c.id.toLowerCase().includes(searchTerm)
+                );
             }
         }
 
+        if (countSpan) countSpan.textContent = `${customers.length} khách hàng`;
+
+        if (customers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-dim);">Không tìm thấy khách hàng nào</td></tr>`;
+            return;
+        }
+
+        customers.sort((a, b) => b.date.localeCompare(a.date));
+
+        tbody.innerHTML = customers.map(c => {
+            const isSelected = c.id === selectedAdminCustomerId;
+
+            return `
+            <tr class="admin-customer-row ${isSelected ? 'active-row' : ''}" data-id="${c.id}" style="border-bottom: 1px solid var(--border); cursor: pointer; background: ${isSelected ? 'rgba(34,197,94,0.1)' : 'transparent'};">
+                <td style="padding:10px; font-weight:600;">${c.id}</td>
+                <td style="padding:10px; font-weight:500;">${c.name}</td>
+                <td style="padding:10px;">${c.phone}</td>
+                <td style="padding:10px; color:var(--text-dim);">${c.email}</td>
+                <td style="padding:10px; color:var(--text-dim); font-size:12px;">${c.date}</td>
+            </tr>
+        `;
+        }).join('');
+
+        document.querySelectorAll('.admin-customer-row').forEach(row => {
+            row.addEventListener('click', function () {
+                selectedAdminCustomerId = this.getAttribute('data-id');
+                window.initCustomerModule();
+                renderAdminCustomerDetails(selectedAdminCustomerId);
+            });
+        });
+
+        if (!selectedAdminCustomerId && customers.length > 0) {
+            selectedAdminCustomerId = customers[0].id;
+            renderAdminCustomerDetails(selectedAdminCustomerId);
+            const firstRow = document.querySelector('.admin-customer-row');
+            if (firstRow) firstRow.style.background = 'rgba(34,197,94,0.1)';
+        }
+
+        if (searchInput && !searchInput.dataset.bound) {
+            searchInput.dataset.bound = "true";
+            searchInput.addEventListener('input', window.initCustomerModule);
+        }
+    };
+
+    function renderAdminCustomerDetails(customerId) {
+        const container = document.getElementById('customers-admin-details');
+        if (!container) return;
+
+        const customer = getCustomers().find(c => c.id === customerId);
+        if (!customer) return;
+
+        container.innerHTML = `
+        <div style="text-align:center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--emerald); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 12px auto;">
+                ${customer.name.charAt(0)}
+            </div>
+            <h4 style="font-size: 18px; font-weight: 700;">${customer.name}</h4>
+            <p style="color:var(--text-dim); font-size:13px;">${customer.id}</p>
+        </div>
+
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
+            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">THÔNG TIN LIÊN HỆ</h4>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;"><i class="fa-solid fa-phone" style="width:20px;"></i> SĐT:</span>
+                <span style="font-size:13px; font-weight:500;">${customer.phone}</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;"><i class="fa-solid fa-envelope" style="width:20px;"></i> Email:</span>
+                <span style="font-size:13px; font-weight:500;">${customer.email}</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;"><i class="fa-solid fa-calendar-days" style="width:20px;"></i> Ngày tham gia:</span>
+                <span style="font-size:13px;">${customer.date}</span>
+            </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.03); padding: 16px; border-radius: 8px;">
+            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">LỊCH SỬ TƯƠNG TÁC</h4>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;">Số lượng đơn hàng:</span>
+                <span style="font-weight:600;">${customer.orderCount} đơn</span>
+            </div>
+            <div class="flex-between mb-2">
+                <span style="color:var(--text-dim); font-size:13px;">Lần cuối truy cập:</span>
+                <span style="font-weight:500;">${customer.lastVisit}</span>
+            </div>
+            <div class="flex-between mt-3 pt-3" style="border-top: 1px solid var(--border);">
+                <span style="font-weight:600; font-size:14px;">Tổng chi tiêu:</span>
+                <span style="font-weight:700; font-size:18px; color:var(--emerald);">${formatCurrency(customer.totalSpent)} ₫</span>
+            </div>
+        </div>
+        `;
+    }
+
+    // ==========================================
+    // QUẢN LÝ ĐƠN HÀNG - OWNER
+    // ==========================================
+    let selectedOwnerOrderId = null;
+
+    function renderOrdersOwner() {
+        const container = document.getElementById('view-orders-owner');
+        if (!container) return;
+
+        const ownerBoothIds = ['B001', 'B002'];
+        const booths = getBooths();
+        let orders = getOrders().filter(o => ownerBoothIds.includes(o.boothId));
+
+        const searchInput = document.getElementById('orders-owner-search');
+        if (searchInput) {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm) {
+                orders = orders.filter(o => o.id.toLowerCase().includes(searchTerm));
+            }
+        }
+
+        const countSpan = document.getElementById('orders-owner-count');
         if (countSpan) countSpan.textContent = `${orders.length} đơn`;
 
+        const tbody = document.getElementById('orders-owner-body');
+        if (!tbody) return;
+
         if (orders.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-dim);">Không tìm thấy đơn hàng nào</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-dim);">Chưa có đơn hàng nào</td></tr>`;
             return;
         }
 
         orders.sort((a, b) => b.date.localeCompare(a.date));
 
         tbody.innerHTML = orders.map(o => {
-            const b = booths.find(x => x.id === o.boothId);
-            const boothName = b ? b.name : 'Không rõ';
             const total = o.price * o.qty;
-
             let statusColor = '#60a5fa';
             let statusText = 'Đang xử lý';
             if (o.status === 'success') { statusColor = 'var(--emerald)'; statusText = 'Thành công'; }
             if (o.status === 'cancelled' || o.status === 'canceled') { statusColor = '#ef4444'; statusText = 'Đã hủy'; }
 
-            const isSelected = o.id === selectedAdminOrderId;
+            const isSelected = o.id === selectedOwnerOrderId;
 
             return `
-            <tr class="admin-order-row ${isSelected ? 'active-row' : ''}" data-id="${o.id}" style="border-bottom: 1px solid var(--border); cursor: pointer; background: ${isSelected ? 'rgba(34,197,94,0.1)' : 'transparent'};">
+            <tr class="owner-order-list-row ${isSelected ? 'active-row' : ''}" data-id="${o.id}" style="border-bottom: 1px solid var(--border); cursor: pointer; background: ${isSelected ? 'rgba(34,197,94,0.1)' : 'transparent'};">
                 <td style="padding:10px; font-weight:600;">${o.id}</td>
-                <td style="padding:10px;">${boothName}</td>
                 <td style="padding:10px; font-weight:600;">${formatCurrency(total)} ₫</td>
                 <td style="padding:10px;">
-                    <span style="font-size:11px; padding:4px 8px; border-radius:6px; background:${statusColor}20; color:${statusColor};">
-                        ${statusText}
-                    </span>
+                    <span style="font-size:11px; padding:4px 8px; border-radius:6px; background:${statusColor}20; color:${statusColor};">${statusText}</span>
                 </td>
                 <td style="padding:10px; color:var(--text-dim); font-size:12px;">${o.date}</td>
             </tr>
-        `;
+            `;
         }).join('');
 
-        document.querySelectorAll('.admin-order-row').forEach(row => {
+        document.querySelectorAll('.owner-order-list-row').forEach(row => {
             row.addEventListener('click', function () {
-                selectedAdminOrderId = this.getAttribute('data-id');
-                window.initFinanceModule();
-                renderAdminOrderDetails(selectedAdminOrderId);
+                selectedOwnerOrderId = this.getAttribute('data-id');
+                renderOrdersOwner();
+                renderOwnerOrderDetailsRight(selectedOwnerOrderId);
             });
         });
 
-        if (!selectedAdminOrderId && orders.length > 0) {
-            selectedAdminOrderId = orders[0].id;
-            renderAdminOrderDetails(selectedAdminOrderId);
-            const firstRow = document.querySelector('.admin-order-row');
+        if (!selectedOwnerOrderId && orders.length > 0) {
+            selectedOwnerOrderId = orders[0].id;
+            renderOwnerOrderDetailsRight(selectedOwnerOrderId);
+            const firstRow = document.querySelector('.owner-order-list-row');
             if (firstRow) firstRow.style.background = 'rgba(34,197,94,0.1)';
         }
 
         if (searchInput && !searchInput.dataset.bound) {
             searchInput.dataset.bound = "true";
-            searchInput.addEventListener('input', window.initFinanceModule);
+            searchInput.addEventListener('input', renderOrdersOwner);
         }
-    };
+    }
 
-    function renderAdminOrderDetails(orderId) {
-        const container = document.getElementById('finance-admin-order-details');
+    function renderOwnerOrderDetailsRight(orderId) {
+        const container = document.getElementById('orders-owner-details');
         if (!container) return;
 
         const order = getOrders().find(o => o.id === orderId);
@@ -573,17 +775,13 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);">
-            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">ĐỐI SOÁT GIAN HÀNG</h4>
+            <h4 style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:12px;">CHI TIẾT ĐỐI SOÁT</h4>
             <div class="flex-between mb-2">
                 <span style="color:var(--text-dim); font-size:13px;">Gian hàng:</span>
                 <span style="font-size:13px; font-weight:500;">${booth ? booth.name : 'N/A'}</span>
             </div>
             <div class="flex-between mb-2">
-                <span style="color:var(--text-dim); font-size:13px;">Gói dịch vụ:</span>
-                <span class="tier-badge tier-${booth ? booth.tier.toLowerCase() : 'basic'}" style="font-size:10px;">${booth ? booth.tier.toUpperCase() : 'BASIC'}</span>
-            </div>
-            <div class="flex-between mb-2">
-                <span style="color:var(--text-dim); font-size:13px;">Hoa hồng (${cfg.rc * 100}%):</span>
+                <span style="color:var(--text-dim); font-size:13px;">Hoa hồng hệ thống (${cfg.rc * 100}%):</span>
                 <span style="color:#ef4444; font-size:13px;">-${formatCurrency(revenue * cfg.rc)} ₫</span>
             </div>
             <div class="flex-between">
@@ -593,22 +791,17 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div style="background: rgba(0,0,0,0.15); padding: 16px; border-radius: 8px;">
-            <div class="flex-between mb-2">
-                <span style="color:var(--text-dim); font-size:14px;">Tổng doanh thu:</span>
-                <span style="font-weight:600;">${formatCurrency(revenue)} ₫</span>
-            </div>
-            <div class="flex-between mb-2">
-                <span style="color:#ef4444; font-size:14px;">Phí sàn thu:</span>
-                <span style="font-weight:600; color:#ef4444;">${formatCurrency(commission)} ₫</span>
-            </div>
-            <div class="flex-between mt-3 pt-3" style="border-top: 1px solid var(--border);">
-                <span style="font-weight:600; font-size:14px;">Thực trả gian hàng:</span>
-                <span style="font-weight:700; font-size:18px; color:var(--emerald);">${formatCurrency(net)} ₫</span>
+            <div class="flex-between mt-2 pt-2" style="border-top: 1px solid var(--border);">
+                <span style="font-weight:600; font-size:14px;">Thực nhận:</span>
+                <span style="font-weight:700; font-size:18px; color:var(--emerald);">${order.status === 'success' ? formatCurrency(net) + ' ₫' : '0 ₫'}</span>
             </div>
         </div>
-    `;
+        `;
     }
 
+    // ==========================================
+    // ĐIỀU HƯỚNG TỔNG (SWITCH VIEW)
+    // ==========================================
     function switchView(targetId) {
         const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
         const role = session.role || 'Admin';
@@ -617,7 +810,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let actualTargetId = targetId;
         if (targetId === 'view-dashboard') actualTargetId = `view-dashboard-${role.toLowerCase()}`;
         if (targetId === 'view-booths') actualTargetId = `view-booths-${role.toLowerCase()}`;
-        if (targetId === 'view-finance') actualTargetId = role === 'Owner' ? 'view-finance-owner' : 'view-finance';
+        if (targetId === 'view-finance') actualTargetId = role === 'Owner' ? 'view-finance-owner' : 'view-customers';
+        if (targetId === 'view-orders') actualTargetId = 'view-orders-owner';
+
+        // Tự động đổi tên menu ở Sidebar dựa theo quyền
+        const navFinance = document.querySelector('[data-target="view-finance"]');
+        if (navFinance) {
+            navFinance.innerHTML = role === 'Owner'
+                ? '<i class="fa-solid fa-coins"></i> Tài chính'
+                : '<i class="fa-solid fa-users"></i> Khách hàng';
+        }
 
         // 2. Chuyển đổi class 'active' để hiển thị đúng màn hình
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -629,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const titles = {
                 'view-dashboard': 'Dashboard Overview',
                 'view-booths': 'Booth Manager',
-                'view-finance': 'Finance & Commission',
+                'view-finance': role === 'Owner' ? 'Tài chính & Hoa hồng' : 'Quản lý Khách hàng',
                 'view-plans': 'Subscription Plans',
                 'view-settings': 'Admin Settings'
             };
@@ -654,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (role === 'Owner') {
                 if (typeof renderFinanceOwner === 'function') renderFinanceOwner();
             } else {
-                try { if (typeof window.initFinanceModule === 'function') window.initFinanceModule(); } catch (e) { console.warn(e); }
+                try { if (typeof window.initCustomerModule === 'function') window.initCustomerModule(); } catch (e) { console.warn(e); }
             }
         }
         if (targetId === 'view-plans') {
@@ -666,6 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof loadTierConfigUI === 'function') loadTierConfigUI();
             } catch (e) { console.warn(e); }
         }
+        if (targetId === 'view-orders' && role === 'Owner') renderOrdersOwner();
     }
 
     navLinks.forEach(link => {
@@ -723,7 +926,6 @@ document.addEventListener('DOMContentLoaded', () => {
         successOrders.forEach(o => { totalRevenue += o.price * o.qty; });
 
         if (role === 'Owner') {
-            // Owner dashboard stats
             const elRevenue = getActiveEl('stat-revenue-owner');
             const elSuccess = getActiveEl('stat-success-owner');
             const elPending = getActiveEl('stat-pending-owner');
@@ -733,7 +935,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (elPending) elPending.textContent = pendingOrders.length;
             if (elCancelled) elCancelled.textContent = cancelledOrders.length;
         } else {
-            // Admin dashboard stats
             const elFairs = getActiveEl('stat-fairs');
             const elBooths = getActiveEl('stat-booths');
             const elRevenue = getActiveEl('stat-revenue');
@@ -745,7 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (elVisitors) elVisitors.textContent = totalEngagement >= 1000 ? (totalEngagement / 1000).toFixed(1) + 'k' : totalEngagement;
         }
 
-        // Render Biểu đồ, Hoạt động gần đây và Bảng xếp hạng
         if (!chartInitialized) initRevenueChart(orders, tierCfg, booths);
         renderActivity(orders);
         if (role !== 'Owner') renderLeaderboard(booths, orders, tierCfg);
@@ -792,7 +992,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dayData.push(dayCommission);
         }
 
-        // Tạo dữ liệu mô phỏng nếu chưa có đơn hàng nào trong 7 ngày qua để đồ thị hiển thị đẹp mắt
         if (dayData.every(v => v === 0)) {
             const simulated = [320000, 480000, 580000, 420000, 750000, 890000, 1120000];
             simulated.forEach((v, i) => dayData[i] = v);
@@ -860,18 +1059,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = getActiveEl(listId);
         if (!container) return;
 
-        // Lấy 5 đơn hàng mới nhất
         const recent = [...orders].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
 
-        // Hàm helper để lấy màu theo trạng thái đơn hàng
         const getStatusColor = (status) => {
-            if (status === 'success') return 'var(--emerald, #22c55e)'; // Xanh lá
-            if (status === 'pending') return '#fbbf24'; // Vàng
-            if (status === 'canceled' || status === 'cancelled') return '#ef4444'; // Đỏ
-            return '#60a5fa'; // Mặc định (xanh dương)
+            if (status === 'success') return 'var(--emerald, #22c55e)';
+            if (status === 'pending') return '#fbbf24';
+            if (status === 'canceled' || status === 'cancelled') return '#ef4444';
+            return '#60a5fa';
         };
 
-        // 1. Tạo HTML cho phần chú giải (Legend)
         const legendHTML = `
         <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; font-size:11px; color:var(--text-muted); border-bottom:1px dashed var(--border); padding-bottom:12px;">
             <div style="display:flex; align-items:center; gap:6px;">
@@ -886,12 +1082,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-        // 2. Tạo HTML cho danh sách đơn hàng
         const listHTML = recent.map((o) => {
             const statusColor = getStatusColor(o.status);
 
-            // Em giữ lại thông tin sản phẩm và thêm ngày thực hiện xuống dưới cùng
-            // để danh sách hiển thị đầy đủ thông tin nhất
             return `
             <div class="activity-item" style="display:flex; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);">
                 <div style="width:10px; height:10px; border-radius:50%; margin-top:5px; background:${statusColor}; box-shadow: 0 0 8px ${statusColor}40;"></div>
@@ -906,7 +1099,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         }).join('');
 
-        // Gộp chú giải và danh sách lại rồi render
         container.innerHTML = legendHTML + listHTML;
     }
 
@@ -981,7 +1173,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const b = getBooths().find(x => x.id === id);
             if (!b) return;
 
-            // Helper: find the active element, trying plain ID then -owner suffix
             function getField(base) {
                 return getActiveEl(base) || getActiveEl(base + '-owner');
             }
@@ -1011,7 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!boothEventsBound) {
-            // Event Delegation for buttons
             document.addEventListener('click', (e) => {
                 const btnSave = e.target.closest('#btn-save-booth');
                 if (btnSave) {
@@ -1063,11 +1253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initWaveSurferInstance() {
         if (wavesurfer) wavesurfer.destroy();
-        // Try Admin waveform first, fall back to Owner waveform
         const container = getActiveEl('waveform') || getActiveEl('waveform-owner');
         if (!container) return;
 
-        // Determine suffix based on which waveform container was found
         const sfx = container.id === 'waveform-owner' ? '-owner' : '';
         const ga = id => document.getElementById(id + sfx);
 
@@ -1110,14 +1298,12 @@ document.addEventListener('DOMContentLoaded', () => {
         wavesurfer.load(URL.createObjectURL(file));
     }
 
-    // Helper: resolve audio/script element IDs based on active view role
     function getAudioId(base) {
         const activeView = document.querySelector('.view-section.active');
         if (activeView && activeView.id && activeView.id.includes('owner')) return base + '-owner';
         return base;
     }
 
-    // Event Delegation for Audio, AI, and Scripts
     document.addEventListener('click', e => {
         const uploadOverlay = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
         if (uploadOverlay) {
@@ -1198,7 +1384,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Drag events for audio upload overlay (both Admin and Owner)
     document.addEventListener('dragover', e => {
         const o = e.target.closest('#audio-upload-overlay, #audio-upload-overlay-owner');
         if (o) { e.preventDefault(); o.classList.add('dragging'); }
@@ -1247,10 +1432,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ══════════════════════════════════════════════
-       8. LEAFLET MAP & GEOFENCING (FIXED DUPLICATE SCOPE)
+       8. LEAFLET MAP & GEOFENCING
        ══════════════════════════════════════════════ */
     function initMap() {
-        const isOwnerActive = document.getElementById('view-booths-owner').classList.contains('active');
+        const isOwnerActive = document.getElementById('view-booths-owner')?.classList.contains('active');
         const mapContainer = document.getElementById(isOwnerActive ? 'map-owner' : 'map');
         if (!mapContainer) return;
 
@@ -1266,7 +1451,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const mapId = mapContainer.id || 'map';
 
-        // Check if Leaflet instance already exists for this container
         if (mapContainer._leaflet_id && window.myMaps[mapId]) {
             const m = window.myMaps[mapId];
             m.invalidateSize();
@@ -1374,11 +1558,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnAddPlan = document.getElementById('btn-add-plan');
         if (!container) return;
 
-        // Lấy thông tin Role hiện tại
         const session = JSON.parse(localStorage.getItem('exhib_session') || '{}');
         const role = session.role || 'Admin';
 
-        // Chỉ Admin mới thấy nút "Gói mới" ở góc trên cùng
         if (btnAddPlan) {
             btnAddPlan.style.display = role === 'Owner' ? 'none' : 'inline-flex';
         }
@@ -1390,9 +1572,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Đổi giao diện nút bấm theo Role
         const buttonText = role === 'Owner' ? '<i class="fa-solid"></i> Đăng ký ngay' : '<i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa gói';
-        const buttonStyle = role === 'Owner' ? 'background: #000000; color: #FFFFFF;' : ''; 
+        const buttonStyle = role === 'Owner' ? 'background: #000000; color: #FFFFFF;' : '';
 
         container.innerHTML = plans.map(plan => `
             <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column;">

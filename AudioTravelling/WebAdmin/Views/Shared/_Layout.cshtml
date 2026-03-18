@@ -69,9 +69,7 @@
                     <button class="auth-tab active" data-tab="login" id="tab-login">
                         <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
                     </button>
-                    <button class="auth-tab" data-tab="register" id="tab-register">
-                        <i class="fa-solid fa-user-plus"></i> Đăng ký
-                    </button>
+                    
                     <div class="auth-tab-indicator" id="auth-tab-indicator"></div>
                 </div>
 
@@ -119,7 +117,7 @@
                 </form>
 
                 <!-- ── REGISTER FORM ── -->
-                <form id="form-register" class="auth-form" autocomplete="off">
+                <form id="form-register" class="auth-form" autocomplete="off" hidden>
                     <div class="auth-field">
                         <label class="auth-label" for="reg-name">
                             <i class="fa-solid fa-user"></i> Họ tên
@@ -228,6 +226,9 @@
                     </a>
                     <a class="nav-link" data-target="view-plans" href="#">
                         <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                    </a>
+                    <a class="nav-link" data-target="view-orders" href="#" id="nav-orders">
+                        <i class="fa-solid fa-box-open"></i> Đơn hàng
                     </a>
                     <div class="nav-divider"></div>
                     <a class="nav-link" data-target="view-settings" href="#">
