@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Mobile.Views.SettingsPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F8FAFC">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── HEADER ── -->
+            <Border
+                StrokeShape="RoundRectangle 0,0,24,24"
+                Stroke="Transparent"
+                Padding="20,52,20,28">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#10B981" Offset="0.0"/>
+                        <GradientStop Color="#059669" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Shadow>
+                    <Shadow Brush="#10B981" Offset="0,8" Opacity="0.28" Radius="16"/>
+                </Border.Shadow>
+                <Label Text="⚙️  Cài đặt" FontFamily="OpenSans-Semibold" FontSize="22" TextColor="White"/>
+            </Border>
+
+            <!-- ── USER PROFILE CARD ── -->
+            <Border
+                StrokeShape="RoundRectangle 20"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                Margin="16,20,16,0"
+                Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Opacity="0.06" Radius="12"/>
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                    <!-- Avatar circle -->
+                    <Border
+                        Grid.Column="0"
+                        StrokeShape="RoundRectangle 28"
+                        Stroke="Transparent"
+                        WidthRequest="56" HeightRequest="56">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#10B981" Offset="0.0"/>
+                                <GradientStop Color="#F97316" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label
+                            Text="K"
+                            FontFamily="OpenSans-Semibold"
+                            FontSize="24"
+                            TextColor="White"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"/>
+                    </Border>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Khách du lịch" FontFamily="OpenSans-Semibold" FontSize="16" TextColor="#0F172A"/>
+                        <Label Text="ID: DOTBR-2024-0192" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                        <Border StrokeShape="RoundRectangle 6" Stroke="Transparent" BackgroundColor="#D1FAE5" Padding="8,3" HorizontalOptions="Start">
+                            <Label Text="Tourist Pass" FontSize="11" FontFamily="OpenSans-Semibold" TextColor="#059669"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Label Grid.Column="2" Text="&#xF054;" FontFamily="FA6Solid" FontSize="14" TextColor="#CBD5E1" VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- ── SECTION: Âm thanh ── -->
+            <Label Text="Hướng dẫn âm thanh" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#94A3B8" Margin="20,24,20,8"/>
+
+            <Border
+                StrokeShape="RoundRectangle 20"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                Margin="16,0"
+                Padding="20,4">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+
+                    <!-- Audio master toggle -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,14" HeightRequest="60">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#D1FAE5" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF028;" FontFamily="FA6Solid" FontSize="18" TextColor="#10B981" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Phát âm thanh tự động" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                            <Label x:Name="LblAudioStatus" Text="Đang bật – phát khi đến gần POI" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#10B981"/>
+                        </VerticalStackLayout>
+                        <Switch
+                            Grid.Column="2"
+                            x:Name="AudioToggle"
+                            IsToggled="True"
+                            OnColor="#10B981"
+                            ThumbColor="White"
+                            VerticalOptions="Center"
+                            Toggled="OnAudioToggled"/>
+                    </Grid>
+
+                    <BoxView Color="#F1F5F9" HeightRequest="1" Margin="56,0,0,0"/>
+
+                    <!-- Playback speed -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,14" HeightRequest="60">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#FEF3C7" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF3CD;" FontFamily="FA6Solid" FontSize="18" TextColor="#D97706" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Tốc độ phát" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                            <Label Text="1.0x (Bình thường)" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="&#xF054;" FontFamily="FA6Solid" FontSize="14" TextColor="#CBD5E1" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView Color="#F1F5F9" HeightRequest="1" Margin="56,0,0,0"/>
+
+                    <!-- Language -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,14" HeightRequest="60">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#EDE9FE" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF1AB;" FontFamily="FA6Solid" FontSize="18" TextColor="#7C3AED" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Ngôn ngữ hướng dẫn" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                        </VerticalStackLayout>
+                        <!-- Segmented language picker -->
+                        <HorizontalStackLayout Grid.Column="2" Spacing="0">
+                            <Border x:Name="LangViBtn" StrokeShape="RoundRectangle 8,0,0,8" Stroke="#10B981" StrokeThickness="1.5" BackgroundColor="#10B981" Padding="8,6">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnLangViTapped"/></Border.GestureRecognizers>
+                                <Label Text="🇻🇳" FontSize="16"/>
+                            </Border>
+                            <Border x:Name="LangEnBtn" Stroke="#10B981" StrokeThickness="1.5" BackgroundColor="White" Padding="8,6">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnLangEnTapped"/></Border.GestureRecognizers>
+                                <Label Text="🇬🇧" FontSize="16"/>
+                            </Border>
+                            <Border x:Name="LangJaBtn" StrokeShape="RoundRectangle 0,8,8,0" Stroke="#10B981" StrokeThickness="1.5" BackgroundColor="White" Padding="8,6">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnLangJaTapped"/></Border.GestureRecognizers>
+                                <Label Text="🇯🇵" FontSize="16"/>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── SECTION: Bản đồ ── -->
+            <Label Text="Bản đồ &amp; Định vị" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#94A3B8" Margin="20,24,20,8"/>
+
+            <Border
+                StrokeShape="RoundRectangle 20"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                Margin="16,0"
+                Padding="20,4">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,14" HeightRequest="60">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#DBEAFE" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF3C5;" FontFamily="FA6Solid" FontSize="18" TextColor="#2563EB" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Bán kính kích hoạt POI" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                            <Label Text="50 m (Mặc định)" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="&#xF054;" FontFamily="FA6Solid" FontSize="14" TextColor="#CBD5E1" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView Color="#F1F5F9" HeightRequest="1" Margin="56,0,0,0"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,14" HeightRequest="60">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#FCE7F3" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF5DC;" FontFamily="FA6Solid" FontSize="18" TextColor="#DB2777" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Loại bản đồ" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                            <Label Text="Street (Đường phố)" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="&#xF054;" FontFamily="FA6Solid" FontSize="14" TextColor="#CBD5E1" VerticalOptions="Center"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── APP INFO ── -->
+            <Label Text="Thông tin ứng dụng" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#94A3B8" Margin="20,24,20,8"/>
+
+            <Border
+                StrokeShape="RoundRectangle 20"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                Margin="16,0,16,40"
+                Padding="20,4">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Padding="0,16">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="40" HeightRequest="40">
+                            <Label Text="&#xF05A;" FontFamily="FA6Solid" FontSize="18" TextColor="#64748B" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Dotonbori Audio Travel" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A"/>
+                            <Label Text="Phiên bản 1.0.0 • Build 2026.03" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

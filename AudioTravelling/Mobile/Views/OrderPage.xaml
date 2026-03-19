@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Mobile.Views.OrderPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F8FAFC">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ── HEADER ── -->
+        <Border
+            Grid.Row="0"
+            StrokeShape="RoundRectangle 0,0,24,24"
+            Stroke="Transparent"
+            Padding="20,52,20,20">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#F97316" Offset="0.0"/>
+                    <GradientStop Color="#EF4444" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#F97316" Offset="0,8" Opacity="0.30" Radius="16"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label Text="🛒  Giỏ hàng" FontFamily="OpenSans-Semibold" FontSize="22" TextColor="White"/>
+                    <Label x:Name="LblItemCount" Text="0 món" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#FFEDE0"/>
+                </VerticalStackLayout>
+                <!-- Clear cart button -->
+                <Border
+                    Grid.Column="1"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="#33FFFFFF"
+                    Padding="12,8">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnClearCartTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="Xóa tất cả" FontSize="13" FontFamily="OpenSans-Semibold" TextColor="White"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ── CART LIST / EMPTY STATE ── -->
+        <Grid Grid.Row="1">
+
+            <!-- Empty state -->
+            <VerticalStackLayout
+                x:Name="EmptyState"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Spacing="16"
+                Padding="40">
+                <Label Text="🛍️" FontSize="64" HorizontalOptions="Center"/>
+                <Label
+                    Text="Giỏ hàng trống"
+                    FontFamily="OpenSans-Semibold"
+                    FontSize="20"
+                    TextColor="#0F172A"
+                    HorizontalOptions="Center"/>
+                <Label
+                    Text="Quay lại bản đồ và chọn món từ các quán ăn Dotonbori!"
+                    FontFamily="OpenSans-Regular"
+                    FontSize="14"
+                    TextColor="#94A3B8"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"/>
+            </VerticalStackLayout>
+
+            <!-- Order items list -->
+            <CollectionView
+                x:Name="CartList"
+                Margin="16,12"
+                IsVisible="False">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            StrokeShape="RoundRectangle 16"
+                            Stroke="#E2E8F0"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            Margin="0,0,0,12"
+                            Padding="16">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,2" Opacity="0.06" Radius="8"/>
+                            </Border.Shadow>
+                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+
+                                <!-- Food thumb -->
+                                <Border
+                                    Grid.Column="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Stroke="Transparent"
+                                    WidthRequest="56" HeightRequest="56">
+                                    <Image Source="{Binding Food.ImageSource}" Aspect="AspectFill"/>
+                                </Border>
+
+                                <!-- Name + POI + price -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding Food.Name}" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#0F172A" LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding Poi.Name}" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                                    <Label Text="{Binding Food.PriceLabel}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#F97316"/>
+                                </VerticalStackLayout>
+
+                                <!-- Qty controls -->
+                                <VerticalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" HorizontalOptions="End">
+                                    <Label Text="{Binding LineTotalLabel}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#0F172A" HorizontalOptions="Center"/>
+                                    <HorizontalStackLayout Spacing="0">
+                                        <Border StrokeShape="RoundRectangle 8,0,0,8" Stroke="#E2E8F0" BackgroundColor="#F8FAFC" WidthRequest="32" HeightRequest="32">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnDecreaseQty" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="−" FontSize="18" FontFamily="OpenSans-Semibold" TextColor="#475569" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+                                        <Border Stroke="#E2E8F0" StrokeThickness="0" BackgroundColor="White" WidthRequest="32" HeightRequest="32">
+                                            <Label Text="{Binding QuantityLabel}" FontSize="14" FontFamily="OpenSans-Semibold" TextColor="#0F172A" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+                                        <Border StrokeShape="RoundRectangle 0,8,8,0" Stroke="#E2E8F0" BackgroundColor="#10B981" WidthRequest="32" HeightRequest="32">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnIncreaseQty" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="+" FontSize="16" FontFamily="OpenSans-Semibold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+
+        <!-- ── CHECKOUT BAR ── -->
+        <Border
+            x:Name="CheckoutBar"
+            Grid.Row="2"
+            StrokeShape="RoundRectangle 24,24,0,0"
+            Stroke="#E2E8F0"
+            StrokeThickness="1"
+            BackgroundColor="White"
+            Padding="20,16,20,36"
+            IsVisible="False">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,-4" Opacity="0.08" Radius="16"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                    <Label Text="Tổng cộng" FontFamily="OpenSans-Regular" FontSize="12" TextColor="#94A3B8"/>
+                    <Label x:Name="LblTotal" Text="0 ¥" FontFamily="OpenSans-Semibold" FontSize="22" TextColor="#0F172A"/>
+                </VerticalStackLayout>
+                <Border
+                    Grid.Column="1"
+                    StrokeShape="RoundRectangle 16"
+                    Stroke="Transparent">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#F97316" Offset="0.0"/>
+                            <GradientStop Color="#EF4444" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Shadow>
+                        <Shadow Brush="#F97316" Offset="0,4" Opacity="0.35" Radius="10"/>
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCheckoutTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="   Đặt hàng ngay  &#xF054;   " FontFamily="OpenSans-Semibold" FontSize="15" TextColor="White" Padding="20,14"/>
+                </Border>
+            </Grid>
+        </Border>
+
+    </Grid>
+</ContentPage>
