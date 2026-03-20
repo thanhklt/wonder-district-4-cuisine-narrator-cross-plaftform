@@ -6,7 +6,7 @@ Xây dựng ứng dụng di động đóng vai trò như một hướng dẫn vi
 
 ### 1.1 Lược đồ kiến trúc hệ thống (BFD - Block Flow Diagram)
 
-![BFD Diagram](images/Diagram/bfd.png)
+![BFD Diagram](Images/Diagram/bfd.png)
 
 ## 2. Yêu cầu chức năng chi tiết
 
