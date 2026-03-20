@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng quan Admin - Du Hý Đó Đây</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/Admin/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <img src="../../images/logo_cty.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+            </div>
+            <div class="sidebar-brand-text">
+                Du Hý Đó <span>Đây</span>
+                <small>Phố Ẩm Thực Khánh Hội</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-link active" href="./DashboardAdmin.html">
+                <i class="fa-solid fa-chart-pie"></i> Tổng quan
+            </a>
+            <a class="nav-link" href="./BoothAdmin.html">
+                <i class="fa-solid fa-store"></i> Quản lý gian hàng
+            </a>
+            <a class="nav-link" href="#users">
+                <i class="fa-solid fa-users"></i> Quản lý người dùng
+            </a>
+            <a class="nav-link" href="#finances">
+                <i class="fa-solid fa-coins"></i> Tài chính
+            </a>
+            <a class="nav-link" href="#reports">
+                <i class="fa-solid fa-chart-bar"></i> Báo cáo
+            </a>
+            <div class="nav-divider"></div>
+            <a class="nav-link" href="./SettingsAdmin.html">
+                <i class="fa-solid fa-gear"></i> Cài đặt
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img src="https://i.pravatar.cc/150?img=1" alt="Admin" class="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <p class="sidebar-user-name">Admin</p>
+                    <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-header">
+            <h2>Tổng quan</h2>
+            <div></div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1><i class="fa-solid fa-chart-pie" style="margin-right: 10px; color: #3b82f6;"></i>Tổng quan Hệ Thống</h1>
+                    <p>Quản lý và theo dõi hoạt động của tất cả các gian hàng</p>
+                </div>
+
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fa-solid fa-tent"></i></div>
+                        <div class="stat-content">
+                            <h3>Tổng số hội chợ</h3>
+                            <p id="stat-fairs">5</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fa-solid fa-store"></i></div>
+                        <div class="stat-content">
+                            <h3>Gian hàng đang hoạt động</h3>
+                            <p id="stat-booths">48</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-content">
+                            <h3>Tổng khách hàng</h3>
+                            <p id="stat-visitors">2,340</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fa-solid fa-coins"></i></div>
+                        <div class="stat-content">
+                            <h3>Tổng doanh thu</h3>
+                            <p id="stat-revenue">₫25.6M</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3><i class="fa-solid fa-chart-line text-accent"></i>Thống kê doanh thu</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fa-solid fa-bolt text-accent"></i>Hoạt động gần đây</h3>
+                        <div id="activity-list" class="activity-list">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="leaderboard-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;"><i class="fa-solid fa-trophy text-accent"></i>Bảng xếp hạng gian hàng</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button id="sort-asc-btn" class="sort-btn" onclick="sortLeaderboard('asc')">
+                                <i class="fa-solid fa-arrow-up"></i> Tăng dần
+                            </button>
+                            <button id="sort-desc-btn" class="sort-btn" onclick="sortLeaderboard('desc')">
+                                <i class="fa-solid fa-arrow-down"></i> Giảm dần
+                            </button>
+                        </div>
+                    </div>
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">STT</th>
+                                <th>Tên gian hàng</th>
+                                <th>Công ty</th>
+                                <th>Hạng</th>
+                                <th>Đơn hàng</th>
+                                <th style="text-align:right;">Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const leaderboardData = [
+            { rank: 1, name: 'Du Hý Đó Đây', company: 'Phố Ẩm Thực Khánh Hội', tier: 'Diamond', orders: 1250, points: 9850 },
+            { rank: 2, name: 'Gian Hàng A', company: 'Công ty A', tier: 'Gold', orders: 980, points: 8760 },
+            { rank: 3, name: 'Gian Hàng B', company: 'Công ty B', tier: 'Gold', orders: 750, points: 7340 },
+            { rank: 4, name: 'Gian Hàng C', company: 'Công ty C', tier: 'Basic', orders: 620, points: 6210 },
+            { rank: 5, name: 'Gian Hàng D', company: 'Công ty D', tier: 'Basic', orders: 480, points: 5120 }
+        ];
+
+        const activityData = [
+            { type: 'success', title: 'Đơn hàng mới', description: 'Gian hàng A nhận đơn #12345', time: '5 phút trước' },
+            { type: 'warning', title: 'Cảnh báo gian hàng', description: 'Gian hàng B có tỷ lệ huỷ cao', time: '15 phút trước' },
+            { type: 'info', title: 'Khách hàng mới', description: '3 khách hàng mới đăng ký', time: '1 giờ trước' },
+            { type: 'success', title: 'Nâng cấp gói', description: 'Gian hàng C nâng lên Gold', time: '2 giờ trước' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardData.forEach((booth) => {
+                // Use tier instead of rank for badge class
+                const tierClass = booth.tier === 'Diamond' ? 'tier-diamond' : booth.tier === 'Gold' ? 'tier-gold' : 'tier-basic';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${booth.rank}</td>
+                    <td><strong>${booth.name}</strong></td>
+                    <td>${booth.company}</td>
+                    <td><span class="tier-badge ${tierClass}">${booth.tier}</span></td>
+                    <td>${booth.orders.toLocaleString('vi-VN')}</td>
+                    <td style="text-align:right; font-weight:700; color:#3b82f6;">${booth.points.toLocaleString('vi-VN')}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+
+            const activityList = document.getElementById('activity-list');
+            activityData.forEach(activity => {
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                div.innerHTML = `
+                    <div class="activity-icon ${activity.type}">
+                        <i class="fa-solid fa-${activity.type === 'success' ? 'check' : activity.type === 'warning' ? 'exclamation' : 'circle-info'}"></i>
+                    </div>
+                    <div class="activity-text">
+                        <strong>${activity.title}</strong>
+                        <small>${activity.description}</small>
+                        <small style="color:#d1d5db; margin-top:4px;">${activity.time}</small>
+                    </div>
+                `;
+                activityList.appendChild(div);
+            });
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'],
+                    datasets: [{
+                        label: 'Doanh thu (Triệu ₫)',
+                        data: [2.4, 3.1, 2.8, 3.8, 4.2, 3.9, 4.5],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: function(value) { return '₫' + value + 'M'; } }
+                        }
+                    }
+                }
+            });
+        });
+
+        let currentSort = null;
+
+        function sortLeaderboard(direction) {
+            // Create a copy of the data to sort
+            const sorted = [...leaderboardData];
+            
+            if (direction === 'asc') {
+                sorted.sort((a, b) => a.rank - b.rank);
+            } else {
+                sorted.sort((a, b) => b.rank - a.rank);
+            }
+            
+            currentSort = direction;
+            
+            // Update button states
+            const ascBtn = document.getElementById('sort-asc-btn');
+            const descBtn = document.getElementById('sort-desc-btn');
+            
+            if (direction === 'asc') {
+                ascBtn.style.background = '#3b82f6';
+                ascBtn.style.color = 'white';
+                descBtn.style.background = '';
+                descBtn.style.color = '';
+            } else {
+                descBtn.style.background = '#3b82f6';
+                descBtn.style.color = 'white';
+                ascBtn.style.background = '';
+                ascBtn.style.color = '';
+            }
+            
+            // Re-render the leaderboard
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = '';
+            
+            sorted.forEach((booth) => {
+                const tierClass = booth.tier === 'Diamond' ? 'tier-diamond' : booth.tier === 'Gold' ? 'tier-gold' : 'tier-basic';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${booth.rank}</td>
+                    <td><strong>${booth.name}</strong></td>
+                    <td>${booth.company}</td>
+                    <td><span class="tier-badge ${tierClass}">${booth.tier}</span></td>
+                    <td>${booth.orders.toLocaleString('vi-VN')}</td>
+                    <td style="text-align:right; font-weight:700; color:#3b82f6;">${booth.points.toLocaleString('vi-VN')}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+    </script>
+
+    <style>
+        .sort-btn {
+            padding: 8px 14px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .sort-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</body>
+
+</html>

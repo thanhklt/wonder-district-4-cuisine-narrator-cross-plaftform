@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="AudioTravelling/Api/Api.csproj" />
-  <Project Path="AudioTravelling/Mobile/Mobile.csproj" />
-  <Project Path="AudioTravelling/Shared/Shared.csproj" />
-  <Project Path="AudioTravelling/WebAdmin/WebAdmin.csproj" />
-</Solution>

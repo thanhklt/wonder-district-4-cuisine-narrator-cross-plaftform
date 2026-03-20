@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài chính - Audio Travelling</title>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/layout.css">
+    <link rel="stylesheet" href="../../assets/css/finance.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/theme-light.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div style="display:flex; height:100vh; overflow:hidden;">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    Du Hý Đó <span>Đây</span>
+                    <small>Phố Ẩm Thực Khánh Hội</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <a class="nav-link" href="./DashboardOwner.html">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                </a>
+                <a class="nav-link" href="./BoothOwner.html">
+                    <i class="fa-solid fa-store"></i> Quản lý gian hàng
+                </a>
+                <a class="nav-link active" href="./FinanceOwner.html">
+                    <i class="fa-solid fa-coins"></i> Tài chính
+                </a>
+                <a class="nav-link" href="./PackageOwner.html">
+                    <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                </a>
+                <a class="nav-link" href="./OrdersOwner.html">
+                    <i class="fa-solid fa-box-open"></i> Đơn hàng
+                </a>
+                <div class="nav-divider"></div>
+                <a class="nav-link" href="./SettingsOwner.html">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="Owner" class="sidebar-avatar">
+                    <div class="sidebar-user-info">
+                        <p id="sidebar-name" class="sidebar-user-name">Owner</p>
+                        <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="top-header">
+                <h2>Tài chính</h2>
+                <div></div>
+            </header>
+
+            <div class="content-wrapper">
+    <div id="view-finance-owner" class="view-section active">
+        <div class="flex-between mb-4">
+            <div>
+                <h3 class="section-title">Quản lý Tài chính</h3>
+                <p class="section-subtitle">Theo dõi doanh thu, hoa hồng và yêu cầu rút tiền</p>
+            </div>
+        </div>
+
+        <div class="grid-4 mb-6">
+            <div class="glass-card stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div>
+                    <p class="stat-label">Tổng doanh thu</p>
+                    <p class="stat-value" id="finance-owner-revenue">0 ₫</p>
+                </div>
+            </div>
+            <div class="glass-card stat-card">
+                <div class="stat-icon red"><i class="fa-solid fa-percent"></i></div>
+                <div>
+                    <p class="stat-label">Phí & Hoa hồng hệ thống</p>
+                    <p class="stat-value" id="finance-owner-commission">0 ₫</p>
+                </div>
+            </div>
+            <div class="glass-card stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-wallet"></i></div>
+                <div>
+                    <p class="stat-label">Thực nhận</p>
+                    <p class="stat-value" id="finance-owner-balance" style="color: var(--emerald);">0 ₫</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+            <!-- Orders Table -->
+            <div class="glass-card" style="padding:24px; overflow-x:auto; align-self: start;">
+                <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">
+                    <i class="fa-solid fa-list-check text-accent" style="margin-right:8px;"></i>Đơn hàng đã đối soát
+                </h3>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Doanh thu</th>
+                            <th>Phí cố định</th>
+                            <th>Hoa hồng</th>
+                            <th>Thực nhận</th>
+                            <th>Ngày</th>
+                        </tr>
+                    </thead>
+                    <tbody id="finance-owner-orders-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Withdrawal Form -->
+            <div class="glass-card" style="padding:24px; align-self: start;">
+                <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">
+                    <i class="fa-solid fa-money-bill-transfer text-accent" style="margin-right:8px;"></i>Yêu cầu rút tiền
+                </h3>
+                
+                <div class="glass-card stat-card" style="margin-bottom:20px; padding:20px;">
+                    <div class="stat-icon amber"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <p class="stat-label">Số dư tài khoản</p>
+                        <p class="stat-value" id="finance-owner-pending">0 ₫</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Ngân hàng thụ hưởng</label>
+                    <select id="withdraw-bank" class="form-input form-select">
+                        <option value="vcb">Vietcombank - Ngân hàng Ngoại thương</option>
+                        <option value="tcb">Techcombank - Ngân hàng Kỹ thương</option>
+                        <option value="mbb">MB Bank - Ngân hàng Quân đội</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Số tài khoản</label>
+                    <input type="text" id="withdraw-account" class="form-input" placeholder="VD: 1903...">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Số tiền cần rút (VNĐ)</label>
+                    <input type="number" id="withdraw-amount" class="form-input" placeholder="Tối thiểu 100,000 ₫">
+                    <p style="font-size:11px; color:var(--text-dim); margin-top:6px;">
+                        Phí rút tiền: Miễn phí.
+                    </p>
+                </div>
+
+                <button id="btn-withdraw" class="btn-primary w-100 btn-ripple" style="padding:12px;">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu rút tiền
+                </button>
+                
+                <hr style="border:0; border-top:1px dashed var(--border); margin:20px 0;">
+                
+                <h4 style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text-muted);">LỊCH SỬ RÚT TIỀN</h4>
+                <div id="withdraw-history-list" style="max-height:250px; overflow-y:auto;">
+                    <table class="orders-table" style="width:100%; font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Số tiền</th>
+                                <th>Ngân hàng</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawal-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../assets/js/finance.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formatCurrency = function (value) {
+                return new Intl.NumberFormat('vi-VN').format(value || 0) + ' ₫';
+            };
+
+            const formatDate = function (dateString) {
+                const [year, month, day] = dateString.split('-');
+                return `${day}-${month}-${year}`;
+            };
+
+            // Dummy finance data
+            const dummyOrders = [
+                { id: 'ORD-2101', revenue: 89000, fixedFee: 5000, commission: 8900, netRevenue: 75100, date: '2026-03-18' },
+                { id: 'ORD-2102', revenue: 159000, fixedFee: 5000, commission: 15900, netRevenue: 138100, date: '2026-03-18' },
+                { id: 'ORD-2099', revenue: 79000, fixedFee: 5000, commission: 7900, netRevenue: 66100, date: '2026-03-17' },
+                { id: 'ORD-2096', revenue: 39000, fixedFee: 3000, commission: 3900, netRevenue: 32100, date: '2026-03-16' },
+                { id: 'ORD-2092', revenue: 69000, fixedFee: 5000, commission: 6900, netRevenue: 57100, date: '2026-03-15' },
+                { id: 'ORD-2087', revenue: 119000, fixedFee: 5000, commission: 11900, netRevenue: 102100, date: '2026-03-14' },
+                { id: 'ORD-2085', revenue: 95000, fixedFee: 5000, commission: 9500, netRevenue: 80500, date: '2026-03-13' },
+                { id: 'ORD-2082', revenue: 149000, fixedFee: 5000, commission: 14900, netRevenue: 129100, date: '2026-03-12' }
+            ];
+
+            const withdrawalHistory = [
+                { id: 'WD-1001', amount: 500000, bank: 'Vietcombank', status: 'completed', date: '2026-03-10' },
+                { id: 'WD-1002', amount: 300000, bank: 'Techcombank', status: 'completed', date: '2026-03-05' },
+                { id: 'WD-1003', amount: 250000, bank: 'MB Bank', status: 'processing', date: '2026-03-18' }
+            ];
+
+            // Calculate totals
+            const totalRevenue = dummyOrders.reduce((sum, o) => sum + o.revenue, 0);
+            const totalCommission = dummyOrders.reduce((sum, o) => sum + o.commission + o.fixedFee, 0);
+            const totalNetRevenue = dummyOrders.reduce((sum, o) => sum + o.netRevenue, 0);
+            const pendingWithdrawal = 250000;
+
+            // Update stat cards
+            const revenueEl = document.getElementById('finance-owner-revenue');
+            const commissionEl = document.getElementById('finance-owner-commission');
+            const balanceEl = document.getElementById('finance-owner-balance');
+            const pendingEl = document.getElementById('finance-owner-pending');
+            const maxWithdrawEl = document.getElementById('withdraw-max-text');
+
+            if (revenueEl) revenueEl.textContent = formatCurrency(totalRevenue);
+            if (commissionEl) commissionEl.textContent = formatCurrency(totalCommission);
+            if (balanceEl) balanceEl.textContent = formatCurrency(totalNetRevenue - pendingWithdrawal);
+            if (pendingEl) pendingEl.textContent = formatCurrency(totalNetRevenue - pendingWithdrawal);
+            if (maxWithdrawEl) maxWithdrawEl.textContent = formatCurrency(totalNetRevenue - pendingWithdrawal);
+
+            // Populate orders table
+            const ordersBody = document.getElementById('finance-owner-orders-body');
+            if (ordersBody) {
+                ordersBody.innerHTML = dummyOrders.map(order => `
+                    <tr>
+                        <td style="font-weight:600;">${order.id}</td>
+                        <td>${formatCurrency(order.revenue)}</td>
+                        <td>${formatCurrency(order.fixedFee)}</td>
+                        <td>${formatCurrency(order.commission)}</td>
+                        <td style="color:var(--emerald); font-weight:600;">${formatCurrency(order.netRevenue)}</td>
+                        <td style="font-size:12px; color:var(--text-muted);">${formatDate(order.date)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Populate withdrawal history
+            const historyList = document.getElementById('withdraw-history-list');
+            const historyTableBody = document.getElementById('withdrawal-table-body');
+            if (historyTableBody) {
+                historyTableBody.innerHTML = withdrawalHistory.map(wd => {
+                    const statusColor = wd.status === 'completed' ? 'var(--emerald)' : wd.status === 'processing' ? '#fbbf24' : '#ef4444';
+                    const statusLabel = wd.status === 'completed' ? 'Đã hoàn tất' : wd.status === 'processing' ? 'Đang xử lý' : 'Thất bại';
+                    return `
+                        <tr>
+                            <td style="font-weight:600;">${wd.id}</td>
+                            <td>${formatCurrency(wd.amount)}</td>
+                            <td>${wd.bank}</td>
+                            <td><span style="color:${statusColor}; font-weight:600;">${statusLabel}</span></td>
+                            <td style="color:var(--text-muted);">${formatDate(wd.date)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Handle withdrawal form submission
+            const withdrawBtn = document.getElementById('btn-withdraw');
+            if (withdrawBtn) {
+                withdrawBtn.addEventListener('click', function () {
+                    const bank = document.getElementById('withdraw-bank').value;
+                    const account = document.getElementById('withdraw-account').value;
+                    const amount = document.getElementById('withdraw-amount').value;
+
+                    if (!account || !amount) {
+                        alert('Vui lòng nhập đủ thông tin');
+                        return;
+                    }
+
+                    if (parseInt(amount) < 100000) {
+                        alert('Số tiền tối thiểu là 100,000 ₫');
+                        return;
+                    }
+
+                    alert(`Yêu cầu rút ${formatCurrency(amount)} đã được gửi thành công!`);
+                    document.getElementById('withdraw-account').value = '';
+                    document.getElementById('withdraw-amount').value = '';
+                });
+            }
+        });
+    </script>
+
+</html>
