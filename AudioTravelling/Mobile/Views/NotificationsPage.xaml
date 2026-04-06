@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Mobile.Views.NotificationsPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F8FAFC">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── HEADER ── -->
+        <Border
+            Grid.Row="0"
+            StrokeShape="RoundRectangle 0,0,24,24"
+            Stroke="#E2E8F0"
+            StrokeThickness="1"
+            BackgroundColor="White"
+            Padding="16,52,16,16">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="White" WidthRequest="40" HeightRequest="40">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="&#xF060;" FontFamily="FA6Solid" FontSize="16" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+                <Label Grid.Column="1" Text="Thông báo" FontFamily="OpenSans-Semibold" FontSize="20" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <!-- Mark all read -->
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="40" HeightRequest="40">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnMarkAllReadTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="&#xF058;" FontFamily="FA6Solid" FontSize="16" TextColor="#008dd4" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ── LIST ── -->
+        <Grid Grid.Row="1">
+            <VerticalStackLayout x:Name="EmptyState" HorizontalOptions="Center" VerticalOptions="Center" Spacing="16" IsVisible="False">
+                <Label Text="📭" FontSize="64" HorizontalOptions="Center"/>
+                <Label Text="Không có thông báo nào" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="#0F172A" HorizontalOptions="Center"/>
+                <Label Text="Khi bạn đặt hàng hoặc đến gần địa điểm, thông báo sẽ hiện ở đây." FontFamily="OpenSans-Regular" FontSize="14" TextColor="#94A3B8" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="32,0"/>
+            </VerticalStackLayout>
+
+            <CollectionView x:Name="NotificationList" Margin="16,16" SelectionMode="Single" SelectionChanged="OnNotificationSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            StrokeShape="RoundRectangle 16"
+                            Stroke="#E2E8F0"
+                            StrokeThickness="1"
+                            BackgroundColor="{Binding IsRead, Converter={x:StaticResource BooleanToObjectConverter}}"
+                            Margin="0,0,0,12"
+                            Padding="16">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,2" Opacity="0.04" Radius="8"/>
+                            </Border.Shadow>
+                            <!-- Content -->
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <!-- Icon -->
+                                <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="{Binding IconBgColor}" WidthRequest="48" HeightRequest="48" VerticalOptions="Center">
+                                    <Label Text="{Binding Icon}" FontFamily="FA6Solid" FontSize="20" TextColor="{Binding IconColor}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+
+                                <!-- Text content -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding Title}" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="Black"/>
+                                    <Label Text="{Binding Message}" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#475569" LineBreakMode="WordWrap"/>
+                                    <Label Text="{Binding FormattedDate}" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#94A3B8" Margin="0,4,0,0"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

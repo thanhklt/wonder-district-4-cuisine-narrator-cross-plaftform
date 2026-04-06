@@ -1,15 +1,54 @@
 using Mobile.Services;
+using Mobile.Models;
 
 namespace Mobile.Views;
 
 public partial class SettingsPage : ContentPage
 {
+    // ── Playback speed state (BR-012) ──────────────────────────────────
+    private int _speedIndex = 1;
+    private readonly double[] _speeds = { 0.75, 1.0, 1.25, 1.5, 2.0 };
+   
+
     public SettingsPage()
     {
         InitializeComponent();
         // Sync toggle to current global state
         AudioToggle.IsToggled = PoiService.AudioEnabled;
         UpdateAudioStatusLabel(PoiService.AudioEnabled);
+
+        // Restore persisted speed
+        var savedSpeed = Preferences.Get("playback_speed", 1.0);
+        _speedIndex = Array.IndexOf(_speeds, savedSpeed);
+        if (_speedIndex < 0) _speedIndex = 1;
+        
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        LoadUserProfile();
+    }
+
+    // ── User profile ──────────────────────────────────────────────────────
+    private void LoadUserProfile()
+    {
+        if (AuthService.IsLoggedIn)
+        {
+            LblUserName.Text  = AuthService.CurrentName;
+            LblUserEmail.Text = AuthService.CurrentEmail;
+            LblAvatar.Text    = AuthService.CurrentName.Length > 0
+                ? AuthService.CurrentName[..1].ToUpper()
+                : "U";
+        }
+    }
+
+    private async void OnUserProfileTapped(object sender, EventArgs e)
+    {
+        if (AuthService.IsLoggedIn)
+        {
+            await Navigation.PushAsync(new ProfilePage());
+        }
     }
 
     // ── Audio toggle ────────────────────────────────────────────────────────
@@ -29,19 +68,27 @@ public partial class SettingsPage : ContentPage
             : Color.FromArgb("#EF4444");
     }
 
-    // ── Language picker ────────────────────────────────────────────────────
-    private void SetLang(Border selected, params Border[] others)
+    // ── Playback speed picker (BR-012) ──────────────────────────────────
+    private void OnSpeedTapped(object sender, EventArgs e)
     {
-        selected.BackgroundColor = Color.FromArgb("#10B981");
-        foreach (var b in others) b.BackgroundColor = Colors.White;
+        _speedIndex = (_speedIndex + 1) % _speeds.Length;
+        Preferences.Set("playback_speed", _speeds[_speedIndex]);
     }
 
-    private void OnLangViTapped(object sender, EventArgs e) =>
-        SetLang(LangViBtn, LangEnBtn, LangJaBtn);
+    // ── Logout ────────────────────────────────────────────────────────────
+    private async void OnLogoutTapped(object sender, EventArgs e)
+    {
+        string message = "Bạn có chắc chắn muốn đăng xuất?";
 
-    private void OnLangEnTapped(object sender, EventArgs e) =>
-        SetLang(LangEnBtn, LangViBtn, LangJaBtn);
+        // EC-S3: Warn if cart has items
+        if (CartService.Instance.TotalCount > 0)
+            message = $"Bạn có {CartService.Instance.TotalCount} món trong giỏ hàng. Đăng xuất sẽ xóa giỏ hàng. Tiếp tục?";
 
-    private void OnLangJaTapped(object sender, EventArgs e) =>
-        SetLang(LangJaBtn, LangViBtn, LangEnBtn);
+        bool confirm = await DisplayAlertAsync("Đăng xuất", message, "Đăng xuất", "Hủy");
+        if (!confirm) return;
+
+        AuthService.Logout();
+        Application.Current!.MainPage = new NavigationPage(new LoginPage());
+    }
 }
+

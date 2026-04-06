@@ -6,15 +6,6 @@
     xmlns:views="clr-namespace:Mobile.Views"
     Shell.FlyoutBehavior="Disabled">
 
-    <Shell.Resources>
-        <!-- Tab bar brand styling -->
-        <Style TargetType="Shell" ApplyToDerivedTypes="True">
-            <Setter Property="Shell.TabBarBackgroundColor"   Value="White"/>
-            <Setter Property="Shell.TabBarForegroundColor"   Value="#10B981"/>
-            <Setter Property="Shell.TabBarTitleColor"        Value="#10B981"/>
-            <Setter Property="Shell.TabBarUnselectedColor"   Value="#94A3B8"/>
-        </Style>
-    </Shell.Resources>
 
     <TabBar>
 
@@ -32,7 +23,14 @@
                 Route="OrderPage"/>
         </Tab>
 
-        <!-- Tab 3: Cài đặt -->
+        <!-- Tab 3: Audio -->
+        <Tab Title="Audio" Icon="tab_audio.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:AudioPlayerPage}"
+                Route="AudioPlayerPage"/>
+        </Tab>
+
+        <!-- Tab 4: Cài đặt -->
         <Tab Title="Cài đặt" Icon="tab_settings.png">
             <ShellContent
                 ContentTemplate="{DataTemplate views:SettingsPage}"

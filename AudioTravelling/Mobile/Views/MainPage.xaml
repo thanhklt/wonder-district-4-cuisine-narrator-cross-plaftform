@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-    ╔══════════════════════════════════════════════════════════╗
-    ║  Dotonbori Audio Travel – Screen 1: Main Map & Explorer  ║
-    ║  v2: POI nearby list + detail + cart integration         ║
-    ╚══════════════════════════════════════════════════════════╝
--->
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -13,10 +7,8 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="White">
 
-    <!-- ROOT GRID – Z stack -->
     <Grid>
 
-        <!-- ── LAYER 0: Full-screen Map ── -->
         <maps:Map
             x:Name="DotonboriMap"
             IsShowingUser="True"
@@ -24,7 +16,6 @@
             HorizontalOptions="Fill"
             VerticalOptions="Fill"/>
 
-        <!-- ── LAYER 1: Top gradient scrim ── -->
         <BoxView HorizontalOptions="Fill" VerticalOptions="Start" HeightRequest="160">
             <BoxView.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -34,7 +25,6 @@
             </BoxView.Background>
         </BoxView>
 
-        <!-- ── LAYER 2: Floating Search Bar ── -->
         <Border
             x:Name="SearchBarContainer"
             StrokeShape="RoundRectangle 16"
@@ -51,27 +41,49 @@
             <Grid ColumnDefinitions="Auto,*,Auto" HeightRequest="52">
                 <Label Grid.Column="0" Text="&#xF002;" FontFamily="FA6Solid" FontSize="16" TextColor="#94A3B8" VerticalOptions="Center" Margin="0,0,10,0"/>
                 <Entry Grid.Column="1" x:Name="SearchEntry" Placeholder="Tìm quán ăn, món ăn Dotonbori…" PlaceholderColor="#94A3B8" TextColor="#0F172A" FontSize="15" FontFamily="OpenSans-Regular" ClearButtonVisibility="WhileEditing" BackgroundColor="Transparent" VerticalOptions="Center"
-                       TextChanged="OnSearchChanged"/>
-                <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Stroke="Transparent" BackgroundColor="#D1FAE5" Padding="10,6" VerticalOptions="Center">
-                    <Label Text="&#xF3C9;" FontFamily="FA6Solid" FontSize="14" TextColor="#10B981" VerticalOptions="Center"/>
+                        TextChanged="OnSearchChanged"/>
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Stroke="Transparent" BackgroundColor="White" Padding="10,6" VerticalOptions="Center">
+                    <Label Text="&#xF3C9;" FontFamily="FA6Solid" FontSize="14" TextColor="Black" VerticalOptions="Center"/>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- ── LAYER 3: FABs (right side) ── -->
-        <VerticalStackLayout HorizontalOptions="End" VerticalOptions="Start" Margin="0,44,12,0" Spacing="10">
-            <!-- My Location FAB -->
-            <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F5FFFFFF" WidthRequest="48" HeightRequest="48">
-                <Border.Shadow><Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="10"/></Border.Shadow>
-                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnMyLocationTapped"/></Border.GestureRecognizers>
-                <Label Text="&#xF3C5;" FontFamily="FA6Solid" FontSize="18" TextColor="#10B981" HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Border>
-            <!-- Cart FAB with badge -->
+        <VerticalStackLayout HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,280" Spacing="10" ZIndex="1">
+            <!-- Notifications Bell -->
             <Grid WidthRequest="48" HeightRequest="48">
-                <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" BackgroundColor="#F97316" WidthRequest="48" HeightRequest="48">
-                    <Border.Shadow><Shadow Brush="#F97316" Offset="0,6" Opacity="0.40" Radius="10"/></Border.Shadow>
-                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCartTapped"/></Border.GestureRecognizers>
-                    <Label Text="&#xF07A;" FontFamily="FA6Solid" FontSize="18" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F5FFFFFF" WidthRequest="48" HeightRequest="48">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="10"/>
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNotificationsTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="&#xF0F3;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+                <Border x:Name="NotificationBadge" StrokeShape="RoundRectangle 10" Stroke="White" StrokeThickness="2" BackgroundColor="#EF4444" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,-4,-4" IsVisible="False">
+                    <Label x:Name="NotificationCount" Text="0" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+
+            <!-- My Location -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F5FFFFFF" WidthRequest="48" HeightRequest="48">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="10"/>
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMyLocationTapped"/>
+                </Border.GestureRecognizers>
+                <Label Text="&#xF3C5;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+            <Grid WidthRequest="48" HeightRequest="48">
+                <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" BackgroundColor="White" WidthRequest="48" HeightRequest="48">
+                    <Border.Shadow>
+                        <Shadow Brush="#FFFFFF" Offset="0,6" Opacity="0.40" Radius="10"/>
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCartTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="&#xF07A;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
                 <Border x:Name="CartBadge" StrokeShape="RoundRectangle 10" Stroke="White" StrokeThickness="2" BackgroundColor="#EF4444" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,-4,-4" IsVisible="False">
                     <Label x:Name="CartItemCount" Text="0" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -79,7 +91,48 @@
             </Grid>
         </VerticalStackLayout>
 
-        <!-- ── LAYER 4: BOTTOM SHEET ── -->
+        <Border
+            x:Name="GpsBanner"
+            StrokeShape="RoundRectangle 14"
+            Stroke="#FBBF24"
+            StrokeThickness="1"
+            BackgroundColor="#FFFBEB"
+            HorizontalOptions="Fill"
+            VerticalOptions="Start"
+            Margin="16,108,16,0"
+            Padding="14,10"
+            IsVisible="False">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <Label Grid.Column="0" Text="&#xF071;" FontFamily="FA6Solid" FontSize="16" TextColor="#D97706" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="Vui lòng bật GPS để xem địa điểm gần bạn" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#92400E" VerticalOptions="Center"/>
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#F59E0B" Padding="10,6">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnOpenGpsSettings"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="Bật GPS" FontFamily="OpenSans-Semibold" FontSize="12" TextColor="White"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border
+            x:Name="EmptyPoiState"
+            StrokeShape="RoundRectangle 20"
+            Stroke="#E2E8F0"
+            BackgroundColor="#FAFFFFFF"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Padding="32,24"
+            IsVisible="False">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Opacity="0.08" Radius="12"/>
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Label Text="🗺️" FontSize="48" HorizontalOptions="Center"/>
+                <Label Text="Không tìm thấy địa điểm nào gần bạn" FontFamily="OpenSans-Semibold" FontSize="16" TextColor="#0F172A" HorizontalOptions="Center"/>
+                <Label Text="Hãy di chuyển đến khu vực Dotonbori" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#94A3B8" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Border>
+
         <Border
             x:Name="BottomSheet"
             StrokeShape="RoundRectangle 28,28,0,0"
@@ -88,197 +141,187 @@
             BackgroundColor="#FAFFFFFF"
             VerticalOptions="End"
             HorizontalOptions="Fill"
-            Padding="0">
+            Padding="0"
+            MaximumHeightRequest="680">
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,-6" Opacity="0.10" Radius="20"/>
             </Border.Shadow>
 
-            <VerticalStackLayout Spacing="0">
+            <Grid RowDefinitions="Auto,*">
 
-                <!-- Drag handle -->
-                <BoxView x:Name="DragHandle" Color="#CBD5E1" HeightRequest="4" WidthRequest="44" CornerRadius="2" HorizontalOptions="Center" Margin="0,12,0,8">
-                    <BoxView.GestureRecognizers>
-                        <PanGestureRecognizer PanUpdated="OnBottomSheetPan"/>
-                        <TapGestureRecognizer Tapped="OnBottomSheetTap"/>
-                    </BoxView.GestureRecognizers>
-                </BoxView>
+                <VerticalStackLayout Grid.Row="0" Spacing="0">
 
-                <!-- ══ COLLAPSED VIEW: Tab switcher + content ══ -->
-                <Grid x:Name="CollapsedContent" RowDefinitions="Auto,*">
+                    <BoxView x:Name="DragHandle" Color="#CBD5E1" HeightRequest="4" WidthRequest="44" CornerRadius="2" HorizontalOptions="Center" Margin="0,12,0,8">
+                        <BoxView.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="OnBottomSheetPan"/>
+                            <TapGestureRecognizer Tapped="OnBottomSheetTap"/>
+                        </BoxView.GestureRecognizers>
+                    </BoxView>
 
-                    <!-- Tab switcher: Gần bạn / Đang phát -->
-                    <Grid Grid.Row="0" ColumnDefinitions="*,*" Margin="16,0,16,12" ColumnSpacing="8">
-                        <Border Grid.Column="0" x:Name="TabNearby" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#10B981" HeightRequest="36">
-                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabNearbyTapped"/></Border.GestureRecognizers>
-                            <Label x:Name="LblTabNearby" Text="&#xF3C5;  Gần bạn" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                        <Border Grid.Column="1" x:Name="TabPlaying" StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="White" HeightRequest="36">
-                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabPlayingTapped"/></Border.GestureRecognizers>
-                            <Label x:Name="LblTabPlaying" Text="&#xF144;  Đang phát" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#94A3B8" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
+                    <Grid x:Name="CollapsedContent" RowDefinitions="Auto,Auto">
 
-                    <!-- ── TAB: Gần bạn – POI list cards ── -->
-                    <ScrollView Grid.Row="1" x:Name="NearbyScroll" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="16,0,16,20">
-                        <StackLayout x:Name="PoiCardStack" Orientation="Horizontal" Spacing="12"/>
-                    </ScrollView>
-
-                    <!-- ── TAB: Đang phát – mini player ── -->
-                    <Grid Grid.Row="1" x:Name="MiniPlayerPanel" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,0,16,20" ColumnSpacing="0" IsVisible="False">
-                        <!-- POI Thumbnail -->
-                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" WidthRequest="58" HeightRequest="58" VerticalOptions="Center">
-                            <Border.Shadow><Shadow Brush="Black" Offset="0,4" Opacity="0.15" Radius="8"/></Border.Shadow>
-                            <Image x:Name="MiniPlayerThumb" Source="takoyaki_img.png" Aspect="AspectFill"/>
-                        </Border>
-                        <!-- Name + status -->
-                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center" Margin="12,0,8,0">
-                            <Label x:Name="LblPoiName" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="#0F172A" LineBreakMode="TailTruncation"/>
-                            <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#D1FAE5" Padding="8,3" HorizontalOptions="Start">
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="5">
-                                    <BoxView Grid.Column="0" x:Name="AudioDot" Color="#10B981" WidthRequest="6" HeightRequest="6" CornerRadius="3" VerticalOptions="Center"/>
-                                    <Label Grid.Column="1" x:Name="LblAudioStatus" Text="Đang phát • 1:20 / 3:45" FontSize="11" FontFamily="OpenSans-Regular" TextColor="#059669"/>
-                                </Grid>
+                        <Grid Grid.Row="0" ColumnDefinitions="*,*" Margin="16,0,16,12" ColumnSpacing="8">
+                            <Border Grid.Column="0" x:Name="TabNearby" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="Black" HeightRequest="36">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTabNearbyTapped"/>
+                                </Border.GestureRecognizers>
+                                <Label x:Name="LblTabNearby" Text="Gần bạn" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                <ProgressBar Grid.Column="0" x:Name="AudioProgressBar" Progress="0.36" ProgressColor="#10B981" BackgroundColor="#E2E8F0" HeightRequest="4" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="3:45" FontSize="10" TextColor="#94A3B8" VerticalOptions="Center"/>
-                            </Grid>
-                        </VerticalStackLayout>
-                        <!-- Queue -->
-                        <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="40" HeightRequest="40" VerticalOptions="Center" Margin="0,0,8,0">
-                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnQueueTapped"/></Border.GestureRecognizers>
-                            <Label Text="&#xF03A;" FontFamily="FA6Solid" FontSize="14" TextColor="#475569" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                        <!-- Play/Pause -->
-                        <Border Grid.Column="3" StrokeShape="RoundRectangle 14" Stroke="Transparent" BackgroundColor="#10B981" WidthRequest="44" HeightRequest="44" VerticalOptions="Center">
-                            <Border.Shadow><Shadow Brush="#10B981" Offset="0,4" Opacity="0.45" Radius="8"/></Border.Shadow>
-                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnPlayPauseTapped"/></Border.GestureRecognizers>
-                            <Label x:Name="PlayPauseIcon" Text="&#xF04C;" FontFamily="FA6Solid" FontSize="17" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-
-                </Grid>
-                <!-- END CollapsedContent -->
-
-                <!-- ══ EXPANDED VIEW: Selected POI Detail ══ -->
-                <VerticalStackLayout x:Name="ExpandedContent" Spacing="0" IsVisible="False" Opacity="0">
-
-                    <!-- Divider -->
-                    <BoxView Color="#E2E8F0" HeightRequest="1" Margin="16,0,16,16"/>
-
-                    <!-- Back button + POI name -->
-                    <Grid ColumnDefinitions="Auto,*" Margin="16,0,16,12" ColumnSpacing="12">
-                        <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="White" WidthRequest="38" HeightRequest="38">
-                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped"/></Border.GestureRecognizers>
-                            <Label Text="&#xF060;" FontFamily="FA6Solid" FontSize="14" TextColor="#475569" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                        <Label Grid.Column="1" x:Name="LblDetailPoiName" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="#0F172A" VerticalOptions="Center"/>
-                    </Grid>
-
-                    <!-- Hero image -->
-                    <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" HeightRequest="170" Margin="16,0,16,12">
-                        <Border.Shadow><Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="10"/></Border.Shadow>
-                        <Grid>
-                            <Image x:Name="DetailHeroImage" Source="takoyaki_img.png" Aspect="AspectFill"/>
-                            <BoxView>
-                                <BoxView.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                        <GradientStop Color="#00000000" Offset="0.45"/>
-                                        <GradientStop Color="#BB000000" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </BoxView.Background>
-                            </BoxView>
-                            <!-- Status chips overlay -->
-                            <HorizontalStackLayout VerticalOptions="End" Padding="12" Spacing="8">
-                                <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
-                                    <Label x:Name="DetailRating" Text="★ 4.9" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#FBBF24"/>
-                                </Border>
-                                <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
-                                    <Label x:Name="DetailDistance" Text="48 m" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="White"/>
-                                </Border>
-                                <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
-                                    <Label x:Name="DetailStatus" Text="Đang mở cửa" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#34D399"/>
-                                </Border>
-                            </HorizontalStackLayout>
+                            <Border Grid.Column="1" x:Name="TabPlaying" StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="White" HeightRequest="36">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTabPlayingTapped"/>
+                                </Border.GestureRecognizers>
+                                <Label x:Name="LblTabPlaying" Text="Đang phát" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#94A3B8" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
                         </Grid>
-                    </Border>
 
-                    <!-- Description -->
-                    <Label x:Name="DetailDescription" Text="…" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#475569" LineBreakMode="WordWrap" Margin="16,0,16,16"/>
+                        <ScrollView Grid.Row="1" x:Name="NearbyScroll" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="16,0,16,20">
+                            <StackLayout x:Name="PoiCardStack" Orientation="Horizontal" Spacing="12"/>
+                        </ScrollView>
 
-                    <!-- Category badge + audio script label -->
-                    <Grid ColumnDefinitions="Auto,*" Margin="16,0,16,14" ColumnSpacing="10">
-                        <Border Grid.Column="0" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#FEF3C7" Padding="8,4">
-                            <Label x:Name="DetailCategory" Text="Đồ ăn vặt" FontSize="11" FontFamily="OpenSans-Semibold" TextColor="#D97706"/>
-                        </Border>
-                        <!-- Audio status -->
-                        <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#D1FAE5" Padding="8,4" HorizontalOptions="Start">
-                            <Label x:Name="DetailAudioState" Text="&#xF028;  Audio đang phát" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#059669"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- ── FOOD MENU ── -->
-                    <Label Text="Thực đơn" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="#0F172A" Margin="16,0,16,10"/>
-
-                    <CollectionView x:Name="MenuList" Margin="16,0,16,0" HeightRequest="260">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border StrokeShape="RoundRectangle 14" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Padding="12">
-                                    <Border.Shadow><Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/></Border.Shadow>
-                                    <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
-                                        <!-- Food thumb -->
-                                        <Border Grid.Column="0" StrokeShape="RoundRectangle 10" Stroke="Transparent" WidthRequest="56" HeightRequest="56">
-                                            <Image Source="{Binding ImageSource}" Aspect="AspectFill"/>
-                                        </Border>
-                                        <!-- Name + desc + price -->
-                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                            <Label Text="{Binding Name}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#0F172A" LineBreakMode="TailTruncation"/>
-                                            <Label Text="{Binding Description}" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#94A3B8" LineBreakMode="TailTruncation" MaxLines="2"/>
-                                            <Label Text="{Binding PriceLabel}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#F97316"/>
-                                        </VerticalStackLayout>
-                                        <!-- Add button -->
-                                        <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Stroke="Transparent" BackgroundColor="#10B981" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
-                                            <Border.Shadow><Shadow Brush="#10B981" Offset="0,3" Opacity="0.35" Radius="6"/></Border.Shadow>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Tapped="OnAddToCartTapped" CommandParameter="{Binding .}"/>
-                                            </Border.GestureRecognizers>
-                                            <Label Text="+" FontSize="20" FontFamily="OpenSans-Semibold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
-                                        </Border>
+                        <Grid Grid.Row="1" x:Name="MiniPlayerPanel" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,0,16,20" ColumnSpacing="0" IsVisible="False">
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" WidthRequest="58" HeightRequest="58" VerticalOptions="Center">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black" Offset="0,4" Opacity="0.15" Radius="8"/>
+                                </Border.Shadow>
+                                <Image x:Name="MiniPlayerThumb" Source="takoyaki_img.png" Aspect="AspectFill"/>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center" Margin="12,0,8,0">
+                                <Label x:Name="LblPoiName" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="#000000" LineBreakMode="TailTruncation"/>
+                                <Border StrokeShape="RoundRectangle 8" Stroke="#E2E8F0" BackgroundColor="White" Padding="8,3" HorizontalOptions="Start">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="5">
+                                        <BoxView Grid.Column="0" x:Name="AudioDot" Color="#10B981" WidthRequest="6" HeightRequest="6" CornerRadius="3" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" x:Name="LblAudioStatus" Text="Đang phát • 1:20 / 3:45" FontSize="11" FontFamily="OpenSans-Regular" TextColor="#10B981"/>
                                     </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <!-- CTA: View Menu full page or Order -->
-                    <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" Margin="16,16,16,32">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#F97316" Offset="0.0"/>
-                                <GradientStop Color="#EF4444" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow><Shadow Brush="#F97316" Offset="0,6" Opacity="0.35" Radius="12"/></Border.Shadow>
-                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnViewMenuTapped"/></Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,14" ColumnSpacing="12">
-                            <Label Grid.Column="0" Text="&#xF290;" FontFamily="FA6Solid" FontSize="17" TextColor="White" VerticalOptions="Center"/>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Text="Xem Giỏ hàng &amp; Đặt món" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="White"/>
-                                <Label x:Name="LblCtaSubtitle" Text="0 món đã chọn" FontSize="12" TextColor="#FFEDE0" FontFamily="OpenSans-Regular"/>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <ProgressBar Grid.Column="0" x:Name="AudioProgressBar" Progress="0.36" ProgressColor="#000000" BackgroundColor="#E2E8F0" HeightRequest="4" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" Text="3:45" FontSize="10" TextColor="#94A3B8" VerticalOptions="Center"/>
+                                </Grid>
                             </VerticalStackLayout>
-                            <Label Grid.Column="2" Text="&#xF054;" FontFamily="FA6Solid" FontSize="13" TextColor="White" VerticalOptions="Center"/>
+                            <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="40" HeightRequest="40" VerticalOptions="Center" Margin="0,0,8,0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnQueueTapped"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="&#xF03A;" FontFamily="FA6Solid" FontSize="14" TextColor="#475569" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Border Grid.Column="3" StrokeShape="RoundRectangle 14" Stroke="Transparent" BackgroundColor="#000000" WidthRequest="44" HeightRequest="44" VerticalOptions="Center">
+                                <Border.Shadow>
+                                    <Shadow Brush="#000000" Offset="0,4" Opacity="0.45" Radius="8"/>
+                                </Border.Shadow>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPlayPauseTapped"/>
+                                </Border.GestureRecognizers>
+                                <Label x:Name="PlayPauseIcon" Text="&#xF04C;" FontFamily="FA6Solid" FontSize="17" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
                         </Grid>
-                    </Border>
 
+                    </Grid>
                 </VerticalStackLayout>
-                <!-- END ExpandedContent -->
+                <ScrollView Grid.Row="1"
+                            x:Name="ExpandedContent"
+                            VerticalScrollBarVisibility="Never"
+                            IsVisible="False"
+                            Opacity="0">
+                    <VerticalStackLayout Spacing="0">
 
-            </VerticalStackLayout>
+                        <BoxView Color="#E2E8F0" HeightRequest="1" Margin="16,0,16,16"/>
+
+                        <Grid ColumnDefinitions="Auto,*" Margin="16,0,16,12" ColumnSpacing="12">
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="White" WidthRequest="38" HeightRequest="38">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="&#xF060;" FontFamily="FA6Solid" FontSize="14" TextColor="#0F172A" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Grid.Column="1" x:Name="LblDetailPoiName" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="#0F172A" VerticalOptions="Center"/>
+                        </Grid>
+
+                        <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" HeightRequest="170" Margin="16,0,16,12">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="10"/>
+                            </Border.Shadow>
+                            <Grid>
+                                <Image x:Name="DetailHeroImage" Source="takoyaki_img.png" Aspect="AspectFill"/>
+                                <BoxView>
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#00000000" Offset="0.45"/>
+                                            <GradientStop Color="#BB000000" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <HorizontalStackLayout VerticalOptions="End" Padding="12" Spacing="8">
+                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
+                                        <Label x:Name="DetailRating" Text="★ 4.9" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#FBBF24"/>
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
+                                        <Label x:Name="DetailDistance" Text="48 m" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="White"/>
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
+                                        <Label x:Name="DetailStatus" Text="Đang mở cửa" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#FFFFFF"/>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <Label x:Name="DetailDescription" Text="…" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#475569" LineBreakMode="WordWrap" Margin="16,0,16,16"/>
+
+                        <Grid ColumnDefinitions="Auto,*" Margin="16,0,16,14" ColumnSpacing="10">
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#FEF3C7" Padding="8,4">
+                                <Label x:Name="DetailCategory" Text="Đồ ăn vặt" FontSize="11" FontFamily="OpenSans-Semibold" TextColor="#D97706"/>
+                            </Border>
+                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#10B981" Padding="8,4" HorizontalOptions="Start">
+                                <Label x:Name="DetailAudioState" Text="Audio đang phát" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#FFFFFF"/>
+                            </Border>
+                        </Grid>
+
+                        <Label x:Name="MenuLabel" Text="Thực đơn" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="#0F172A" Margin="16,0,16,10"/>
+
+                        <Border x:Name="ClosedNotice" StrokeShape="RoundRectangle 14" Stroke="#FEE2E2" BackgroundColor="#FEF2F2" Margin="16,0,16,16" Padding="20" IsVisible="False">
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="Gian hàng đã đóng cửa" FontFamily="OpenSans-Semibold" FontSize="16" TextColor="#EF4444" HorizontalOptions="Center"/>
+                                <Label Text="Vui lòng quay lại sau" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#94A3B8" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <CollectionView x:Name="MenuList" Margin="16,0,16,0">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border StrokeShape="RoundRectangle 14" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Padding="12">
+                                        <Border.Shadow>
+                                            <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/>
+                                        </Border.Shadow>
+                                        <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+                                            <Border Grid.Column="0" StrokeShape="RoundRectangle 10" Stroke="Transparent" WidthRequest="56" HeightRequest="56">
+                                                <Image Source="{Binding ImageSource}" Aspect="AspectFill"/>
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                                <Label Text="{Binding Name}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#0F172A" LineBreakMode="TailTruncation"/>
+                                                <Label Text="{Binding Description}" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#94A3B8" LineBreakMode="TailTruncation" MaxLines="2"/>
+                                                <Label Text="{Binding PriceLabel}" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#F97316"/>
+                                            </VerticalStackLayout>
+                                            <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Stroke="Transparent" BackgroundColor="#000000" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                                                <Border.Shadow>
+                                                    <Shadow Brush="#000000" Offset="0,3" Opacity="0.35" Radius="6"/>
+                                                </Border.Shadow>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnAddToCartTapped" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Label Text="+" FontSize="20" FontFamily="OpenSans-Semibold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
         </Border>
-        <!-- END BottomSheet -->
-
     </Grid>
 </ContentPage>

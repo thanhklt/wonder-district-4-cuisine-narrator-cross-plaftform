@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Mobile.Services;
+using Mobile.Views;
 
 namespace Mobile
 {
@@ -8,7 +10,11 @@ namespace Mobile
         public App()
         {
             InitializeComponent();
-            MainPage = new AppShell(); // Dòng này cực kỳ quan trọng để gọi AppShell lên
+
+            if (AuthService.IsLoggedIn)
+                MainPage = new AppShell();
+            else
+                MainPage = new NavigationPage(new LoginPage());
         }
     }
 }

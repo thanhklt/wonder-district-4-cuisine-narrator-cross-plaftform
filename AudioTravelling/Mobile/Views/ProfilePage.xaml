@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Mobile.Views.ProfilePage"
+    Shell.NavBarIsVisible="False"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#F8FAFC">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- ── CUSTOM HEADER ── -->
+        <Border Grid.Row="0"
+                StrokeThickness="0"
+                BackgroundColor="#008dd4"
+                Padding="16,40,16,16">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Opacity="0.1" Radius="8"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <Label Grid.Column="0"
+                       Text="&#xf053;"
+                       FontFamily="FA6Solid"
+                       FontSize="20"
+                       TextColor="White"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Grid.Column="1"
+                       Text="Thông tin tài khoản"
+                       FontFamily="OpenSans-Semibold"
+                       FontSize="18"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+
+                <Label Grid.Column="2" WidthRequest="20"/>
+            </Grid>
+        </Border>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="24" Padding="24" Margin="0, 16, 0, 0">
+
+                <!-- Avatar circle -->
+                <Border
+                    StrokeShape="RoundRectangle 40"
+                    Stroke="#008dd4"
+                    StrokeThickness="2"
+                    WidthRequest="80" HeightRequest="80"
+                    HorizontalOptions="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#008dd4" Offset="0.0"/>
+                            <GradientStop Color="#38bdf8" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Label
+                        x:Name="LblAvatar"
+                        Text="U"
+                        FontFamily="OpenSans-Bold"
+                        FontSize="36"
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Border>
+
+                <Label Text="Quản lý thông tin cá nhân của bạn" 
+                       FontFamily="OpenSans-Regular" 
+                       FontSize="14" 
+                       TextColor="#64748B"
+                       HorizontalOptions="Center"
+                       Margin="0, -16, 0, 10"/>
+
+                <VerticalStackLayout Spacing="16">
+                    <!-- Email (Readonly) -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Email" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#334155"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#CBD5E1" StrokeThickness="1" BackgroundColor="#F1F5F9" HeightRequest="50" Padding="16,0">
+                            <Entry x:Name="EntEmail" 
+                                   Placeholder="Email" 
+                                   IsReadOnly="True" 
+                                   TextColor="#64748B" 
+                                   FontFamily="OpenSans-Regular" 
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Text="Email không thể thay đổi sau khi đăng ký." FontFamily="OpenSans-Regular" FontSize="11" TextColor="#94A3B8"/>
+                    </VerticalStackLayout>
+
+                    <!-- Họ và tên -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Họ và tên" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#334155"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#CBD5E1" StrokeThickness="1" BackgroundColor="White" HeightRequest="50" Padding="16,0">
+                            <Entry x:Name="EntFullName" 
+                                   Placeholder="Nhập họ và tên" 
+                                   TextColor="#0F172A" 
+                                   FontFamily="OpenSans-Regular" 
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Số điện thoại -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Số điện thoại" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#334155"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#CBD5E1" StrokeThickness="1" BackgroundColor="White" HeightRequest="50" Padding="16,0">
+                            <Entry x:Name="EntPhone" 
+                                   Placeholder="Nhập số điện thoại" 
+                                   Keyboard="Telephone" 
+                                   TextColor="#0F172A" 
+                                   FontFamily="OpenSans-Regular" 
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+                    
+                    <Label x:Name="LblErrorMessage" 
+                           TextColor="#EF4444" 
+                           FontFamily="OpenSans-Regular" 
+                           FontSize="12" 
+                           IsVisible="False"/>
+                </VerticalStackLayout>
+
+                <!-- Update Button -->
+                <Button x:Name="BtnUpdate"
+                        Text="Cập nhật thông tin"
+                        FontFamily="OpenSans-Semibold"
+                        FontSize="16"
+                        TextColor="White"
+                        BackgroundColor="#008dd4"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        Margin="0,16,0,32"
+                        Clicked="OnUpdateClicked"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

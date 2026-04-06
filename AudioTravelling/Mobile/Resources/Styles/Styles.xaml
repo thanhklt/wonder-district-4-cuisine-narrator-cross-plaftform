@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
@@ -389,9 +389,9 @@
         <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light=#E5E7EB, Dark=#E5E7EB}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
         <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light=#E11D48, Dark=#FFFFFF}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light=#E11D48, Dark=#FFFFFF}" />
-        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light=#111827, Dark=#E5E7EB}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light=#6B7280, Dark=#E5E7EB}" />
     </Style>
 
     <Style TargetType="NavigationPage">
@@ -402,7 +402,7 @@
 
     <Style TargetType="TabbedPage">
         <Setter Property="BarBackgroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#030712}" />
-        <Setter Property="BarTextColor" Value="{AppThemeBinding Light=#E11D48, Dark=#FFFFFF}" />
+        <Setter Property="BarTextColor" Value="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light=#E5E7EB, Dark=#030712}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light=#030712, Dark=#E5E7EB}" />
     </Style>

@@ -96,7 +96,7 @@ public static class PoiService
         new PoiModel
         {
             Id=3, Name="Kushikatsu Daruma", Category="Kushikatsu",
-            DistanceMeters=200, Rating=4.8, IsOpen=true,
+            DistanceMeters=200, Rating=4.8, IsOpen=false,
             ImageSource="kushikatsu_img.png",
             Description="Thương hiệu Kushikatsu biểu tượng của Osaka từ 1929. Quy tắc vàng: không được chấm đôi! Hải sản và rau củ tươi, bao bột panko vàng ruộm, chiên ngập dầu.",
             AudioScript="Kushikatsu Daruma, thành lập năm 1929, là linh hồn ẩm thực của Osaka...",

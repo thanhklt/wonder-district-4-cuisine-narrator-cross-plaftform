@@ -33,9 +33,8 @@ public partial class OrderPage : ContentPage
         CheckoutBar.IsVisible = hasItems;
 
         CartList.ItemsSource  = null;
-        CartList.ItemsSource  = CartService.Instance.Items;
+        CartList.ItemsSource  = CartService.Instance.GroupedItems;
 
-        LblItemCount.Text = $"{CartService.Instance.TotalCount} món";
         LblTotal.Text     = CartService.Instance.TotalPriceLabel;
     }
 
@@ -53,7 +52,7 @@ public partial class OrderPage : ContentPage
 
     private async void OnClearCartTapped(object sender, EventArgs e)
     {
-        bool confirm = await DisplayAlert("Xóa giỏ hàng?", "Tất cả món sẽ bị xóa.", "Xóa", "Hủy");
+        bool confirm = await DisplayAlertAsync("Xóa giỏ hàng?", "Tất cả món sẽ bị xóa.", "Xóa", "Hủy");
         if (confirm) CartService.Instance.Clear();
     }
 
@@ -61,12 +60,37 @@ public partial class OrderPage : ContentPage
     {
         if (sender is Border btn)
         {
-            await btn.ScaleTo(0.96, 80, Easing.CubicOut);
-            await btn.ScaleTo(1.0, 120, Easing.SpringOut);
+            await btn.ScaleToAsync(0.96, 80, Easing.CubicOut);
+            await btn.ScaleToAsync(1.0, 120, Easing.SpringOut);
+        }
+
+        // EC-O3: Check connectivity before placing order
+        var connectivity = Connectivity.NetworkAccess;
+        if (connectivity != NetworkAccess.Internet)
+        {
+            await DisplayAlertAsync("Không thể đặt hàng",
+                "Kiểm tra kết nối mạng và thử lại.", "OK");
+            return;
         }
 
         string total = CartService.Instance.TotalPriceLabel;
+        
+        // Tạo notification cho từng POI trong giỏ hàng
+        foreach (var group in CartService.Instance.GroupedItems)
+        {
+            NotificationService.Instance.AddOrderNotification(group.PoiName, group.Sum(i => i.LineTotal).ToString("#,##0") + " VNĐ");
+        }
+
         CartService.Instance.Clear();
-        await DisplayAlert("🎉 Đặt hàng thành công!", $"Đơn hàng {total} đã được ghi nhận.\nThời gian chuẩn bị: ~15 phút.", "OK");
+        await DisplayAlertAsync("Đặt hàng thành công!",
+            $"Đơn hàng đã được ghi nhận. Vui lòng kiểm tra thông báo để biết chi tiết.", "OK");
+
+        // BR-019: Navigate to Home after order
+        await Shell.Current.GoToAsync("//MainPage");
+    }
+
+    private async void OnExploreTapped(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//MainPage");
     }
 }

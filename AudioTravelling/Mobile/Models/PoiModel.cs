@@ -21,7 +21,7 @@ public class PoiModel
     public string RatingLabel   => $"★ {Rating:F1}";
     public string StatusLabel   => IsOpen ? "Đang mở cửa" : "Đã đóng cửa";
     public Color  StatusColor   => IsOpen
-        ? Color.FromArgb("#10B981")
+        ? Color.FromArgb("#FFFFFF")
         : Color.FromArgb("#EF4444");
 
     public List<FoodItem> Menu  { get; set; } = new();
@@ -36,7 +36,7 @@ public class FoodItem
     public decimal Price      { get; set; }
     public string ImageSource { get; set; } = string.Empty;
 
-    public string PriceLabel  => $"{Price:#,##0} ¥";
+    public string PriceLabel  => $"{Price:#,##0} VNĐ";
 }
 
 // ── ORDER ITEM ────────────────────────────────────────────────────────────────
@@ -47,8 +47,21 @@ public class OrderItem
     public int         Quantity { get; set; } = 1;
 
     public decimal LineTotal   => Food.Price * Quantity;
-    public string  LineTotalLabel => $"{LineTotal:#,##0} ¥";
+    public string  LineTotalLabel => $"{LineTotal:#,##0} VNĐ";
     public string  QuantityLabel  => Quantity.ToString();
+}
+
+// ── ORDER GROUP ───────────────────────────────────────────────────────────────
+public class OrderGroup : List<OrderItem>
+{
+    public string PoiName { get; private set; }
+    public PoiModel Poi { get; private set; }
+
+    public OrderGroup(string poiName, PoiModel poi, IEnumerable<OrderItem> collection) : base(collection)
+    {
+        PoiName = poiName;
+        Poi = poi;
+    }
 }
 
 // ── CART SERVICE (Singleton) ──────────────────────────────────────────────────
@@ -61,9 +74,12 @@ public class CartService
 
     public IReadOnlyList<OrderItem> Items => _items;
 
+    // Added for UI grouping
+    public System.Collections.ObjectModel.ObservableCollection<OrderGroup> GroupedItems { get; } = new();
+
     public int    TotalCount => _items.Sum(i => i.Quantity);
     public decimal TotalPrice => _items.Sum(i => i.LineTotal);
-    public string TotalPriceLabel => $"{TotalPrice:#,##0} ¥";
+    public string TotalPriceLabel => $"{TotalPrice:#,##0} VNĐ";
 
     // Events so UI can react
     public event Action? CartChanged;
@@ -75,6 +91,8 @@ public class CartService
             existing.Quantity++;
         else
             _items.Add(new OrderItem { Poi = poi, Food = food, Quantity = 1 });
+        
+        UpdateGroupedItems();
         CartChanged?.Invoke();
     }
 
@@ -84,12 +102,25 @@ public class CartService
             item.Quantity--;
         else
             _items.Remove(item);
+        
+        UpdateGroupedItems();
         CartChanged?.Invoke();
     }
 
     public void Clear()
     {
         _items.Clear();
+        UpdateGroupedItems();
         CartChanged?.Invoke();
+    }
+
+    private void UpdateGroupedItems()
+    {
+        GroupedItems.Clear();
+        var groups = _items.GroupBy(i => i.Poi).ToList();
+        foreach (var g in groups)
+        {
+            GroupedItems.Add(new OrderGroup(g.Key.Name, g.Key, g));
+        }
     }
 }
