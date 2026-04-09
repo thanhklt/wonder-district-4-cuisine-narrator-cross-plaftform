@@ -1,8 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
-using Mobile.Services;
-using Mobile.Views;
+using AudioTravelling.Mobile.Features.Auth.Services;
+using AudioTravelling.Mobile.Features.Auth.Views;
 
-namespace Mobile
+namespace AudioTravelling.Mobile
 {
     public partial class App : Application
     {

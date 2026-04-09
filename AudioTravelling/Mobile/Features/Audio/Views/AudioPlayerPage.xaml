@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AudioTravelling.Mobile.Features.Audio.Views.AudioPlayerPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F8FAFC">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ── MAIN CONTENT ── -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0" Padding="0">
+
+                <!-- ── NOW PLAYING CARD ── -->
+                <Border StrokeShape="RoundRectangle 20" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Margin="16,20,16,0" Padding="0">
+                    <Border.Shadow><Shadow Brush="Black" Offset="0,4" Opacity="0.08" Radius="14"/></Border.Shadow>
+                    <VerticalStackLayout Spacing="0">
+                        <Border StrokeShape="RoundRectangle 20,20,0,0" Stroke="Transparent" HeightRequest="180">
+                            <Grid>
+                                <Image x:Name="HeroImage" Source="takoyaki_img.png" Aspect="AspectFill"/>
+                                <BoxView>
+                                    <BoxView.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#00000000" Offset="0.4"/><GradientStop Color="#CC000000" Offset="1.0"/></LinearGradientBrush></BoxView.Background>
+                                </BoxView>
+                                <VerticalStackLayout VerticalOptions="End" Padding="16,0,16,14" Spacing="4">
+                                    <Label x:Name="LblTrackTitle" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="White"/>
+                                    <Label x:Name="LblTrackSubtitle" Text="Đồ ăn vặt • Dotonbori" FontFamily="OpenSans-Regular" FontSize="13" TextColor="White"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <VerticalStackLayout Padding="20,16,20,0" Spacing="6">
+                            <ProgressBar x:Name="AudioProgress" Progress="0.0" ProgressColor="Black" BackgroundColor="#E2E8F0" HeightRequest="5"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" x:Name="LblCurrentTime" Text="0:00" FontSize="11" FontFamily="OpenSans-Regular" TextColor="Black"/>
+                                <Label Grid.Column="1" x:Name="LblTotalTime" Text="3:45" FontSize="11" FontFamily="OpenSans-Regular" TextColor="Black"/>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="24" Padding="20,12,20,20">
+                            <Border StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="#F8FAFC" Padding="12,8">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnSpeedTapped"/></Border.GestureRecognizers>
+                                <Label x:Name="LblSpeed" Text="1.0x" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="Black" HorizontalOptions="Center"/>
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 22" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="44" HeightRequest="44">
+                                <Label Text="&#xF04A;" FontFamily="FA6Solid" FontSize="16" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 30" Stroke="Transparent" WidthRequest="60" HeightRequest="60">
+                                <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="Black" Offset="0.0"/><GradientStop Color="Black" Offset="1.0"/></LinearGradientBrush></Border.Background>
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnPlayPauseTapped"/></Border.GestureRecognizers>
+                                <Label x:Name="PlayPauseIcon" Text="&#xF04B;" FontFamily="FA6Solid" FontSize="22" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 22" Stroke="Transparent" BackgroundColor="#F1F5F9" WidthRequest="44" HeightRequest="44">
+                                <Label Text="&#xF04E;" FontFamily="FA6Solid" FontSize="16" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 12" Stroke="#E2E8F0" BackgroundColor="#F8FAFC" Padding="12,8">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTrackListTapped"/></Border.GestureRecognizers>
+                                <Label Text="&#xF03A;" FontFamily="FA6Solid" FontSize="14" TextColor="Black" HorizontalOptions="Center"/>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Bài thuyết minh" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="Black" Margin="20,24,20,10"/>
+
+                <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Margin="16,0,16,16" Padding="20">
+                    <Border.Shadow><Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="8"/></Border.Shadow>
+                    <Label x:Name="LblTranscript"
+                           Text="Chào mừng đến với Takoyaki Kukuru, điểm dừng đầu tiên trong hành trình ẩm thực Dotonbori của bạn."
+                           FontFamily="OpenSans-Regular" FontSize="14" TextColor="Black" LineBreakMode="WordWrap" LineHeight="1.5"/>
+                </Border>
+
+                <Label x:Name="LblTrackListHeader" Text="Danh sách audio" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="Black" Margin="20,8,20,10" IsVisible="False"/>
+                <VerticalStackLayout x:Name="TrackListPanel" Spacing="8" Margin="16,0,16,24" IsVisible="False"/>
+
+                <VerticalStackLayout x:Name="EmptyState" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center" Spacing="12" Padding="40,60">
+                    <Label Text="🎵" FontSize="56" HorizontalOptions="Center"/>
+                    <Label Text="Chưa có audio" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="Black" HorizontalOptions="Center"/>
+                    <Label Text="Hãy đến gần một địa điểm để nghe hướng dẫn âm thanh" FontFamily="OpenSans-Regular" FontSize="14" TextColor="Black" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

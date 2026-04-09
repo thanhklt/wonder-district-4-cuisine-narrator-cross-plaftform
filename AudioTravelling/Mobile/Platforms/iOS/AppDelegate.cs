@@ -1,6 +1,6 @@
-﻿using Foundation;
+using Foundation;
 
-namespace Mobile
+namespace AudioTravelling.Mobile
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

@@ -1,8 +1,13 @@
-using Microsoft.Extensions.Logging;
-using Mobile.Services;
+using AudioTravelling.Mobile.Features.Audio.Services;
+using AudioTravelling.Mobile.Features.Audio.ViewModels;
+using AudioTravelling.Mobile.Features.Audio.Views;
+using AudioTravelling.Mobile.Features.Map.Views;
+using AudioTravelling.Mobile.Features.Notification.Views;
+using AudioTravelling.Mobile.Features.Order.Views;
+using AudioTravelling.Mobile.Features.Settings.Views;
 using Plugin.Maui.Audio;
 
-namespace Mobile
+namespace AudioTravelling.Mobile
 {
     public static class MauiProgram
     {
@@ -14,30 +19,25 @@ namespace Mobile
                 .UseMauiMaps()
                 .ConfigureFonts(fonts =>
                 {
-                    // Register with both alias conventions:
-                    // "OpenSansRegular" / "OpenSansSemibold" → used in Styles.xaml
-                    // "OpenSans-Regular" / "OpenSans-Semibold" → used in MainPage.xaml
-                    fonts.AddFont("OpenSans-Regular.ttf",  "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Regular.ttf",  "OpenSans-Regular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSans-Regular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSans-Semibold");
-                    // FontAwesome 6 Free – Solid  →  place fa-solid-900.ttf in Resources/Fonts/
                     fonts.AddFont("fa-solid-900.ttf", "FA6Solid");
+                    fonts.AddFont("OpenSans-Bold.ttf", "OpenSans-Bold");
                 });
 
-            // Views
-            Routing.RegisterRoute("OrderPage", typeof(Views.OrderPage));
-            Routing.RegisterRoute("MainPage", typeof(Views.MainPage));
-            Routing.RegisterRoute("AudioPlayerPage", typeof(Views.AudioPlayerPage));
-            Routing.RegisterRoute("SettingsPage", typeof(Views.SettingsPage));
-            Routing.RegisterRoute("NotificationsPage", typeof(Views.NotificationsPage));
-
-            builder.Services.AddSingleton<AudioService>();
+            // ── Services ──────────────────────────────────────────────────
             builder.Services.AddSingleton(AudioManager.Current);
+            builder.Services.AddSingleton<AudioService>();
+            builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
+            builder.Services.AddTransient<AudioViewModel>();
+            builder.Services.AddTransient<AudioPlayerPage>();
 
-#if DEBUG
-            builder.Logging.AddDebug();
-#endif
+            // ── Routes ────────────────────────────────────────────────────
+            Routing.RegisterRoute("OrderPage", typeof(OrderPage));
+            Routing.RegisterRoute("MainPage", typeof(MainPage));
+            Routing.RegisterRoute("AudioPlayerPage", typeof(AudioPlayerPage));
+            Routing.RegisterRoute("SettingsPage", typeof(SettingsPage));
+            Routing.RegisterRoute("NotificationsPage", typeof(NotificationsPage));
 
             return builder.Build();
         }

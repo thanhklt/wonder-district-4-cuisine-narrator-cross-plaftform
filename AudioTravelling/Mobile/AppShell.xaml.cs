@@ -1,4 +1,4 @@
-﻿namespace Mobile
+namespace AudioTravelling.Mobile
 {
     public partial class AppShell : Shell
     {

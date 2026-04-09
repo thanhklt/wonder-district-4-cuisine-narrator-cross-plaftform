@@ -1,7 +1,7 @@
-﻿using ObjCRuntime;
+using ObjCRuntime;
 using UIKit;
 
-namespace Mobile
+namespace AudioTravelling.Mobile
 {
     public class Program
     {
