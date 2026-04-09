@@ -268,22 +268,6 @@ Cache nội dung đa ngôn ngữ.
 | ServerUpdatedAtUtc | text |  | Cập nhật server |
 | CachedAtUtc | text |  | Thời điểm cache |
 | AudioPath | text | | Filepath đến Audio lưu tại local |
-#### CachedPoiAudios
-
-Cache audio theo ngôn ngữ.
-
-| Tên cột | Kiểu dữ liệu | Khóa | Mô tả |
-| --- | --- | --- | --- |
-| AudioCacheId | integer | PK | ID audio |
-| PoiId | integer | FK | Thuộc POI |
-| LanguageCode | text |  | Ngôn ngữ |
-| AudioUrl | text |  | URL audio |
-| LocalFilePath | text |  | Đường dẫn local |
-| VoiceCode | text |  | Giọng đọc |
-| DurationSeconds | integer |  | Thời lượng |
-| DownloadStatus | text |  | Trạng thái tải |
-| LastPlayedAtUtc | text |  | Lần phát gần nhất |
-| CachedAtUtc | text |  | Thời điểm cache |
 
 #### PoiGeofenceState
 
