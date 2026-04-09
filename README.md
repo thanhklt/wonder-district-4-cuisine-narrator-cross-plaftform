@@ -267,7 +267,7 @@ Cache nội dung đa ngôn ngữ.
 | TranslationSource | text |  | Nguồn dịch |
 | ServerUpdatedAtUtc | text |  | Cập nhật server |
 | CachedAtUtc | text |  | Thời điểm cache |
-
+| AudioPath | text | | Filepath đến Audio lưu tại local |
 #### CachedPoiAudios
 
 Cache audio theo ngôn ngữ.
