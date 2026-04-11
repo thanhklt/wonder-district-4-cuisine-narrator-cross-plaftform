@@ -7,12 +7,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.16">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Services\" />
+Auth\" />
+    <Folder Include="Modules\Poi\" />
+    <Folder Include="Modules\Admin\    <Folder Include="Modules\Admin\" />
+    <Folder Include="Modules\Auth\Entities\" />
+    <Folder Include="Modules\Auth\Interfaces\" />
+    <Folder Include="Modules\Localization\" />
+    <Folder Include="Modules\Owner\" />
+    <Folder Include="Modules\Poi\" />
+    <Folder Include="Persistence\Configurations\" />
+    <Folder Include="Persistence\Repositories\" />
+    <Folder Include="Modules\Owner\" />
+    <Folder Include="Modules\Localization\" />
+    <Folder Include="Services\" />    <Folder Include="wwwroot\uploads\audio\pois\" />
+    <Folder Include="wwwroot\uploads\images\pois\" />
+    <Folder Include="Modules\Localization\" />
   </ItemGroup>
 
 </Project>
