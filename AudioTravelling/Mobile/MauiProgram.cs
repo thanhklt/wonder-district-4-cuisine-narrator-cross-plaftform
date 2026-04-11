@@ -1,45 +1,57 @@
-using AudioTravelling.Mobile.Features.Audio.Services;
-using AudioTravelling.Mobile.Features.Audio.ViewModels;
-using AudioTravelling.Mobile.Features.Audio.Views;
-using AudioTravelling.Mobile.Features.Map.Views;
-using AudioTravelling.Mobile.Features.Notification.Views;
-using AudioTravelling.Mobile.Features.Order.Views;
-using AudioTravelling.Mobile.Features.Settings.Views;
-using Plugin.Maui.Audio;
+using AudioTravelling.Mobile.Features.Auth.ViewModels;
+using AudioTravelling.Mobile.Features.Auth.Views;
+using AudioTravelling.Mobile.Services.Api;
+using AudioTravelling.Mobile.Services.Api.Handlers;
+using AudioTravelling.Mobile.Services.Api.Interfaces;
+using AudioTravelling.Mobile.Services.Auth;
 
-namespace AudioTravelling.Mobile
+namespace AudioTravelling.Mobile;
+
+public static class MauiProgram
 {
-    public static class MauiProgram
+    public static MauiApp CreateMauiApp()
     {
-        public static MauiApp CreateMauiApp()
+        var builder = MauiApp.CreateBuilder();
+
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            })
+            .UseMauiMaps();  // ✅ ADD THIS - Enable Maps support
+
+        builder.Services.AddSingleton<ITokenService, TokenService>();
+        builder.Services.AddSingleton<LoggingHandler>();
+        builder.Services.AddSingleton<AuthHeaderHandler>();
+
+        // API Services
+        builder.Services.AddHttpClient<IAuthApiService, AuthApiService>(client =>
         {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseMauiMaps()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSans-Regular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSans-Semibold");
-                    fonts.AddFont("fa-solid-900.ttf", "FA6Solid");
-                    fonts.AddFont("OpenSans-Bold.ttf", "OpenSans-Bold");
-                });
+            client.BaseAddress = new Uri(ApiOptions.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        })
+        .AddHttpMessageHandler<LoggingHandler>()
+        .AddHttpMessageHandler<AuthHeaderHandler>();
 
-            // ── Services ──────────────────────────────────────────────────
-            builder.Services.AddSingleton(AudioManager.Current);
-            builder.Services.AddSingleton<AudioService>();
-            builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
-            builder.Services.AddTransient<AudioViewModel>();
-            builder.Services.AddTransient<AudioPlayerPage>();
+        builder.Services.AddHttpClient<IUserApiService, UserApiService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiOptions.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        })
+        .AddHttpMessageHandler<LoggingHandler>()
+        .AddHttpMessageHandler<AuthHeaderHandler>();
 
-            // ── Routes ────────────────────────────────────────────────────
-            Routing.RegisterRoute("OrderPage", typeof(OrderPage));
-            Routing.RegisterRoute("MainPage", typeof(MainPage));
-            Routing.RegisterRoute("AudioPlayerPage", typeof(AudioPlayerPage));
-            Routing.RegisterRoute("SettingsPage", typeof(SettingsPage));
-            Routing.RegisterRoute("NotificationsPage", typeof(NotificationsPage));
+        builder.Services.AddHttpClient<IPoiApiService, PoiApiService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiOptions.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        })
+        .AddHttpMessageHandler<LoggingHandler>();
 
-            return builder.Build();
-        }
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<LoginPage>();
+
+        return builder.Build();
     }
 }

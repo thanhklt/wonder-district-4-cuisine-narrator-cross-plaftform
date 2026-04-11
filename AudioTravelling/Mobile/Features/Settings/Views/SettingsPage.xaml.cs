@@ -1,5 +1,6 @@
 using AudioTravelling.Mobile.Features.Auth.Services;
 using AudioTravelling.Mobile.Features.Auth.Views;
+using AudioTravelling.Mobile.Features.Auth.ViewModels;
 using AudioTravelling.Mobile.Features.Poi.Services;
 
 namespace AudioTravelling.Mobile.Features.Settings.Views;
@@ -49,10 +50,13 @@ public partial class SettingsPage : ContentPage
 
     private async void OnLogoutTapped(object sender, EventArgs e)
     {
-        bool confirm = await DisplayAlert("Đăng xuất", "Bạn có chắc muốn đăng xuất không?", "Đăng xuất", "Hủy");
+        bool confirm = await DisplayAlertAsync("Đăng xuất", "Bạn có chắc muốn đăng xuất không?", "Đăng xuất", "Hủy");
         if (!confirm) return;
 
         AuthService.Logout();
-        Application.Current!.MainPage = new NavigationPage(new LoginPage());
+
+        // Get LoginViewModel from dependency injection container
+        var loginViewModel = IPlatformApplication.Current!.Services.GetRequiredService<LoginViewModel>();
+        Application.Current!.MainPage = new NavigationPage(new LoginPage(loginViewModel));
     }
 }

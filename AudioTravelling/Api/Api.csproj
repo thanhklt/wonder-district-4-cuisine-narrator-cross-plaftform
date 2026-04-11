@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,23 +7,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\**" />
+    <Content Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.16" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.16">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Modules\Admin\" />
     <Folder Include="Modules\Auth\Entities\" />
+    <Folder Include="Modules\Poi\" />
+    <Folder Include="Modules\Owner\" />
+    <Folder Include="Modules\Localization\" />
+    <Folder Include="Modules\Admin\" />
     <Folder Include="Modules\Localization\" />
     <Folder Include="Modules\Owner\" />
     <Folder Include="Modules\Poi\" />
     <Folder Include="Persistence\Configurations\" />
+    <Folder Include="Persistence\Configurations\" />
     <Folder Include="Persistence\Repositories\" />
-    <Folder Include="Services\" />
+    <Folder Include="Persistence\Repositories\" />
     <Folder Include="wwwroot\uploads\audio\pois\" />
     <Folder Include="wwwroot\uploads\images\pois\1\" />
   </ItemGroup>

@@ -1,19 +1,14 @@
-using AudioTravelling.Mobile.Features.Auth.Services;
 using AudioTravelling.Mobile.Features.Auth.Views;
 
-namespace AudioTravelling.Mobile
-{
-    public partial class App : Application
-    {
-        [Obsolete]
-        public App()
-        {
-            InitializeComponent();
+namespace AudioTravelling.Mobile;
 
-            if (AuthService.IsLoggedIn)
-                MainPage = new AppShell();
-            else
-                MainPage = new NavigationPage(new LoginPage());
-        }
+public partial class App : Application
+{
+    public App(LoginPage loginPage)
+    {
+        InitializeComponent();
+
+        // Always show LoginPage when app starts
+        MainPage = loginPage;
     }
 }
