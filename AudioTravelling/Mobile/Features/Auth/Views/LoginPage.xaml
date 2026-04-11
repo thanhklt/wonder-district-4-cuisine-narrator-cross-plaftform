@@ -10,21 +10,21 @@
         <VerticalStackLayout Spacing="0" Padding="0">
 
             <!-- ── GREEN HEADER ── -->
-            <Image Source="logo_cty.jpg" HorizontalOptions="Center" WidthRequest="150" HeightRequest="150" Margin="0,80,0,40" />
+            <Image Source="logo_cty.jpg" HorizontalOptions="Center" WidthRequest="130" HeightRequest="130" Margin="0,80,0,40" />
 
             <!-- ── LOGIN FORM ── -->
             <VerticalStackLayout Spacing="0" Padding="24,32,24,0">
 
-                <Label Text="Đăng nhập" HorizontalOptions="Center" FontFamily="OpenSans-Semibold" FontSize="24" TextColor="#0F172A" Margin="0,0,0,24"/>
+                <Label Text="Đăng nhập" HorizontalOptions="Center" FontFamily="OpenSans-Semibold" FontSize="32" TextColor="Black" Margin="0,0,0,24"/>
 
                 <!-- Email -->
-                <Label Text="Email" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#475569" Margin="0,0,0,6"/>
+                <Label Text="Email" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="Black" Margin="0,0,0,6"/>
                 <Border StrokeShape="RoundRectangle 14" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Padding="16,0" HeightRequest="52">
                     <Border.Shadow>
                         <Shadow Brush="Black" Offset="0,2" Opacity="0.04" Radius="6"/>
                     </Border.Shadow>
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Label Grid.Column="0" Text="&#xF0E0;" FontFamily="FA6Solid" FontSize="15" TextColor="#94A3B8" VerticalOptions="Center"/>
+                        <Label Grid.Column="0" Text="&#xF0E0;" FontFamily="FA6Solid" FontSize="15" TextColor="#E27D60" VerticalOptions="Center"/>
                         <Entry Grid.Column="1" x:Name="EntryEmail" Placeholder="your@email.com" PlaceholderColor="#CBD5E1"
                                Keyboard="Email" TextColor="#0F172A" FontSize="15" FontFamily="OpenSans-Regular" BackgroundColor="Transparent" VerticalOptions="Center"/>
                     </Grid>
@@ -32,13 +32,13 @@
                 <Label x:Name="LblEmailError" Text="" FontSize="12" TextColor="#EF4444" FontFamily="OpenSans-Regular" Margin="4,4,0,0" IsVisible="False"/>
 
                 <!-- Password -->
-                <Label Text="Mật khẩu" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="#475569" Margin="0,16,0,6"/>
+                <Label Text="Mật khẩu" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="Black" Margin="0,16,0,6"/>
                 <Border StrokeShape="RoundRectangle 14" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="White" Padding="16,0" HeightRequest="52">
                     <Border.Shadow>
                         <Shadow Brush="Black" Offset="0,2" Opacity="0.04" Radius="6"/>
                     </Border.Shadow>
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Label Grid.Column="0" Text="&#xF023;" FontFamily="FA6Solid" FontSize="15" TextColor="#94A3B8" VerticalOptions="Center"/>
+                        <Label Grid.Column="0" Text="&#xF023;" FontFamily="FA6Solid" FontSize="15" TextColor="#E27D60" VerticalOptions="Center"/>
                         <Entry Grid.Column="1" x:Name="EntryPassword" Placeholder="Ít nhất 6 ký tự" PlaceholderColor="#CBD5E1"
                                IsPassword="True" TextColor="#0F172A" FontSize="15" FontFamily="OpenSans-Regular" BackgroundColor="Transparent" VerticalOptions="Center"/>
                     </Grid>
@@ -46,7 +46,8 @@
                 <Label x:Name="LblPasswordError" Text="" FontSize="12" TextColor="#EF4444" FontFamily="OpenSans-Regular" Margin="4,4,0,0" IsVisible="False"/>
 
                 <!-- Forgot password link -->
-                <Label Text="Quên mật khẩu?" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="Black" HorizontalOptions="End" Margin="0,12,0,0">
+                <Label Text="Quên mật khẩu?" FontFamily="OpenSans-Semibold" FontSize="13" TextColor="Black" HorizontalOptions="End" Margin="0,12,0,0" FontAttributes="Bold"
+       TextDecorations="Underline">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnForgotPasswordTapped"/>
                     </Label.GestureRecognizers>
@@ -60,8 +61,8 @@
                 <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" Margin="0,24,0,0" HeightRequest="54">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#008dd4" Offset="0.0"/>
-                            <GradientStop Color="#008dd4" Offset="1.0"/>
+                            <GradientStop Color="#E27D60" Offset="0.0"/>
+                            <GradientStop Color="#E27D60" Offset="1.0"/>
                         </LinearGradientBrush>
                     </Border.Background>
                     <Border.Shadow>
@@ -77,7 +78,7 @@
                 <!-- Register link -->
                 <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,40" Spacing="4">
                     <Label Text="Chưa có tài khoản?" FontFamily="OpenSans-Regular" FontSize="14" TextColor="#94A3B8" VerticalOptions="Center"/>
-                    <Label x:Name="LblRegisterLink" Text="Đăng ký ngay" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#000000" VerticalOptions="Center">
+                    <Label x:Name="LblRegisterLink" Text="Đăng ký ngay" TextDecorations="Underline" FontFamily="OpenSans-Semibold" FontSize="14" TextColor="#000000" VerticalOptions="Center">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnRegisterLinkTapped"/>
                         </Label.GestureRecognizers>
