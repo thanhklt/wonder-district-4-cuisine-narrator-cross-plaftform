@@ -8,7 +8,7 @@ namespace Api.Persistence.Entities
 
         public int PoiId { get; set; }
 
-        public int AdminId { get; set; }
+        public int PerformedBy { get; set; }
 
         public string Action { get; set; } = string.Empty;
         // approve / reject / update
@@ -21,6 +21,6 @@ namespace Api.Persistence.Entities
 
         public Poi Poi { get; set; } = null!;
 
-        public User Admin { get; set; } = null!;
+        public User PerformedByAdmin { get; set; } = null!;
     }
 }
