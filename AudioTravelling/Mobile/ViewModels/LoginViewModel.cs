@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using AudioTravelling.Mobile.Services.Api.Exceptions;
 using AudioTravelling.Mobile.Services.Api.Interfaces;
 using AudioTravelling.Mobile.Services.Api.Requests;
 using AudioTravelling.Mobile.Services.Auth;
@@ -86,18 +87,18 @@ public class LoginViewModel : BaseViewModel
 
         if (string.IsNullOrWhiteSpace(Email))
         {
-            EmailError = "Email không được để trống.";
+            EmailError = "Vui lòng nhập email.";
             isValid = false;
         }
         else if (!Email.Contains("@"))
         {
-            EmailError = "Email không đúng định dạng.";
+            EmailError = "Email chưa đúng định dạng.";
             isValid = false;
         }
 
         if (string.IsNullOrWhiteSpace(Password))
         {
-            PasswordError = "Mật khẩu không được để trống.";
+            PasswordError = "Vui lòng nhập mật khẩu.";
             isValid = false;
         }
         else if (Password.Length < 6)
@@ -132,24 +133,26 @@ public class LoginViewModel : BaseViewModel
 
             if (result == null)
             {
-                GeneralError = "API trả về rỗng.";
+                GeneralError = "Đăng nhập chưa thành công. Vui lòng thử lại.";
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(result.AccessToken))
             {
-                GeneralError = "Response không có token.";
+                GeneralError = "Đăng nhập chưa hoàn tất. Vui lòng thử lại.";
                 return;
             }
 
             await _tokenService.SaveTokenAsync(result.AccessToken);
-
-            await ShowSuccessMessageAsync();
             await NavigateToMainAsync();
         }
-        catch (Exception ex)
+        catch (ApiException ex)
         {
-            GeneralError = ex.InnerException?.Message ?? ex.Message;
+            GeneralError = ex.UserMessage;
+        }
+        catch
+        {
+            GeneralError = "Có lỗi xảy ra. Vui lòng thử lại sau.";
         }
         finally
         {
@@ -157,36 +160,21 @@ public class LoginViewModel : BaseViewModel
         }
     }
 
-    private static async Task ShowSuccessMessageAsync()
-    {
-        if (Shell.Current != null)
-        {
-            await Shell.Current.DisplayAlert("Thành công", "Đăng nhập thành công.", "OK");
-            return;
-        }
-
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert("Thành công", "Đăng nhập thành công.", "OK");
-        }
-    }
-
     private async Task NavigateToMainAsync()
     {
         try
         {
-            // Replace the main page with AppShell to enable shell navigation
             if (Application.Current != null)
             {
                 Application.Current.MainPage = new AppShell();
                 return;
             }
 
-            GeneralError = "Không thể khởi tạo trang chính.";
+            GeneralError = "Đăng nhập thành công. Vui lòng mở lại ứng dụng.";
         }
-        catch (Exception ex)
+        catch
         {
-            GeneralError = $"Lỗi điều hướng: {ex.Message}";
+            GeneralError = "Đăng nhập thành công, nhưng chưa thể chuyển màn hình. Vui lòng mở lại ứng dụng.";
         }
     }
 }

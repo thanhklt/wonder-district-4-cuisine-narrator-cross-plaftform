@@ -45,9 +45,9 @@
 
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Grid.Column="0"
-                               Text="&#xF0E0;"
+                               Text="📧" 
                                FontFamily="FA6Solid"
-                               FontSize="15"
+                               FontSize="20"
                                TextColor="#E27D60"
                                VerticalOptions="Center" />
 
@@ -92,9 +92,9 @@
 
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Grid.Column="0"
-                               Text="&#xF023;"
+                               Text="&#128274;"
                                FontFamily="FA6Solid"
-                               FontSize="15"
+                               FontSize="20"
                                TextColor="#E27D60"
                                VerticalOptions="Center" />
 

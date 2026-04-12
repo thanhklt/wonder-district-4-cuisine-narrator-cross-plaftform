@@ -1,4 +1,5 @@
-using AudioTravelling.Mobile.Features.Auth.Services;
+using AudioTravelling.Mobile.Services.Api.Interfaces;
+using AudioTravelling.Mobile.Services.Api.Requests;
 
 namespace AudioTravelling.Mobile.Features.Auth.Views;
 
@@ -9,52 +10,50 @@ public partial class RegisterPage : ContentPage
         InitializeComponent();
     }
 
-    private async void OnRegisterTapped(object sender, EventArgs e)
+    private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
         LblError.IsVisible = false;
+        LblError.Text = string.Empty;
 
-        string fullName        = EntryFullName.Text?.Trim() ?? "";
-        string email           = EntryEmail.Text?.Trim() ?? "";
-        string password        = EntryPassword.Text ?? "";
-        string confirmPassword = EntryConfirmPassword.Text ?? "";
+        string fullName = EntryFullName.Text?.Trim() ?? string.Empty;
+        string email = EntryEmail.Text?.Trim() ?? string.Empty;
+        string password = EntryPassword.Text ?? string.Empty;
+        string confirmPassword = EntryConfirmPassword.Text ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(fullName) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(password) ||
+            string.IsNullOrWhiteSpace(confirmPassword))
         {
-            LblError.Text = "Vui lòng nhập đầy đủ thông tin.";
-            LblError.IsVisible = true;
+            ShowError("Vui lòng nhập đầy đủ thông tin.");
             return;
         }
 
         if (password != confirmPassword)
         {
-            LblError.Text = "Mật khẩu không khớp.";
-            LblError.IsVisible = true;
-            return;
-        }
-        
-        if (password.Length < 6)
-        {
-            LblError.Text = "Mật khẩu phải có ít nhất 6 ký tự.";
-            LblError.IsVisible = true;
+            ShowError("Mật khẩu xác nhận không khớp.");
             return;
         }
 
-        var authApiService = this.Handler?.MauiContext?.Services.GetService<AudioTravelling.Mobile.Services.Api.Interfaces.IAuthApiService>();
-        
-        if (authApiService == null)
+        if (password.Length < 6)
         {
-            LblError.Text = "Lỗi hệ thống: Không tìm thấy dịch vụ xác thực.";
-            LblError.IsVisible = true;
+            ShowError("Mật khẩu phải có ít nhất 6 ký tự.");
+            return;
+        }
+
+        var authApiService = Handler?.MauiContext?.Services.GetService<IAuthApiService>();
+
+        if (authApiService is null)
+        {
+            ShowError("Hệ thống đang tạm thời gặp sự cố. Vui lòng thử lại sau.");
             return;
         }
 
         try
         {
-            BtnRegisterBox.IsEnabled = false;
-            Spinner.IsRunning = true;
-            Spinner.IsVisible = true;
+            SetLoadingState(true);
 
-            var request = new AudioTravelling.Mobile.Services.Api.Requests.RegisterRequest
+            var request = new RegisterRequest
             {
                 FullName = fullName,
                 Email = email,
@@ -64,32 +63,76 @@ public partial class RegisterPage : ContentPage
 
             var response = await authApiService.RegisterAsync(request);
 
-            if (response != null)
+            if (response is not null)
             {
-                await DisplayAlertAsync("Đăng ký thành công!", "Tài khoản của bạn đã được tạo thành công.", "OK");
-                await Navigation.PopAsync();
+                await DisplayAlert("Đăng ký thành công", "Tài khoản của bạn đã được tạo thành công.", "OK");
+
+                if (Shell.Current is not null)
+                    await Shell.Current.GoToAsync("..");
+                else
+                    await Navigation.PopAsync();
+
+                return;
             }
-            else
-            {
-                LblError.Text = "Đăng ký thất bại. Vui lòng thử lại.";
-                LblError.IsVisible = true;
-            }
+
+            ShowError("Đăng ký chưa thành công. Vui lòng thử lại.");
         }
         catch (Exception ex)
         {
-            LblError.Text = $"Đăng ký thất bại: {ex.Message}";
-            LblError.IsVisible = true;
+            ShowError(GetFriendlyErrorMessage(ex));
         }
         finally
         {
-            BtnRegisterBox.IsEnabled = true;
-            Spinner.IsRunning = false;
-            Spinner.IsVisible = false;
+            SetLoadingState(false);
         }
     }
 
-    private async void OnBackTapped(object sender, EventArgs e)
+    private async void OnBackTapped(object sender, TappedEventArgs e)
     {
-        await Navigation.PopAsync();
+        if (Shell.Current is not null)
+            await Shell.Current.GoToAsync("..");
+        else
+            await Navigation.PopAsync();
+    }
+
+    private void ShowError(string message)
+    {
+        LblError.Text = message;
+        LblError.IsVisible = true;
+    }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        BtnRegisterBox.IsEnabled = !isLoading;
+        Spinner.IsVisible = isLoading;
+        Spinner.IsRunning = isLoading;
+    }
+
+    private static string GetFriendlyErrorMessage(Exception ex)
+    {
+        var message = ex.Message.ToLowerInvariant();
+
+        if (message.Contains("email") && message.Contains("exist"))
+            return "Email này đã được sử dụng.";
+
+        if (message.Contains("400"))
+            return "Thông tin đăng ký chưa hợp lệ.";
+
+        if (message.Contains("401"))
+            return "Bạn không có quyền thực hiện thao tác này.";
+
+        if (message.Contains("403"))
+            return "Yêu cầu bị từ chối.";
+
+        if (message.Contains("404"))
+            return "Không tìm thấy dịch vụ đăng ký.";
+
+        if (message.Contains("500"))
+            return "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.";
+
+        if (message.Contains("network") || message.Contains("connection") || message.Contains("socket"))
+            return "Kết nối mạng không ổn định. Vui lòng kiểm tra lại mạng.";
+
+        return "Đăng ký thất bại. Vui lòng thử lại sau.";
     }
 }

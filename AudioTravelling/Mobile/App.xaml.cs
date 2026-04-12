@@ -9,6 +9,6 @@ public partial class App : Application
         InitializeComponent();
 
         // Always show LoginPage when app starts
-        MainPage = loginPage;
+        MainPage = new NavigationPage(loginPage);
     }
 }
