@@ -26,13 +26,11 @@
   <ItemGroup>
     <Folder Include="Modules\Admin\" />
     <Folder Include="Modules\Auth\Entities\" />
-    <Folder Include="Modules\Poi\" />
     <Folder Include="Modules\Owner\" />
     <Folder Include="Modules\Localization\" />
     <Folder Include="Modules\Admin\" />
     <Folder Include="Modules\Localization\" />
     <Folder Include="Modules\Owner\" />
-    <Folder Include="Modules\Poi\" />
     <Folder Include="Persistence\Configurations\" />
     <Folder Include="Persistence\Configurations\" />
     <Folder Include="Persistence\Repositories\" />
