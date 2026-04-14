@@ -1,15 +1,18 @@
-using System.Text;
 using Api.Infrastructure.Services;
 using Api.Modules.Auth.Interfaces;
 using Api.Modules.Auth.Services;
+using Api.Modules.Owner.Interfaces;
+using Api.Modules.Owner.Services;
+using Api.Modules.Poi.Interfaces;
+using Api.Modules.Poi.Services;
 using Api.Persistence;
+using Api.Persistence.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-using Api.Modules.Poi.Interfaces;
-using Api.Modules.Poi.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +28,11 @@ builder.Services.AddScoped<JwtService>();
 
 // Thêm PoiService
 builder.Services.AddScoped<IPoiService, PoiService>();
+
+// Theme OwnerService
+builder.Services.AddScoped<IOwnerService, OwnerService>();
+builder.Services.AddScoped<IOwnerPoiService, OwnerPoiService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSection["SecretKey"] ?? throw new InvalidOperationException("Jwt:SecretKey is missing.");
@@ -111,7 +119,5 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.Run();
