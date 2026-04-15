@@ -25,29 +25,6 @@
             </BoxView.Background>
         </BoxView>
 
-        <Border
-            x:Name="SearchBarContainer"
-            StrokeShape="RoundRectangle 16"
-            Stroke="#E2E8F0"
-            StrokeThickness="1"
-            BackgroundColor="#EEFFFFFF"
-            HorizontalOptions="Fill"
-            VerticalOptions="Start"
-            Margin="16,48,80,0"
-            Padding="14,0">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,6" Opacity="0.08" Radius="16"/>
-            </Border.Shadow>
-            <Grid ColumnDefinitions="Auto,*,Auto" HeightRequest="52">
-                <Label Grid.Column="0" Text="&#xF002;" FontFamily="FA6Solid" FontSize="16" TextColor="#94A3B8" VerticalOptions="Center" Margin="0,0,10,0"/>
-                <Entry Grid.Column="1" x:Name="SearchEntry" Placeholder="Tìm quán ăn, món ăn Dotonbori…" PlaceholderColor="#94A3B8" TextColor="#0F172A" FontSize="15" FontFamily="OpenSans-Regular" ClearButtonVisibility="WhileEditing" BackgroundColor="Transparent" VerticalOptions="Center"
-                        TextChanged="OnSearchChanged"/>
-                <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Stroke="Transparent" BackgroundColor="White" Padding="10,6" VerticalOptions="Center">
-                    <Label Text="&#xF3C9;" FontFamily="FA6Solid" FontSize="14" TextColor="Black" VerticalOptions="Center"/>
-                </Border>
-            </Grid>
-        </Border>
-
         <VerticalStackLayout HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,280" Spacing="10" ZIndex="1">
             <!-- Notifications Bell -->
             <Grid WidthRequest="48" HeightRequest="48">
@@ -58,7 +35,7 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnNotificationsTapped"/>
                     </Border.GestureRecognizers>
-                    <Label Text="&#xF0F3;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="&#xF0F3;" FontFamily="FA6Solid" FontSize="18" TextColor="#E27D60" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
                 <Border x:Name="NotificationBadge" StrokeShape="RoundRectangle 10" Stroke="White" StrokeThickness="2" BackgroundColor="#EF4444" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,-4,-4" IsVisible="False">
                     <Label x:Name="NotificationCount" Text="0" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -73,7 +50,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnMyLocationTapped"/>
                 </Border.GestureRecognizers>
-                <Label Text="&#xF3C5;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Text="&#xF3C5;" FontFamily="FA6Solid" FontSize="18" TextColor="#E27D60" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
             <Grid WidthRequest="48" HeightRequest="48">
                 <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" BackgroundColor="White" WidthRequest="48" HeightRequest="48">
@@ -83,7 +60,7 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCartTapped"/>
                     </Border.GestureRecognizers>
-                    <Label Text="&#xF07A;" FontFamily="FA6Solid" FontSize="18" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="&#xF07A;" FontFamily="FA6Solid" FontSize="18" TextColor="#E27D60" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
                 <Border x:Name="CartBadge" StrokeShape="RoundRectangle 10" Stroke="White" StrokeThickness="2" BackgroundColor="#EF4444" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,-4,-4" IsVisible="False">
                     <Label x:Name="CartItemCount" Text="0" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -161,7 +138,7 @@
                     <Grid x:Name="CollapsedContent" RowDefinitions="Auto,Auto">
 
                         <Grid Grid.Row="0" ColumnDefinitions="*,*" Margin="16,0,16,12" ColumnSpacing="8">
-                            <Border Grid.Column="0" x:Name="TabNearby" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="Black" HeightRequest="36">
+                            <Border Grid.Column="0" x:Name="TabNearby" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="#E27D60" HeightRequest="36">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnTabNearbyTapped"/>
                                 </Border.GestureRecognizers>
@@ -232,7 +209,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnBackTapped"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xF060;" FontFamily="FA6Solid" FontSize="14" TextColor="#0F172A" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Label Text="&#xf053;" FontFamily="FA6Solid" FontSize="14" TextColor="#0F172A" HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <Label Grid.Column="1" x:Name="LblDetailPoiName" Text="Takoyaki Kukuru" FontFamily="OpenSans-Semibold" FontSize="18" TextColor="#0F172A" VerticalOptions="Center"/>
                         </Grid>

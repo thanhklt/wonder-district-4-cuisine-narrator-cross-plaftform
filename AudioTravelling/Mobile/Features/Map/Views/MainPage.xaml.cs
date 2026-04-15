@@ -117,7 +117,7 @@ public partial class MainPage : ContentPage
         var outer = new Border
         {
             StrokeShape     = new RoundRectangle { CornerRadius = 18 },
-            Stroke          = new SolidColorBrush(Color.FromArgb("#E2E8F0")),
+            Stroke          = new SolidColorBrush(Color.FromArgb("#E27D60")),
             StrokeThickness = 1,
             BackgroundColor = Colors.White,
             WidthRequest    = 210,
@@ -279,11 +279,11 @@ public partial class MainPage : ContentPage
     {
         if (_tabNearby) return;
         _tabNearby = true;
-        TabNearby.BackgroundColor  = Colors.Black;
+        TabNearby.BackgroundColor  = Color.FromArgb("#E27D60");
         LblTabNearby.TextColor     = Colors.White;
         LblTabNearby.FontFamily    = "OpenSans-Semibold";
-        TabPlaying.BackgroundColor = Colors.White;
-        LblTabPlaying.TextColor    = Color.FromArgb("#94A3B8");
+        TabPlaying.BackgroundColor = Color.FromArgb("#E27D60"); 
+        LblTabPlaying.TextColor    = Colors.White;
         LblTabPlaying.FontFamily   = "OpenSans-Regular";
 
         NearbyScroll.IsVisible     = true;
@@ -294,11 +294,11 @@ public partial class MainPage : ContentPage
     {
         if (!_tabNearby) return;
         _tabNearby = false;
-        TabPlaying.BackgroundColor = Colors.Black;
+        TabPlaying.BackgroundColor = Color.FromArgb("#E27D60");
         LblTabPlaying.TextColor    = Colors.White;
         LblTabPlaying.FontFamily   = "OpenSans-Semibold";
-        TabNearby.BackgroundColor  = Colors.White;
-        LblTabNearby.TextColor     = Color.FromArgb("#94A3B8");
+        TabNearby.BackgroundColor  = Color.FromArgb("#E27D60");
+        LblTabNearby.TextColor     = Colors.White;
         LblTabNearby.FontFamily    = "OpenSans-Regular";
 
         NearbyScroll.IsVisible     = false;

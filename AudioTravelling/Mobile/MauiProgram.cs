@@ -18,8 +18,9 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("fa-solid-900.ttf", "FA6Solid");
             })
-            .UseMauiMaps();  // ✅ ADD THIS - Enable Maps support
+            .UseMauiMaps();
 
         builder.Services.AddSingleton<ITokenService, TokenService>();
         builder.Services.AddSingleton<LoggingHandler>();
