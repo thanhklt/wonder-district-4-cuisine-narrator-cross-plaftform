@@ -38,7 +38,8 @@ public class OwnerPoiService : IOwnerPoiService
 
             ApprovalStatus = "pending",
             IsActive = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         _context.Pois.Add(poi);
