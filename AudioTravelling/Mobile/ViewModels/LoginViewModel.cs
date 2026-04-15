@@ -4,6 +4,7 @@ using AudioTravelling.Mobile.Services.Api.Interfaces;
 using AudioTravelling.Mobile.Services.Api.Requests;
 using AudioTravelling.Mobile.Services.Auth;
 using AudioTravelling.Mobile.ViewModels;
+using AudioTravelling.Mobile.Core.Sync;
 
 namespace AudioTravelling.Mobile.Features.Auth.ViewModels;
 
@@ -11,6 +12,7 @@ public class LoginViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
     private readonly ITokenService _tokenService;
+    private readonly ISyncService _syncService;
 
     private string _email = string.Empty;
     public string Email
@@ -68,11 +70,13 @@ public class LoginViewModel : BaseViewModel
     public ICommand LoginCommand { get; }
 
     public LoginViewModel(
-        IAuthApiService authApiService,
-        ITokenService tokenService)
+    IAuthApiService authApiService,
+    ITokenService tokenService,
+    ISyncService syncService)   // 👈 thêm vào đây
     {
         _authApiService = authApiService ?? throw new ArgumentNullException(nameof(authApiService));
         _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+        _syncService = syncService ?? throw new ArgumentNullException(nameof(syncService));
 
         LoginCommand = new Command(async () => await LoginAsync());
     }
@@ -144,6 +148,20 @@ public class LoginViewModel : BaseViewModel
             }
 
             await _tokenService.SaveTokenAsync(result.AccessToken);
+
+            // 🔥 CALL SYNC HERE
+            var syncResult = await _syncService.SyncBootstrapAsync("en");
+
+            if (!syncResult.IsSuccess)
+            {
+                GeneralError = syncResult.ErrorMessage;
+                return;
+            }
+
+            // Debug để kiểm tra
+            System.Diagnostics.Debug.WriteLine($"SYNC OK: {syncResult.PoiCount} POIs");
+
+            // Sau đó mới navigate
             await NavigateToMainAsync();
         }
         catch (ApiException ex)
@@ -160,21 +178,24 @@ public class LoginViewModel : BaseViewModel
         }
     }
 
-    private async Task NavigateToMainAsync()
+    private Task NavigateToMainAsync()
     {
         try
         {
-            if (Application.Current != null)
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is not null)
             {
-                Application.Current.MainPage = new AppShell();
-                return;
+                window.Page = new AppShell();
+                return Task.CompletedTask;
             }
 
-            GeneralError = "Đăng nhập thành công. Vui lòng mở lại ứng dụng.";
+            GeneralError = "Đăng nhập thành công, nhưng chưa tìm thấy cửa sổ ứng dụng.";
         }
         catch
         {
             GeneralError = "Đăng nhập thành công, nhưng chưa thể chuyển màn hình. Vui lòng mở lại ứng dụng.";
         }
+
+        return Task.CompletedTask;
     }
 }

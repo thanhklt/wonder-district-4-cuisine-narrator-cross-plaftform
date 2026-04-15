@@ -1,31 +1,27 @@
 using SQLite;
-using AudioTravelling.Mobile.Features.Audio.Models;
+using AudioTravelling.Mobile.Data.SQLite.Entities;
 
 namespace AudioTravelling.Mobile.Data.SQLite;
 
 public class AppDbContext
 {
-    private SQLiteAsyncConnection _database;
+    private readonly SQLiteAsyncConnection _db;
 
     public AppDbContext(string dbPath)
     {
-        _database = new SQLiteAsyncConnection(dbPath);
-        InitializeTables().Wait();
+        _db = new SQLiteAsyncConnection(dbPath);
     }
 
-    private async Task InitializeTables()
+    public async Task InitializeAsync()
     {
-        await _database.CreateTableAsync<LocalAudio>();
+        await _db.CreateTableAsync<AppUserCache>();
+        await _db.CreateTableAsync<CachedPoi>();
+        await _db.CreateTableAsync<CachedPoiImage>();
+        await _db.CreateTableAsync<CachedPoiLocalization>();
+        await _db.CreateTableAsync<CachedPoiAudio>();
+        await _db.CreateTableAsync<PoiGeofenceState>();
+        await _db.CreateTableAsync<AudioPlaybackHistory>();
     }
 
-    // ── LocalAudio CRUD ───────────────────────────────────────────────
-    public async Task<List<LocalAudio>> GetAllAudiosAsync()
-    {
-        return await _database.Table<LocalAudio>().ToListAsync();
-    }
-
-    public async Task<int> SaveAudioAsync(LocalAudio audio)
-    {
-        return await _database.InsertOrReplaceAsync(audio);
-    }
+    public SQLiteAsyncConnection Database => _db;
 }
