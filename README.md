@@ -29,7 +29,7 @@ Hệ thống là một mobile app giúp khách du lịch tiếp cận thông tin
 ### Sơ đồ nghiệp vụ
 
 ![BFD](Images/BFD.png)
-
+![USECASE](Images/UsecaseTongQuat.png)
 ## Vai Trò Người Dùng
 
 | Vai trò | Mô tả |
@@ -328,8 +328,8 @@ Ngoài ra hệ thống còn sử dụng:
 
 ### Activity Diagram
 
-![GeofenceActivity](Images/ActivityGeofence.png)
-
+![GeofenceActivity](Images/ActivityGenfence.png)
+![GeofenceEvaluation](Images/ActivityGenfenceEvaluate.png)
 ### Luồng Xử Lý
 
 #### Giai đoạn 1: Nhận GPS
