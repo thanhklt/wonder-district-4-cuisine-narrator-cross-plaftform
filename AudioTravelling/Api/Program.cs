@@ -5,6 +5,12 @@ using Api.Modules.Owner.Interfaces;
 using Api.Modules.Owner.Services;
 using Api.Modules.Poi.Interfaces;
 using Api.Modules.Poi.Services;
+using Api.Modules.Localization.Interfaces;
+using Api.Modules.Localization.Services;
+using Api.Modules.Admin.Interfaces;
+using Api.Modules.Admin.Services;
+
+
 using Api.Persistence;
 using Api.Persistence.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,6 +62,20 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+
+// Them AdminPoiService
+builder.Services.AddScoped<IAdminPoiService, AdminPoiService>();
+
+// Deep translate client configuration  
+builder.Services.AddHttpClient<IDeepTranslateClient, DeepTranslateClient>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
+// Localization services
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+
 
 // Add CORS - Allow requests from Mobile apps
 builder.Services.AddCors(options =>
