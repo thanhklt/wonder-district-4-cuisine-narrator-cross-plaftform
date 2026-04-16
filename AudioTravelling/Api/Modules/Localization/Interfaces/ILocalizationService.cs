@@ -8,4 +8,5 @@ public interface ILocalizationService
         int poiId,
         string languageCode,
         CancellationToken cancellationToken = default);
+
 }

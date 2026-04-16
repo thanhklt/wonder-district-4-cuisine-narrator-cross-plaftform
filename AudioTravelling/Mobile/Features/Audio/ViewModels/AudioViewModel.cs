@@ -114,13 +114,9 @@ public class AudioViewModel : BaseViewModel
         {
             var audioFile = File.OpenRead(audioInfo.FilePath);
 
+            _activePlayer?.Stop();
             _activePlayer = _audioManager.CreatePlayer(audioFile);
             _activePlayer.Play();
-
-            if (_activePlayer != null && _activePlayer.IsPlaying)
-            {
-                _activePlayer.Stop();
-            }
         }
         else
         {

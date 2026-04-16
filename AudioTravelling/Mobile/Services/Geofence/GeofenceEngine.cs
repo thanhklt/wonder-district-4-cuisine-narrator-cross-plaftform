@@ -1,7 +1,7 @@
 ﻿using AudioTravelling.Mobile.Core.Geofencing;
 using AudioTravelling.Mobile.Data.Models;
+using AudioTravelling.Mobile.Data.SQLite;
 using AudioTravelling.Mobile.Services.Audio;
-using AudioTravelling.Mobile.Services.Database;
 
 namespace AudioTravelling.Mobile.Services.Geofence;
 

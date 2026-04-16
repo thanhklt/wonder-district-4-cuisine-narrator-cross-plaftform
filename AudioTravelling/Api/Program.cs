@@ -1,16 +1,16 @@
 using Api.Infrastructure.Services;
+using Api.Modules.Admin.Interfaces;
+using Api.Modules.Admin.Services;
+using Api.Modules.Audio.Interfaces;
+using Api.Modules.Audio.Services;
 using Api.Modules.Auth.Interfaces;
 using Api.Modules.Auth.Services;
+using Api.Modules.Localization.Interfaces;
+using Api.Modules.Localization.Services;
 using Api.Modules.Owner.Interfaces;
 using Api.Modules.Owner.Services;
 using Api.Modules.Poi.Interfaces;
 using Api.Modules.Poi.Services;
-using Api.Modules.Localization.Interfaces;
-using Api.Modules.Localization.Services;
-using Api.Modules.Admin.Interfaces;
-using Api.Modules.Admin.Services;
-
-
 using Api.Persistence;
 using Api.Persistence.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,6 +39,10 @@ builder.Services.AddScoped<IPoiService, PoiService>();
 builder.Services.AddScoped<IOwnerService, OwnerService>();
 builder.Services.AddScoped<IOwnerPoiService, OwnerPoiService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddScoped<IAudioService, AudioService>();
+builder.Services.AddScoped<AudioFileService>();
+builder.Services.AddScoped<ITtsProvider, FakeTtsProvider>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSection["SecretKey"] ?? throw new InvalidOperationException("Jwt:SecretKey is missing.");

@@ -41,7 +41,7 @@ public class DeepTranslateClient : IDeepTranslateClient
             var response = await _httpClient.PostAsJsonAsync(
                 "translate",
                 request,
-                cancellationToken);
+                cancellationToken); 
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
 

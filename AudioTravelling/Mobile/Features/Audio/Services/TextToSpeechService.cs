@@ -6,10 +6,10 @@ namespace AudioTravelling.Mobile.Features.Audio.Services;
 /// </summary>
 public class TextToSpeechService : ITextToSpeechService
 {
-    private CancellationTokenSource _cancellationTokenSource;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     /// <inheritdoc />
-    public async Task SpeakAsync(string text, string languageCode = null)
+    public async Task SpeakAsync(string text, string? languageCode = null)
     {
         // Cancel any previous playback before starting a new one
         CancelPlayback();

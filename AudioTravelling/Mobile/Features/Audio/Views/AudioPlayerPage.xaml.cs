@@ -97,7 +97,7 @@ public partial class AudioPlayerPage : ContentPage
         {
             PoiId = item.PoiId,
             NameVi = item.Name ?? string.Empty,
-            DescriptionVi = string.Empty,
+            DescriptionVi = item.DescriptionVi ?? string.Empty,
             Latitude = item.Latitude,
             Longitude = item.Longitude,
             Radius = item.Radius,
@@ -126,6 +126,9 @@ public partial class AudioPlayerPage : ContentPage
     private void LoadPoi(PoiModel poi)
     {
         _currentPoi = poi;
+
+        System.Diagnostics.Debug.WriteLine($"[LoadPoi] PoiId={poi.PoiId}, Name={poi.NameVi}");
+        System.Diagnostics.Debug.WriteLine($"[LoadPoi] DescriptionVi='{poi.DescriptionVi}'");
 
         HeroImage.Source = null;
         LblTrackTitle.Text = poi.NameVi;
@@ -175,36 +178,30 @@ public partial class AudioPlayerPage : ContentPage
 
             LblCurrentTime.TextColor = Colors.Black;
             LblTotalTime.TextColor = Colors.Black;
+            return;
         }
-        else
+
+        _isSpeaking = true;
+        PlayPauseIcon.Text = "\uf04c";
+
+        LblCurrentTime.TextColor = Color.FromArgb("#22C55E");
+        LblTotalTime.TextColor = Color.FromArgb("#22C55E");
+
+        try
         {
-            if (_playback.IsPlaying)
-            {
-                await _playback.StopAsync();
-            }
-
-            _isSpeaking = true;
-            PlayPauseIcon.Text = "\uf04c";
-
-            LblCurrentTime.TextColor = Color.FromArgb("#22C55E");
-            LblTotalTime.TextColor = Color.FromArgb("#22C55E");
-
-            try
-            {
-                await _ttsService.SpeakAsync(LblTranscript.Text, "vi-VN");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AudioPlayerPage.OnPlayPauseTapped] {ex}");
-                await DisplayAlert("Lỗi", "Không thể phát nội dung audio.", "OK");
-            }
-            finally
-            {
-                _isSpeaking = false;
-                PlayPauseIcon.Text = "\uf04b";
-                LblCurrentTime.TextColor = Colors.Black;
-                LblTotalTime.TextColor = Colors.Black;
-            }
+            await _ttsService.SpeakAsync(LblTranscript.Text);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AudioPlayerPage.OnPlayPauseTapped] {ex}");
+            await DisplayAlert("Lỗi", "Không thể phát nội dung audio.", "OK");
+        }
+        finally
+        {
+            _isSpeaking = false;
+            PlayPauseIcon.Text = "\uf04b";
+            LblCurrentTime.TextColor = Colors.Black;
+            LblTotalTime.TextColor = Colors.Black;
         }
     }
 
@@ -331,7 +328,9 @@ public partial class AudioPlayerPage : ContentPage
             _isSpeaking = false;
             await _playback.StopAsync();
 
-            LoadPoi(poi);
+            var enrichedPoi = await EnrichPoiAsync(poi);
+
+            LoadPoi(enrichedPoi);
             BuildTrackList();
         }
         catch (Exception ex)
@@ -436,10 +435,24 @@ public partial class AudioPlayerPage : ContentPage
         }
     }
 
-    private string GetAudioFileName()
+    private async Task<PoiModel> EnrichPoiAsync(PoiModel poi)
     {
-        if (_currentPoi is null) return string.Empty;
-        return $"audio_{_currentPoi.PoiId}.mp3";
+        try
+        {
+            var detail = await _poiApiService.GetByIdAsync(poi.PoiId.ToString());
+
+            if (detail != null)
+            {
+                poi.NameVi = detail.Name ?? poi.NameVi;
+                poi.DescriptionVi = detail.DescriptionVi ?? poi.DescriptionVi;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AudioPlayerPage.EnrichPoiAsync] {ex}");
+        }
+
+        return poi;
     }
 
     private new async Task DisplayAlertAsync(string title, string message, string cancel)

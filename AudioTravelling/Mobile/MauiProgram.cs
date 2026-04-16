@@ -1,11 +1,14 @@
+using AudioTravelling.Mobile.Core.Sync;
+using AudioTravelling.Mobile.Data.SQLite;
+using AudioTravelling.Mobile.Data.SQLite.Services;
+using AudioTravelling.Mobile.Features.Audio.Services;
+using AudioTravelling.Mobile.Features.Audio.Views;
 using AudioTravelling.Mobile.Features.Auth.ViewModels;
 using AudioTravelling.Mobile.Features.Auth.Views;
 using AudioTravelling.Mobile.Features.Map.Views;
+using AudioTravelling.Mobile.Features.Order.Views;
 using AudioTravelling.Mobile.Features.Poi.ViewModels;
 using AudioTravelling.Mobile.Features.Poi.Views;
-using AudioTravelling.Mobile.Features.Order.Views;
-using AudioTravelling.Mobile.Features.Audio.Views;
-using AudioTravelling.Mobile.Features.Audio.Services;
 using AudioTravelling.Mobile.Features.Settings.Views;
 using AudioTravelling.Mobile.Services.Api;
 using AudioTravelling.Mobile.Services.Api.Handlers;
@@ -29,16 +32,31 @@ public static class MauiProgram
             })
             .UseMauiMaps();
 
+        // Core services
         builder.Services.AddSingleton<ITokenService, TokenService>();
+        builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
 
-        // Http message handlers phải là Transient, không phải Singleton
+        // Handlers: nên để Transient
         builder.Services.AddTransient<LoggingHandler>();
         builder.Services.AddTransient<AuthHeaderHandler>();
 
-        // Audio / TTS
-        builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
+        // Local DB
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "audiotravelling.db");
+        builder.Services.AddSingleton(new AppDbContext(dbPath));
+        builder.Services.AddSingleton<ICacheDbService, CacheDbService>();
 
-        // API Services
+        // Sync
+        builder.Services.AddHttpClient<ISyncApiService, SyncApiService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiOptions.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        })
+        .AddHttpMessageHandler<LoggingHandler>()
+        .AddHttpMessageHandler<AuthHeaderHandler>();
+
+        builder.Services.AddScoped<ISyncService, SyncService>();
+
+        // API services
         builder.Services.AddHttpClient<IAuthApiService, AuthApiService>(client =>
         {
             client.BaseAddress = new Uri(ApiOptions.BaseUrl);
@@ -68,7 +86,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterViewModel>();
         builder.Services.AddTransient<RegisterPage>();
 
-        // Shell + Pages
+        // Shell + pages
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<OrderPage>();
@@ -80,6 +98,9 @@ public static class MauiProgram
         builder.Services.AddTransient<PoiListPage>();
         builder.Services.AddTransient<PoiDetailViewModel>();
         builder.Services.AddTransient<PoiDetailPage>();
+
+        // Audio trigger - chỉ bật khi đã đăng ký đủ dependency
+        // builder.Services.AddScoped<IAudioTriggerService, AudioTriggerService>();
 
         return builder.Build();
     }

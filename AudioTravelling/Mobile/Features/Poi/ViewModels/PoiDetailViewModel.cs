@@ -3,6 +3,8 @@ using AudioTravelling.Mobile.Features.Poi.Models;
 using AudioTravelling.Mobile.Services.Api.Interfaces;
 using AudioTravelling.Mobile.Services.Api.Responses;
 using AudioTravelling.Mobile.ViewModels;
+using System.Globalization;
+using AudioTravelling.Mobile.Services.Localization;
 
 namespace AudioTravelling.Mobile.Features.Poi.ViewModels;
 
@@ -10,6 +12,25 @@ namespace AudioTravelling.Mobile.Features.Poi.ViewModels;
 public class PoiDetailViewModel : BaseViewModel
 {
     private readonly IPoiApiService _poiApiService;
+    private readonly LocalizationFacadeService _localizationFacadeService;
+
+    public PoiDetailViewModel(LocalizationFacadeService localizationFacadeService)
+    {
+        _localizationFacadeService = localizationFacadeService;
+    }
+    private string _displayName = string.Empty;
+    public string DisplayName
+    {
+        get => _displayName;
+        set => SetProperty(ref _displayName, value);
+    }
+
+    private string _displayDescription = string.Empty;
+    public string DisplayDescription
+    {
+        get => _displayDescription;
+        set => SetProperty(ref _displayDescription, value);
+    }
 
     private string _poiId = string.Empty;
     public string PoiId
@@ -45,6 +66,16 @@ public class PoiDetailViewModel : BaseViewModel
     {
         get => _errorMessage;
         set => SetProperty(ref _errorMessage, value);
+    }
+
+    public async Task LoadLocalizationAsync(int poiId)
+    {
+        var lang = CultureInfo.CurrentUICulture.Name; // ví dụ en-US, ja-JP
+
+        var localization = await _localizationFacadeService.GetLocalizationAsync(poiId, lang);
+
+        DisplayName = localization.Name;
+        DisplayDescription = localization.Description;
     }
 
     public bool HasImages => Images.Count > 0;
