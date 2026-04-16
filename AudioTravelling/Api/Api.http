@@ -14,3 +14,7 @@ Accept: application/json
 ###
 GET {{URL}}/api/users/me
 Accept: application/json
+
+###
+GET {{URL}}/api/pois
+Accept: application/json

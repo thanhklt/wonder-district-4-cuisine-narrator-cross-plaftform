@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AudioTravelling.Mobile.Features.Poi.Views.PoiDetailPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F1F5F9">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid HeightRequest="300">
+                <Image
+                    Source="{Binding CoverImage.DisplaySource}"
+                    Aspect="AspectFill"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill" />
+
+                <BoxView HorizontalOptions="Fill" VerticalOptions="Fill">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#44000000" Offset="0.0" />
+                            <GradientStop Color="#CC000000" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+
+                <Border
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="#33FFFFFF"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Start"
+                    Margin="16,52,0,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackTapped" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        Text="←"
+                        FontSize="20"
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <VerticalStackLayout
+                    VerticalOptions="End"
+                    Padding="16,0,16,20"
+                    Spacing="4">
+                    <Label
+                        Text="{Binding Poi.Name}"
+                        FontSize="24"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border
+                StrokeShape="RoundRectangle 24,24,0,0"
+                Stroke="Transparent"
+                BackgroundColor="White"
+                Margin="0,-20,0,0"
+                Padding="20,24,20,32">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,-4" Opacity="0.06" Radius="16" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+
+                    <CollectionView
+                        ItemsSource="{Binding Images}"
+                        ItemsLayout="HorizontalList"
+                        HeightRequest="110"
+                        IsVisible="{Binding HasImages}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#E2E8F0"
+                                    BackgroundColor="#F8FAFC"
+                                    Margin="0,0,10,0"
+                                    WidthRequest="140"
+                                    HeightRequest="100">
+                                    <Image
+                                        Source="{Binding DisplaySource}"
+                                        Aspect="AspectFill"
+                                        WidthRequest="140"
+                                        HeightRequest="100" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label
+                        Text="About"
+                        FontSize="17"
+                        FontAttributes="Bold"
+                        TextColor="#0F172A" />
+
+                    <Label
+                        Text="{Binding Poi.Description}"
+                        FontSize="14"
+                        TextColor="#475569"
+                        LineBreakMode="WordWrap"
+                        LineHeight="1.5" />
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

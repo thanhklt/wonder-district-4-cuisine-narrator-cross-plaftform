@@ -1,5 +1,12 @@
 using AudioTravelling.Mobile.Features.Auth.ViewModels;
 using AudioTravelling.Mobile.Features.Auth.Views;
+using AudioTravelling.Mobile.Features.Map.Views;
+using AudioTravelling.Mobile.Features.Poi.ViewModels;
+using AudioTravelling.Mobile.Features.Poi.Views;
+using AudioTravelling.Mobile.Features.Order.Views;
+using AudioTravelling.Mobile.Features.Audio.Views;
+using AudioTravelling.Mobile.Features.Audio.Services;
+using AudioTravelling.Mobile.Features.Settings.Views;
 using AudioTravelling.Mobile.Services.Api;
 using AudioTravelling.Mobile.Services.Api.Handlers;
 using AudioTravelling.Mobile.Services.Api.Interfaces;
@@ -23,8 +30,13 @@ public static class MauiProgram
             .UseMauiMaps();
 
         builder.Services.AddSingleton<ITokenService, TokenService>();
-        builder.Services.AddSingleton<LoggingHandler>();
-        builder.Services.AddSingleton<AuthHeaderHandler>();
+
+        // Http message handlers phải là Transient, không phải Singleton
+        builder.Services.AddTransient<LoggingHandler>();
+        builder.Services.AddTransient<AuthHeaderHandler>();
+
+        // Audio / TTS
+        builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
 
         // API Services
         builder.Services.AddHttpClient<IAuthApiService, AuthApiService>(client =>
@@ -50,10 +62,24 @@ public static class MauiProgram
         })
         .AddHttpMessageHandler<LoggingHandler>();
 
+        // Auth
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<RegisterViewModel>();
         builder.Services.AddTransient<RegisterPage>();
+
+        // Shell + Pages
+        builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<OrderPage>();
+        builder.Services.AddTransient<AudioPlayerPage>();
+        builder.Services.AddTransient<SettingsPage>();
+
+        // POI
+        builder.Services.AddTransient<PoiListViewModel>();
+        builder.Services.AddTransient<PoiListPage>();
+        builder.Services.AddTransient<PoiDetailViewModel>();
+        builder.Services.AddTransient<PoiDetailPage>();
 
         return builder.Build();
     }

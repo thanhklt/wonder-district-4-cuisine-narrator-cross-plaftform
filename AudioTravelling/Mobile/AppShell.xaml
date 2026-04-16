@@ -7,6 +7,7 @@
     xmlns:order="clr-namespace:AudioTravelling.Mobile.Features.Order.Views"
     xmlns:audio="clr-namespace:AudioTravelling.Mobile.Features.Audio.Views"
     xmlns:settings="clr-namespace:AudioTravelling.Mobile.Features.Settings.Views"
+    xmlns:poi="clr-namespace:AudioTravelling.Mobile.Features.Poi.Views"
     Shell.FlyoutBehavior="Disabled">
 
 
@@ -17,6 +18,13 @@
             <ShellContent
                 ContentTemplate="{DataTemplate map:MainPage}"
                 Route="MainPage"/>
+        </Tab>
+
+        <!-- Tab 2: Địa điểm -->
+        <Tab Title="Địa điểm" Icon="tab_map.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate poi:PoiListPage}"
+                Route="PoiListPage"/>
         </Tab>
 
         <!-- Tab 2: Đặt món -->

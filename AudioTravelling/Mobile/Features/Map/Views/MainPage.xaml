@@ -26,7 +26,7 @@
         </BoxView>
 
         <VerticalStackLayout HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,280" Spacing="10" ZIndex="1">
-            <!-- Notifications Bell -->
+            <!-- Notifications Bell 
             <Grid WidthRequest="48" HeightRequest="48">
                 <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F5FFFFFF" WidthRequest="48" HeightRequest="48">
                     <Border.Shadow>
@@ -40,7 +40,7 @@
                 <Border x:Name="NotificationBadge" StrokeShape="RoundRectangle 10" Stroke="White" StrokeThickness="2" BackgroundColor="#EF4444" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,-4,-4" IsVisible="False">
                     <Label x:Name="NotificationCount" Text="0" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
-            </Grid>
+            </Grid> -->
 
             <!-- My Location -->
             <Border StrokeShape="RoundRectangle 16" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F5FFFFFF" WidthRequest="48" HeightRequest="48">
@@ -229,29 +229,32 @@
                                     </BoxView.Background>
                                 </BoxView>
                                 <HorizontalStackLayout VerticalOptions="End" Padding="12" Spacing="8">
-                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
-                                        <Label x:Name="DetailRating" Text="★ 4.9" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#FBBF24"/>
-                                    </Border>
-                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
-                                        <Label x:Name="DetailDistance" Text="48 m" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="White"/>
-                                    </Border>
-                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#33FFFFFF" Padding="8,4">
+
+                                    <Border StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="Green" Padding="8,4">
                                         <Label x:Name="DetailStatus" Text="Đang mở cửa" FontSize="12" FontFamily="OpenSans-Semibold" TextColor="#FFFFFF"/>
                                     </Border>
                                 </HorizontalStackLayout>
                             </Grid>
                         </Border>
 
-                        <Label x:Name="DetailDescription" Text="…" FontFamily="OpenSans-Regular" FontSize="13" TextColor="#475569" LineBreakMode="WordWrap" Margin="16,0,16,16"/>
+                        <VerticalStackLayout Margin="16,0,16,14" Spacing="6">
 
-                        <Grid ColumnDefinitions="Auto,*" Margin="16,0,16,14" ColumnSpacing="10">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#FEF3C7" Padding="8,4">
-                                <Label x:Name="DetailCategory" Text="Đồ ăn vặt" FontSize="11" FontFamily="OpenSans-Semibold" TextColor="#D97706"/>
-                            </Border>
-                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Stroke="Transparent" BackgroundColor="#10B981" Padding="8,4" HorizontalOptions="Start">
-                                <Label x:Name="DetailAudioState" Text="Audio đang phát" FontFamily="OpenSans-Regular" FontSize="11" TextColor="#FFFFFF"/>
-                            </Border>
-                        </Grid>
+                                            <!-- Title -->
+                        <Label
+                            Text="Mô tả"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#0F172A" />
+    
+                                            <!-- Content -->
+                        <Label
+                            x:Name="DetailDescription"
+                            FontFamily="OpenSans-Regular"
+                            FontSize="13"
+                            TextColor="#475569"
+                            LineBreakMode="WordWrap" />
+
+                        </VerticalStackLayout>
 
                         <Label x:Name="MenuLabel" Text="Thực đơn" FontFamily="OpenSans-Semibold" FontSize="15" TextColor="#0F172A" Margin="16,0,16,10"/>
 

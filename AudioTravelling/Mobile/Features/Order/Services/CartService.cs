@@ -60,7 +60,7 @@ public class CartService
         var groups = _items.GroupBy(i => i.Poi).ToList();
         foreach (var g in groups)
         {
-            GroupedItems.Add(new OrderGroup(g.Key.Name, g.Key, g));
+            GroupedItems.Add(new OrderGroup(g.Key.NameVi, g.Key, g));
         }
     }
 }

@@ -51,7 +51,7 @@ public class PoiService : IPoiService
             {
                 PoiId = p.PoiId,
                 Name = p.NameVi,
-                Description = p.DescriptionVi,
+                DescriptionVi = p.DescriptionVi,
                 Latitude = p.Latitude,
                 Longitude = p.Longitude,
                 Radius = p.Radius,

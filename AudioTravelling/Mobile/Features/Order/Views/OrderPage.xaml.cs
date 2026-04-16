@@ -65,7 +65,7 @@ public partial class OrderPage : ContentPage
         if (_cart.TotalCount == 0) return;
 
         // Get the first POI name for the notification
-        string poiName = _cart.Items.FirstOrDefault()?.Poi.Name ?? "Dotonbori";
+        string poiName = _cart.Items.FirstOrDefault()?.Poi.NameVi ?? "Dotonbori";
         string totalLabel = _cart.TotalPriceLabel;
 
         // Add order notification

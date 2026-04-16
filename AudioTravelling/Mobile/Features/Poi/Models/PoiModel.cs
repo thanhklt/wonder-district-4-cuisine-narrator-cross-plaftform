@@ -5,26 +5,27 @@ namespace AudioTravelling.Mobile.Features.Poi.Models;
 // ── POI ──────────────────────────────────────────────────────────────────────
 public class PoiModel
 {
-    public int    Id             { get; set; }
-    public string Name          { get; set; } = string.Empty;
-    public string Category      { get; set; } = string.Empty;
-    public string Description   { get; set; } = string.Empty;
-    public string ImageSource   { get; set; } = string.Empty;
-    public double DistanceMeters{ get; set; }
-    public double Rating        { get; set; }
-    public bool   IsOpen        { get; set; }
-    public string AudioScript   { get; set; } = string.Empty;
+    public int PoiId { get; set; }
 
-    // Computed display helpers
-    public string DistanceLabel => DistanceMeters < 1000
-        ? $"{(int)DistanceMeters} m"
-        : $"{DistanceMeters / 1000:F1} km";
+    public int OwnerId { get; set; }
 
-    public string RatingLabel   => $"★ {Rating:F1}";
-    public string StatusLabel   => IsOpen ? "Đang mở cửa" : "Đã đóng cửa";
-    public Color  StatusColor   => IsOpen
-        ? Color.FromArgb("#FFFFFF")
-        : Color.FromArgb("#EF4444");
+    public string NameVi { get; set; } = string.Empty;
 
-    public List<FoodItem> Menu  { get; set; } = new();
+    public string DescriptionVi { get; set; } = string.Empty;
+
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public int Radius { get; set; }
+
+    public int Priority { get; set; }
+
+    public int PackageId { get; set; }
+
+    public string ApprovalStatus { get; set; } = "pending";
+
+    public bool IsActive { get; set; }
+    public List<string> Images { get; set; } = new();
+    public string? CoverImageUrl { get; set; }
 }

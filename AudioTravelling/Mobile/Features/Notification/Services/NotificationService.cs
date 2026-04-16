@@ -33,15 +33,15 @@ public class NotificationService
 
     public void AddArrivingAtPoiNotification(PoiModel poi)
     {
-        if (_notifications.Any(n => n.Type == NotificationType.Location && n.RelatedPoiId == poi.Id))
+        if (_notifications.Any(n => n.Type == NotificationType.Location && n.RelatedPoiId == poi.PoiId))
             return;
 
         var notif = new NotificationModel
         {
-            Title = "Bạn đã đến gần!",
+            /*Title = "Bạn đã đến gần!",
             Message = $"Cách {poi.DistanceLabel} là {poi.Name}. Hãy mở Audio để nghe giới thiệu nhé.",
             Type = NotificationType.Location,
-            RelatedPoiId = poi.Id
+            RelatedPoiId = poi.Id*/
         };
         _notifications.Insert(0, notif);
         UnreadCountChanged?.Invoke();
