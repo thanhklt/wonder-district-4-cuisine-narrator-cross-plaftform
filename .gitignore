@@ -1,0 +1,24 @@
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# .NET
+bin/
+obj/
+*.user
+
+# Node
+node_modules/
+.next/
+out/
+
+# Audio storage (generated files)
+/storage/
+
+# Docker volumes
+postgres_data/

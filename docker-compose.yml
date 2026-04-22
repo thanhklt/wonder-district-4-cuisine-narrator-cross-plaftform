@@ -1,0 +1,116 @@
+services:
+  # ─── Database ──────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── DeepTranslate Service ─────────────────────────────
+  deep-translate:
+    build:
+      context: ./DeepTranslateService
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${DEEP_TRANSLATE_PORT:-8000}:8000"
+    environment:
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─── TTS Service ───── ──────────────────────────────────
+  tts:
+    build:
+      context: ./TTSService
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${TTS_PORT:-8001}:8001"
+    volumes:
+      - audio_storage:/storage/audio
+    environment:
+      - PORT=8001
+      - AUDIO_STORAGE_PATH=/storage/audio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─── API Service (C#) ──────────────────────────────────
+  api:
+    build:
+      context: ./ApiService
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-5000}:5000"
+    volumes:
+      - audio_storage:/storage/audio
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS}
+      - SESSION_EXPIRY_HOURS=${SESSION_EXPIRY_HOURS}
+      - VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - VNPAY_URL=${VNPAY_URL}
+      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL}
+      - DEEP_TRANSLATE_URL=${DEEP_TRANSLATE_URL}
+      - TTS_URL=${TTS_URL}
+      - AUDIO_STORAGE_PATH=/storage/audio
+    depends_on:
+      postgres:
+        condition: service_healthy
+      deep-translate:
+        condition: service_healthy
+      tts:
+        condition: service_healthy
+
+  # ─── Mobile PWA ────────────────────────────────────────
+  mobile:
+    build:
+      context: ./mobile-app
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${MOBILE_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_MAPS_TILE=${NEXT_PUBLIC_MAPS_TILE}
+    depends_on:
+      - api
+
+  # ─── WebApp (Admin/Owner) ──────────────────────────────
+  webapp:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${WEBAPP_PORT:-3001}:3001"
+    environment:
+      - NEXT_PUBLIC_WEBAPP_API_URL=${NEXT_PUBLIC_WEBAPP_API_URL}
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  audio_storage:
