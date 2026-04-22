@@ -1,0 +1,301 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Duyệt POI";
+}
+
+<div class="view-section active">
+    <div class="section-header">
+        <div>
+            <h1 class="section-title">Duyệt POI</h1>
+            <p class="section-subtitle">Xem xét và phê duyệt các POI được Owner gửi lên</p>
+        </div>
+    </div>
+
+    <!-- Approval Tabs -->
+    <div class="approval-tabs">
+        <button class="approval-tab active" onclick="switchApprovalTab(this, 'pending')">
+            <i class="fa-solid fa-clock"></i> Chờ duyệt
+            <span class="tab-count">4</span>
+        </button>
+        <button class="approval-tab" onclick="switchApprovalTab(this, 'approved')">
+            <i class="fa-solid fa-check-circle"></i> Đã duyệt
+            <span class="tab-count">6</span>
+        </button>
+        <button class="approval-tab" onclick="switchApprovalTab(this, 'rejected')">
+            <i class="fa-solid fa-times-circle"></i> Từ chối
+            <span class="tab-count">2</span>
+        </button>
+    </div>
+
+    <!-- Pending POI Cards -->
+    <div id="tab-pending">
+        <!-- POI 1 -->
+        <div class="glass-card approval-card" onclick="openDrawer('drawer-poi-detail')">
+            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=120&h=120&fit=crop" class="approval-card-image">
+            <div class="approval-card-info">
+                <h3 class="approval-card-name">Ốc Đào Vĩnh Khánh</h3>
+                <div class="approval-card-meta">
+                    <span><i class="fa-solid fa-user"></i> Trần Thị Owner</span>
+                    <span><i class="fa-solid fa-cube"></i> Chuyên nghiệp</span>
+                    <span><i class="fa-solid fa-bullseye"></i> 50m / P2</span>
+                    <span><i class="fa-solid fa-calendar"></i> 20/04/2026</span>
+                </div>
+                <p class="approval-card-desc">Quán ốc nổi tiếng nhất đường Vĩnh Khánh, Q4. Đa dạng các loại ốc, hải sản tươi sống, giá cả hợp lý.</p>
+            </div>
+            <div class="approval-card-actions">
+                <button class="btn-primary" style="font-size:12px;padding:8px 16px;" onclick="event.stopPropagation(); confirmAction('Duyệt POI Ốc Đào Vĩnh Khánh?', function(){ showToast('Đã duyệt POI thành công!', 'success'); });">
+                    <i class="fa-solid fa-check"></i> Duyệt
+                </button>
+                <button class="btn-danger-ghost" onclick="event.stopPropagation(); openModal('modal-reject');">
+                    <i class="fa-solid fa-times"></i> Từ chối
+                </button>
+            </div>
+        </div>
+
+        <!-- POI 2 -->
+        <div class="glass-card approval-card">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=120&h=120&fit=crop" class="approval-card-image">
+            <div class="approval-card-info">
+                <h3 class="approval-card-name">Bánh Tráng Trộn Cô Ba</h3>
+                <div class="approval-card-meta">
+                    <span><i class="fa-solid fa-user"></i> Lê Minh Quán</span>
+                    <span><i class="fa-solid fa-cube"></i> Nâng cao</span>
+                    <span><i class="fa-solid fa-bullseye"></i> 30m / P1</span>
+                    <span><i class="fa-solid fa-calendar"></i> 19/04/2026</span>
+                </div>
+                <p class="approval-card-desc">Bánh tráng trộn đặc biệt với nước sốt gia truyền, xoài xanh giòn tan, khô bò cay nồng.</p>
+            </div>
+            <div class="approval-card-actions">
+                <button class="btn-primary" style="font-size:12px;padding:8px 16px;" onclick="event.stopPropagation(); confirmAction('Duyệt POI Bánh Tráng Trộn Cô Ba?', function(){ showToast('Đã duyệt!', 'success'); });">
+                    <i class="fa-solid fa-check"></i> Duyệt
+                </button>
+                <button class="btn-danger-ghost" onclick="event.stopPropagation(); openModal('modal-reject');">
+                    <i class="fa-solid fa-times"></i> Từ chối
+                </button>
+            </div>
+        </div>
+
+        <!-- POI 3 -->
+        <div class="glass-card approval-card">
+            <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=120&h=120&fit=crop" class="approval-card-image">
+            <div class="approval-card-info">
+                <h3 class="approval-card-name">Lẩu Dê Hùng Vương</h3>
+                <div class="approval-card-meta">
+                    <span><i class="fa-solid fa-user"></i> Trần Thị Owner</span>
+                    <span><i class="fa-solid fa-cube"></i> Cơ bản</span>
+                    <span><i class="fa-solid fa-bullseye"></i> 15m / P0</span>
+                    <span><i class="fa-solid fa-calendar"></i> 18/04/2026</span>
+                </div>
+                <p class="approval-card-desc">Lẩu dê tươi ngon, nướng dê, dê hấp, nhiều món dê đặc sắc phục vụ nhóm đông.</p>
+            </div>
+            <div class="approval-card-actions">
+                <button class="btn-primary" style="font-size:12px;padding:8px 16px;">
+                    <i class="fa-solid fa-check"></i> Duyệt
+                </button>
+                <button class="btn-danger-ghost" onclick="event.stopPropagation(); openModal('modal-reject');">
+                    <i class="fa-solid fa-times"></i> Từ chối
+                </button>
+            </div>
+        </div>
+
+        <!-- POI 4 -->
+        <div class="glass-card approval-card">
+            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=120&h=120&fit=crop" class="approval-card-image">
+            <div class="approval-card-info">
+                <h3 class="approval-card-name">Hải Sản Năm Đảnh</h3>
+                <div class="approval-card-meta">
+                    <span><i class="fa-solid fa-user"></i> Lê Minh Quán</span>
+                    <span><i class="fa-solid fa-cube"></i> Nâng cao</span>
+                    <span><i class="fa-solid fa-bullseye"></i> 30m / P1</span>
+                    <span><i class="fa-solid fa-calendar"></i> 17/04/2026</span>
+                </div>
+                <p class="approval-card-desc">Hải sản tươi sống cao cấp, tôm hùm, cua hoàng đế, ốc hương, nghêu sò tất cả đều tươi.</p>
+            </div>
+            <div class="approval-card-actions">
+                <button class="btn-primary" style="font-size:12px;padding:8px 16px;">
+                    <i class="fa-solid fa-check"></i> Duyệt
+                </button>
+                <button class="btn-danger-ghost" onclick="event.stopPropagation(); openModal('modal-reject');">
+                    <i class="fa-solid fa-times"></i> Từ chối
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Tab (hidden) -->
+    <div id="tab-approved" style="display:none;">
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-solid fa-check-circle"></i></div>
+            <h3 class="empty-state-title">Chuyển sang tab để xem</h3>
+            <p class="empty-state-text">Các POI đã được duyệt sẽ hiển thị ở đây.</p>
+        </div>
+    </div>
+
+    <!-- Rejected Tab (hidden) -->
+    <div id="tab-rejected" style="display:none;">
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-solid fa-times-circle"></i></div>
+            <h3 class="empty-state-title">Chuyển sang tab để xem</h3>
+            <p class="empty-state-text">Các POI bị từ chối sẽ hiển thị ở đây.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ REJECT MODAL ══════════════ -->
+<div class="modal-overlay" id="modal-reject">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h3 class="modal-title" style="color:#f87171;">
+                <i class="fa-solid fa-times-circle"></i> Từ chối POI
+            </h3>
+            <button class="modal-close" onclick="closeModal('modal-reject')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+                Vui lòng nhập lý do từ chối. Owner sẽ nhận được thông báo này.
+            </p>
+            <div class="reject-note-field">
+                <label><i class="fa-solid fa-comment-dots"></i> Lý do từ chối (bắt buộc)</label>
+                <textarea placeholder="VD: Mô tả chưa đầy đủ, ảnh không rõ nét, thông tin tọa độ sai..." id="reject-note"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" onclick="closeModal('modal-reject')">Hủy</button>
+            <button class="btn-danger-ghost" onclick="submitReject()" style="padding:10px 20px;">
+                <i class="fa-solid fa-times"></i> Xác nhận từ chối
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ POI DETAIL DRAWER ══════════════ -->
+<div class="drawer-overlay" id="drawer-poi-detail-overlay" onclick="closeDrawer('drawer-poi-detail')"></div>
+<div class="drawer-panel" id="drawer-poi-detail">
+    <div class="drawer-header">
+        <h3 class="drawer-title"><i class="fa-solid fa-map-marker-alt" style="color:var(--emerald);"></i> Chi tiết POI</h3>
+        <button class="modal-close" onclick="closeDrawer('drawer-poi-detail')"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="drawer-body">
+        <!-- POI Images -->
+        <div class="image-preview-grid mb-4">
+            <div class="image-preview-item">
+                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop" alt="Cover">
+                <span class="cover-badge">Cover</span>
+            </div>
+            <div class="image-preview-item">
+                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop" alt="Ảnh 2">
+            </div>
+            <div class="image-preview-item">
+                <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=200&h=200&fit=crop" alt="Ảnh 3">
+            </div>
+        </div>
+
+        <!-- POI Info -->
+        <div class="form-group">
+            <label>Tên POI</label>
+            <p style="color:var(--text-primary);font-size:16px;font-weight:700;">Ốc Đào Vĩnh Khánh</p>
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả</label>
+            <p style="color:var(--text-secondary);font-size:13px;line-height:1.7;">
+                Quán ốc nổi tiếng nhất đường Vĩnh Khánh, Quận 4, TP.HCM. Đa dạng các loại ốc, hải sản tươi sống, giá cả hợp lý.
+                Không gian thoáng mát, phục vụ nhanh chóng. Đặc biệt nổi tiếng với ốc hương nướng mỡ hành và sò điệp nướng phô mai.
+            </p>
+        </div>
+
+        <div class="grid-2 mb-4">
+            <div class="form-group">
+                <label>Owner</label>
+                <p style="color:var(--text-primary);font-size:13px;">Trần Thị Owner</p>
+            </div>
+            <div class="form-group">
+                <label>Package</label>
+                <span class="tier-badge tier-diamond"><i class="fa-solid fa-gem"></i> Chuyên nghiệp</span>
+            </div>
+        </div>
+
+        <div class="grid-2 mb-4">
+            <div class="form-group">
+                <label>Latitude</label>
+                <p class="mono" style="color:var(--emerald);">10.7578</p>
+            </div>
+            <div class="form-group">
+                <label>Longitude</label>
+                <p class="mono" style="color:var(--emerald);">106.6955</p>
+            </div>
+        </div>
+
+        <div class="grid-2 mb-4">
+            <div class="form-group">
+                <label>Radius</label>
+                <span class="package-spec spec-radius"><i class="fa-solid fa-bullseye"></i> 50m</span>
+            </div>
+            <div class="form-group">
+                <label>Priority</label>
+                <span class="package-spec spec-priority"><i class="fa-solid fa-arrow-up"></i> 2</span>
+            </div>
+        </div>
+
+        <!-- Approval History -->
+        <div class="form-group">
+            <label style="margin-bottom:12px;">Lịch sử duyệt</label>
+            <div style="border-left:2px solid var(--border-glass);padding-left:16px;">
+                <div style="margin-bottom:12px;">
+                    <p style="font-size:12px;color:var(--text-muted);">20/04/2026 14:30</p>
+                    <p style="font-size:13px;color:#fbbf24;font-weight:600;">
+                        <i class="fa-solid fa-clock"></i> Gửi duyệt bởi Trần Thị Owner
+                    </p>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <p style="font-size:12px;color:var(--text-muted);">18/04/2026 10:00</p>
+                    <p style="font-size:13px;color:var(--text-secondary);font-weight:600;">
+                        <i class="fa-solid fa-pen"></i> Cập nhật mô tả và ảnh
+                    </p>
+                </div>
+                <div>
+                    <p style="font-size:12px;color:var(--text-muted);">15/04/2026 09:00</p>
+                    <p style="font-size:13px;color:var(--text-secondary);font-weight:600;">
+                        <i class="fa-solid fa-plus"></i> Tạo POI mới
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-footer">
+        <button class="btn-ghost" onclick="closeDrawer('drawer-poi-detail')">Đóng</button>
+        <button class="btn-danger-ghost" onclick="closeDrawer('drawer-poi-detail'); openModal('modal-reject');">
+            <i class="fa-solid fa-times"></i> Từ chối
+        </button>
+        <button class="btn-primary" onclick="closeDrawer('drawer-poi-detail'); confirmAction('Duyệt POI này?', function(){ showToast('Đã duyệt!', 'success'); });">
+            <i class="fa-solid fa-check"></i> Duyệt
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function switchApprovalTab(btn, tab) {
+            // Update tab buttons
+            document.querySelectorAll('.approval-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Show/hide tab content
+            document.getElementById('tab-pending').style.display = tab === 'pending' ? 'block' : 'none';
+            document.getElementById('tab-approved').style.display = tab === 'approved' ? 'block' : 'none';
+            document.getElementById('tab-rejected').style.display = tab === 'rejected' ? 'block' : 'none';
+        }
+
+        function submitReject() {
+            const note = document.getElementById('reject-note').value.trim();
+            if (!note) {
+                showToast('Vui lòng nhập lý do từ chối!', 'error');
+                return;
+            }
+            closeModal('modal-reject');
+            showToast('Đã từ chối POI thành công!', 'success');
+            document.getElementById('reject-note').value = '';
+        }
+    </script>
+}

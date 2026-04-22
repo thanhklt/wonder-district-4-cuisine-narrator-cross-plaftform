@@ -12,5 +12,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
   </ItemGroup>
 
+  <!-- Exclude deprecated files from compilation -->
+  <ItemGroup>
+    <Compile Remove="_deprecated\**" />
+    <Content Remove="_deprecated\**" />
+    <None Remove="_deprecated\**" />
+  </ItemGroup>
+
 
 </Project>

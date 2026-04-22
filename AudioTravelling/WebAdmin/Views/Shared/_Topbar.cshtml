@@ -1,0 +1,43 @@
+@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Tổng quan";
+    var breadcrumbParent = ViewData["BreadcrumbParent"]?.ToString();
+    var breadcrumbParentUrl = ViewData["BreadcrumbParentUrl"]?.ToString();
+    var userName = User.Identity?.Name ?? "User";
+    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value ?? "https://i.pravatar.cc/150?img=11";
+}
+
+<header class="top-header">
+    <div class="top-header-left">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="@(userRole == "Admin" ? "/Admin/Dashboard" : "/Owner/Dashboard")" class="breadcrumb-item">
+                <i class="fa-solid fa-home"></i>
+            </a>
+            @if (!string.IsNullOrEmpty(breadcrumbParent))
+            {
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                @if (!string.IsNullOrEmpty(breadcrumbParentUrl))
+                {
+                    <a href="@breadcrumbParentUrl" class="breadcrumb-item">@breadcrumbParent</a>
+                }
+                else
+                {
+                    <span class="breadcrumb-item">@breadcrumbParent</span>
+                }
+            }
+            <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+            <span class="breadcrumb-item active">@pageTitle</span>
+        </nav>
+    </div>
+
+    <div class="top-header-right">
+        <div class="header-user-info">
+            <img src="@avatarUrl" alt="@userName" class="header-avatar">
+            <div class="header-user-text">
+                <span class="header-user-name">@userName</span>
+                <span class="header-user-role-badge role-@userRole.ToLower()">@userRole</span>
+            </div>
+        </div>
+    </div>
+</header>

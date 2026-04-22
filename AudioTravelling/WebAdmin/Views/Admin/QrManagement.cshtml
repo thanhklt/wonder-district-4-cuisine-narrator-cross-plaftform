@@ -1,0 +1,194 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý QR";
+}
+
+<div class="view-section active">
+    <div class="section-header">
+        <div>
+            <h1 class="section-title">Quản lý QR Code</h1>
+            <p class="section-subtitle">Quản lý toàn bộ mã QR trong hệ thống</p>
+        </div>
+        <button class="btn-primary" onclick="openModal('modal-create-qr')">
+            <i class="fa-solid fa-plus"></i> Tạo QR mới
+        </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="search-input-wrapper">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" class="search-input" placeholder="Tìm kiếm QR theo tên, mã...">
+        </div>
+        <select class="filter-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Ngừng hoạt động</option>
+            <option value="expired">Hết hạn</option>
+        </select>
+        <select class="filter-select">
+            <option value="">Hạn sử dụng</option>
+            <option value="valid">Còn hạn</option>
+            <option value="expiring">Sắp hết hạn</option>
+            <option value="expired">Đã hết hạn</option>
+        </select>
+    </div>
+
+    <!-- QR Table -->
+    <div class="data-table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>QR ID</th>
+                    <th>Mã QR</th>
+                    <th>Tên hiển thị</th>
+                    <th>Loại QR</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Hạn sử dụng</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="mono">#QR001</td>
+                    <td class="mono">AT-VK-001</td>
+                    <td>Ốc Đào Vĩnh Khánh</td>
+                    <td>POI Link</td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>15/04/2026</td>
+                    <td>15/04/2027</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn" title="Tải QR"><i class="fa-solid fa-download"></i></button>
+                            <button class="action-btn" title="Copy mã"><i class="fa-solid fa-copy"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mono">#QR002</td>
+                    <td class="mono">AT-VK-002</td>
+                    <td>Bánh Tráng Trộn Cô Ba</td>
+                    <td>POI Link</td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>14/04/2026</td>
+                    <td>14/04/2027</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn" title="Tải QR"><i class="fa-solid fa-download"></i></button>
+                            <button class="action-btn" title="Copy mã"><i class="fa-solid fa-copy"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mono">#QR003</td>
+                    <td class="mono">AT-VK-003</td>
+                    <td>Lẩu Dê Hùng Vương</td>
+                    <td>POI Link</td>
+                    <td><span class="status-badge inactive"><i class="fa-solid fa-circle"></i> Ngừng</span></td>
+                    <td>10/04/2026</td>
+                    <td>10/04/2027</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn" title="Tải QR"><i class="fa-solid fa-download"></i></button>
+                            <button class="action-btn" title="Copy mã"><i class="fa-solid fa-copy"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mono">#QR004</td>
+                    <td class="mono">AT-VK-004</td>
+                    <td>Cơm Tấm Thiên Hương</td>
+                    <td>POI Link</td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>08/04/2026</td>
+                    <td>08/10/2026</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn" title="Tải QR"><i class="fa-solid fa-download"></i></button>
+                            <button class="action-btn" title="Copy mã"><i class="fa-solid fa-copy"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mono">#QR005</td>
+                    <td class="mono">AT-VK-005</td>
+                    <td>Bún Mắm Cô Sáu</td>
+                    <td>POI Link</td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>05/04/2026</td>
+                    <td>05/04/2027</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn" title="Tải QR"><i class="fa-solid fa-download"></i></button>
+                            <button class="action-btn" title="Copy mã"><i class="fa-solid fa-copy"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar">
+        <span class="pagination-info">Hiển thị 1-5 trong tổng số 10 QR</span>
+        <div class="pagination-buttons">
+            <button class="pagination-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Create QR Modal -->
+    <div class="modal-overlay" id="modal-create-qr">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-qrcode" style="color:var(--emerald);"></i> Tạo QR mới</h3>
+                <button class="modal-close" onclick="closeModal('modal-create-qr')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Mã QR</label>
+                    <input type="text" class="form-input mono" placeholder="AT-VK-XXX">
+                </div>
+                <div class="form-group">
+                    <label>Tên hiển thị</label>
+                    <input type="text" class="form-input" placeholder="Nhập tên hiển thị QR">
+                </div>
+                <div class="form-group">
+                    <label>Loại QR</label>
+                    <select class="form-input form-select">
+                        <option>POI Link</option>
+                        <option>Promotion</option>
+                        <option>Event</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hạn sử dụng</label>
+                    <input type="date" class="form-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-ghost" onclick="closeModal('modal-create-qr')">Hủy</button>
+                <button class="btn-primary" onclick="closeModal('modal-create-qr'); showToast('Tạo QR thành công!', 'success');">
+                    <i class="fa-solid fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,152 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý POI";
+}
+
+<div class="view-section active">
+    <div class="section-header">
+        <div>
+            <h1 class="section-title">Quản lý gian hàng</h1>
+            <p class="section-subtitle">Quản lý toàn bộ gian hàng trong hệ thống</p>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="search-input-wrapper">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" class="search-input" placeholder="Tìm kiếm POI theo tên...">
+        </div>
+        <select class="filter-select">
+            <option value="">Tất cả gói</option>
+            <option value="1">Cơ bản</option>
+            <option value="2">Nâng cao</option>
+            <option value="3">Chuyên nghiệp</option>
+        </select>
+        <select class="filter-select">
+            <option value="">Tất cả trạng thái duyệt</option>
+            <option value="pending">Chờ duyệt</option>
+            <option value="approved">Đã duyệt</option>
+            <option value="rejected">Từ chối</option>
+        </select>
+        <select class="filter-select">
+            <option value="true">Đang hoạt động</option>
+            <option value="false">Ngừng hoạt động</option>
+        </select>
+    </div>
+
+    <!-- POI Table -->
+    <div class="data-table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th>Tên gian hàng</th>
+                    <th>Chủ cửa hàng</th>
+                    <th>Tên gói</th>
+                    <th>Bán kính</th>
+                    <th>Độ ưu tiên</th>
+                    <th>Trạng thái duyệt</th>
+                    <th>Trạng thái hoạt động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=48&h=48&fit=crop" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"></td>
+                    <td><strong>Ốc Đào Vĩnh Khánh</strong></td>
+                    <td>Trần Thị Owner</td>
+                    <td><span class="tier-badge tier-diamond"><i class="fa-solid fa-gem"></i> Chuyên nghiệp</span></td>
+                    <td>50m</td>
+                    <td>2</td>
+                    <td><span class="status-badge approved"><i class="fa-solid fa-circle"></i> Đã duyệt</span></td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=48&h=48&fit=crop" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"></td>
+                    <td><strong>Bánh Tráng Trộn Cô Ba</strong></td>
+                    <td>Lê Minh Quán</td>
+                    <td><span class="tier-badge tier-gold"><i class="fa-solid fa-star"></i> Nâng cao</span></td>
+                    <td>30m</td>
+                    <td>1</td>
+                    <td><span class="status-badge pending"><i class="fa-solid fa-circle"></i> Chờ duyệt</span></td>
+                    <td><span class="status-badge inactive"><i class="fa-solid fa-circle"></i> Không hoạt động</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn approve" title="Duyệt"><i class="fa-solid fa-check"></i></button>
+                            <button class="action-btn reject" title="Từ chối"><i class="fa-solid fa-times"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=48&h=48&fit=crop" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"></td>
+                    <td><strong>Lẩu Dê Hùng Vương</strong></td>
+                    <td>Trần Thị Owner</td>
+                    <td><span class="tier-badge tier-basic"><i class="fa-solid fa-circle"></i> Cơ bản</span></td>
+                    <td>15m</td>
+                    <td>0</td>
+                    <td><span class="status-badge pending"><i class="fa-solid fa-circle"></i> Chờ duyệt</span></td>
+                    <td><span class="status-badge inactive"><i class="fa-solid fa-circle"></i> Không hoạt động</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn approve" title="Duyệt"><i class="fa-solid fa-check"></i></button>
+                            <button class="action-btn reject" title="Từ chối"><i class="fa-solid fa-times"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=48&h=48&fit=crop" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"></td>
+                    <td><strong>Hải Sản Năm Đảnh</strong></td>
+                    <td>Lê Minh Quán</td>
+                    <td><span class="tier-badge tier-gold"><i class="fa-solid fa-star"></i> Nâng cao</span></td>
+                    <td>30m</td>
+                    <td>1</td>
+                    <td><span class="status-badge rejected"><i class="fa-solid fa-circle"></i> Từ chối</span></td>
+                    <td><span class="status-badge inactive"><i class="fa-solid fa-circle"></i> Không hoạt động</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=48&h=48&fit=crop" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"></td>
+                    <td><strong>Bún Mắm Cô Sáu</strong></td>
+                    <td>Trần Thị Owner</td>
+                    <td><span class="tier-badge tier-gold"><i class="fa-solid fa-star"></i> Nâng cao</span></td>
+                    <td>30m</td>
+                    <td>1</td>
+                    <td><span class="status-badge approved"><i class="fa-solid fa-circle"></i> Đã duyệt</span></td>
+                    <td><span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn danger" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        <div class="pagination-buttons">
+            <button class="pagination-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>

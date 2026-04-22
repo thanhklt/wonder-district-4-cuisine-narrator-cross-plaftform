@@ -1,0 +1,125 @@
+@model WebAdmin.Models.ViewModels.LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="login-screen">
+    <!-- Floating background -->
+    <img class="auth-bg" src="~/images/am_thuc.jpg" alt="" aria-hidden="true">
+    <div class="auth-particles">
+        <div class="auth-particle"></div>
+        <div class="auth-particle"></div>
+        <div class="auth-particle"></div>
+        <div class="auth-particle"></div>
+        <div class="auth-particle"></div>
+    </div>
+
+    <div class="auth-card glass-strong">
+
+        <!-- Logo & Branding -->
+        <div class="login-logo">
+            <img src="/images/logo_cty.jpg" alt="Logo" />
+        </div>
+        <!-- <h1 class="login-title">Du hí đó đây</h1> -->
+        <p class="login-subtitle">Hệ thống quản trị</p>
+
+        <!-- Login Form -->
+        <form asp-controller="Auth" asp-action="Login" method="post" class="auth-form active" id="form-login" autocomplete="off">
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <!-- Email -->
+            <div class="auth-field">
+                <label class="auth-label" for="Email">
+                    <i class="fa-solid fa-envelope"></i> Địa chỉ Email
+                </label>
+                <input asp-for="Email" class="auth-input" id="login-email"
+                       placeholder="admin@audiotravelling.vn" autofocus>
+                <span asp-validation-for="Email" class="auth-field-error"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="auth-field">
+                <label class="auth-label" for="Password">
+                    <i class="fa-solid fa-lock"></i> Mật khẩu
+                </label>
+                <div class="auth-password-wrapper">
+                    <input asp-for="Password" class="auth-input" id="login-password"
+                           placeholder="••••••••" type="password">
+                    <button type="button" class="auth-toggle-pw" onclick="togglePassword('login-password', this)" tabindex="-1">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="auth-field-error"></span>
+            </div>
+
+            <!-- Remember me -->
+            <div class="auth-row">
+                <label class="auth-checkbox-label">
+                    <input asp-for="RememberMe" class="auth-checkbox">
+                    <span class="auth-checkmark"></span>
+                    Ghi nhớ đăng nhập
+                </label>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="auth-submit-btn" id="btn-login">
+                <span class="auth-btn-text">Đăng nhập</span>
+                <i class="fa-solid fa-arrow-right auth-btn-arrow"></i>
+            </button>
+
+            <!-- Error message -->
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <p class="auth-error" id="login-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>@Model.ErrorMessage</span>
+                </p>
+            }
+
+            <!-- Validation summary -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="auth-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+            }
+        </form>
+
+        <p class="login-footer">
+            <i class="fa-solid fa-info-circle" style="margin-right:4px;"></i>
+            Hệ thống dành cho Admin và Owner.<br>
+            Không hỗ trợ đăng ký tại đây.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Toggle Password Visibility ──
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // ── Loading state on submit ──
+        document.getElementById('form-login').addEventListener('submit', function () {
+            const btn = document.getElementById('btn-login');
+            const btnText = btn.querySelector('.auth-btn-text');
+            const btnArrow = btn.querySelector('.auth-btn-arrow');
+            btn.disabled = true;
+            btnText.textContent = 'Đang đăng nhập...';
+            btnArrow.classList.remove('fa-arrow-right');
+            btnArrow.classList.add('fa-spinner', 'fa-spin');
+        });
+    </script>
+}

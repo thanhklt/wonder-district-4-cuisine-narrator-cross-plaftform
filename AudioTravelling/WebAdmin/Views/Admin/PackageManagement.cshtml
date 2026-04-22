@@ -1,0 +1,126 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Package";
+}
+
+<div class="view-section active">
+    <div class="section-header">
+        <div>
+            <h1 class="section-title">Quản lý Package</h1>
+            <p class="section-subtitle">Quản lý các gói dịch vụ cho POI</p>
+        </div>
+        <button class="btn-primary" onclick="openModal('modal-create-package')">
+            <i class="fa-solid fa-plus"></i> Tạo Package mới
+        </button>
+    </div>
+
+    <!-- Package Cards -->
+    <div class="package-cards">
+        <!-- Cơ bản -->
+        <div class="glass-card package-card-item tier-co-ban">
+            <div class="flex-between mb-3">
+                <h3 class="package-name">Cơ bản</h3>
+                <span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span>
+            </div>
+            <p class="package-desc">Gói cơ bản cho quán ăn nhỏ. Phù hợp cho những cửa hàng mới bắt đầu sử dụng hệ thống.</p>
+            <div class="package-specs">
+                <span class="package-spec spec-radius"><i class="fa-solid fa-bullseye"></i> 15m</span>
+                <span class="package-spec spec-priority"><i class="fa-solid fa-arrow-up"></i> Ưu tiên 0</span>
+                <span class="package-spec spec-price"><i class="fa-solid fa-tag"></i> Miễn phí</span>
+            </div>
+            <div class="package-footer">
+                <span class="package-poi-count"><strong>5</strong> POI đang sử dụng</span>
+                <div class="action-btns">
+                    <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nâng cao -->
+        <div class="glass-card package-card-item tier-nang-cao">
+            <div class="flex-between mb-3">
+                <h3 class="package-name">Nâng cao</h3>
+                <span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span>
+            </div>
+            <p class="package-desc">Gói nâng cao với radius lớn hơn và ưu tiên hiển thị cao hơn. Phù hợp cho quán ăn đã có uy tín.</p>
+            <div class="package-specs">
+                <span class="package-spec spec-radius"><i class="fa-solid fa-bullseye"></i> 30m</span>
+                <span class="package-spec spec-priority"><i class="fa-solid fa-arrow-up"></i> Ưu tiên 1</span>
+                <span class="package-spec spec-price"><i class="fa-solid fa-tag"></i> 99.000đ/tháng</span>
+            </div>
+            <div class="package-footer">
+                <span class="package-poi-count"><strong>4</strong> POI đang sử dụng</span>
+                <div class="action-btns">
+                    <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chuyên nghiệp -->
+        <div class="glass-card package-card-item tier-chuyen-nghiep">
+            <div class="flex-between mb-3">
+                <h3 class="package-name">Chuyên nghiệp</h3>
+                <span class="status-badge active"><i class="fa-solid fa-circle"></i> Hoạt động</span>
+            </div>
+            <p class="package-desc">Gói chuyên nghiệp với radius lớn nhất, ưu tiên cao nhất. Dành cho nhà hàng lớn, chuỗi quán ăn.</p>
+            <div class="package-specs">
+                <span class="package-spec spec-radius"><i class="fa-solid fa-bullseye"></i> 50m</span>
+                <span class="package-spec spec-priority"><i class="fa-solid fa-arrow-up"></i> Ưu tiên 2</span>
+                <span class="package-spec spec-price"><i class="fa-solid fa-tag"></i> 199.000đ/tháng</span>
+            </div>
+            <div class="package-footer">
+                <span class="package-poi-count"><strong>3</strong> POI đang sử dụng</span>
+                <div class="action-btns">
+                    <button class="action-btn" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    <button class="action-btn" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Package Modal -->
+    <div class="modal-overlay" id="modal-create-package">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-cube" style="color:var(--emerald);"></i> Tạo Package mới</h3>
+                <button class="modal-close" onclick="closeModal('modal-create-package')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-banner">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Thay đổi radius và priority sẽ ảnh hưởng đến geofence của tất cả POI đang sử dụng package này.</span>
+                </div>
+                <div class="form-group">
+                    <label>Tên gói</label>
+                    <input type="text" class="form-input" placeholder="VD: Premium">
+                </div>
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea class="form-input" rows="3" placeholder="Mô tả gói dịch vụ..."></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Radius (m)</label>
+                        <input type="number" class="form-input" placeholder="VD: 30">
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <input type="number" class="form-input" placeholder="VD: 1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Giá (VNĐ/tháng)</label>
+                    <input type="number" class="form-input" placeholder="VD: 200000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-ghost" onclick="closeModal('modal-create-package')">Hủy</button>
+                <button class="btn-primary" onclick="closeModal('modal-create-package'); showToast('Tạo package thành công!', 'success');">
+                    <i class="fa-solid fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

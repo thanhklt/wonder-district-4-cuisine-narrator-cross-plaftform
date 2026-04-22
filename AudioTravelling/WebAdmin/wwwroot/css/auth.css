@@ -86,23 +86,28 @@
 }
 
 .login-logo {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 16px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, var(--forest-600), var(--emerald));
+    width: auto;
+    max-width: 280px;
+    height: auto;
+    margin: -15px auto 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
-    color: white;
-    box-shadow: var(--shadow-glow-strong);
-    animation: logoPulse 3s ease-in-out infinite;
+    background: transparent;
+    box-shadow: none;
+    transition: transform var(--transition-normal);
 }
 
-@keyframes logoPulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.25); }
-    50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.45); }
+.login-logo:hover {
+    transform: scale(1.05);
+}
+
+.login-logo img {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
 }
 
 .login-title {
@@ -124,7 +129,7 @@
 .auth-tabs {
     display: flex;
     position: relative;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.4);
     border-radius: 12px;
     padding: 4px;
     margin-bottom: 24px;
@@ -215,8 +220,8 @@
 .auth-input {
     width: 100%;
     padding: 12px 14px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     color: var(--text-primary);
     font-family: var(--font-primary);
@@ -232,7 +237,7 @@
 .auth-input:focus {
     border-color: var(--emerald);
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1), 0 0 16px rgba(34, 197, 94, 0.08);
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .auth-input:invalid:not(:placeholder-shown):not(:focus) {
@@ -299,8 +304,8 @@
     width: 18px;
     height: 18px;
     border-radius: 5px;
-    border: 1.5px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.2);
+    border: 1.5px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -397,7 +402,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .auth-divider span {
@@ -419,7 +424,7 @@
     padding: 12px 24px;
     border: 1px solid var(--border-glass);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.6);
     color: var(--text-primary);
     font-family: var(--font-primary);
     font-size: 14px;

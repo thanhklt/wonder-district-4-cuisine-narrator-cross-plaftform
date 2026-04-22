@@ -1,0 +1,111 @@
+/* ══════════════════════════════════
+   OWNER-SPECIFIC STYLES
+   ══════════════════════════════════ */
+
+/* Owner dashboard has a simpler layout */
+.owner-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+/* ── Owner POI Card List ── */
+.poi-card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+}
+
+.poi-card {
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.poi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+.poi-card-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.poi-card-body {
+    padding: 16px;
+}
+
+.poi-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.poi-card-package {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.poi-card-specs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.poi-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.poi-card-date {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* ── Create POI Button ── */
+.create-poi-hero {
+    text-align: center;
+    padding: 40px 24px;
+    margin-bottom: 24px;
+}
+
+.create-poi-hero h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.create-poi-hero p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* ── Owner Quick Stats ── */
+.owner-quick-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+    .poi-card-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .owner-stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}

@@ -1041,11 +1041,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     y: {
                         beginAtZero: true,
                         grid: { color: 'rgba(255,255,255,0.04)' },
-                        ticks: { color: '#6b8f7a', callback: v => formatCurrency(v) + ' ₫' }
+                        ticks: { color: '#4b5563', callback: v => formatCurrency(v) + ' ₫' }
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#6b8f7a' }
+                        ticks: { color: '#4b5563' }
                     }
                 }
             }

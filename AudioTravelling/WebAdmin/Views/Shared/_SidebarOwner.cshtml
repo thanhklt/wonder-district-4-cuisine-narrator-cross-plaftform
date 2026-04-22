@@ -1,0 +1,46 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var userName = User.Identity?.Name ?? "Owner";
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value ?? "https://i.pravatar.cc/150?img=5";
+}
+
+<aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-headphones"></i>
+        </div>
+        <div class="sidebar-brand-text">
+            Quản lý gian hàng
+            <small>Chủ cửa hàng</small>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+        <a class="nav-link @(currentAction == "Dashboard" ? "active" : "")"
+           asp-controller="Owner" asp-action="Dashboard">
+            <i class="fa-solid fa-chart-pie"></i> Tổng quan
+        </a>
+        <a class="nav-link @(currentAction == "PoiManagement" ? "active" : "")"
+           asp-controller="Owner" asp-action="PoiManagement">
+            <i class="fa-solid fa-map-marker-alt"></i> Quản lý POI
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <img src="@avatarUrl" alt="@userName" class="sidebar-avatar">
+            <div class="sidebar-user-info">
+                <p class="sidebar-user-name">@userName</p>
+                <span class="sidebar-user-role">
+                    <i class="fa-solid fa-store"></i> Owner
+                </span>
+                <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-signout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</aside>

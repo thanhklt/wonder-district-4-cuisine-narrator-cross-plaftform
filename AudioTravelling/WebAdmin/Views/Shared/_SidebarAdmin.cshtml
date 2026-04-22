@@ -1,0 +1,69 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var userName = User.Identity?.Name ?? "Admin";
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value ?? "https://i.pravatar.cc/150?img=11";
+}
+
+<aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-headphones"></i>
+        </div>
+        <div class="sidebar-brand-text">
+            Quản lý ứng dụng
+            <small>Quản trị viên</small>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+        <a class="nav-link @(currentAction == "Dashboard" ? "active" : "")"
+           asp-controller="Admin" asp-action="Dashboard">
+            <i class="fa-solid fa-chart-pie"></i> Tổng quan
+        </a>
+        <a class="nav-link @(currentAction == "QrManagement" ? "active" : "")"
+           asp-controller="Admin" asp-action="QrManagement">
+            <i class="fa-solid fa-qrcode"></i> Quản lý QR
+        </a>
+        <a class="nav-link @(currentAction == "PackageManagement" ? "active" : "")"
+           asp-controller="Admin" asp-action="PackageManagement">
+            <i class="fa-solid fa-cube"></i> Quản lý Package
+        </a>
+        <a class="nav-link @(currentAction == "PoiManagement" ? "active" : "")"
+           asp-controller="Admin" asp-action="PoiManagement">
+            <i class="fa-solid fa-map-marker-alt"></i> Quản lý POI
+        </a>
+        <a class="nav-link @(currentAction == "PoiApproval" ? "active" : "")"
+           asp-controller="Admin" asp-action="PoiApproval">
+            <i class="fa-solid fa-clipboard-check"></i> Duyệt POI
+            @if (ViewData["PendingCount"] != null && (int)ViewData["PendingCount"] > 0)
+            {
+                <span class="nav-badge">@ViewData["PendingCount"]</span>
+            }
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <a class="nav-link @(currentAction == "UserManagement" ? "active" : "")"
+           asp-controller="Admin" asp-action="UserManagement">
+            <i class="fa-solid fa-users"></i> Quản lý User
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <img src="@avatarUrl" alt="@userName" class="sidebar-avatar">
+            <div class="sidebar-user-info">
+                <p class="sidebar-user-name">@userName</p>
+                <span class="sidebar-user-role">
+                    <i class="fa-solid fa-shield-halved"></i> Admin
+                </span>
+                <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-signout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</aside>
