@@ -1,3 +1,4 @@
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ public class PackagesController(IAppDbContext db) : ControllerBase
     {
         var packages = await db.Packages
             .OrderBy(p => p.Priority)
-            .Select(p => new { p.Id, p.Name, p.RadiusMeters, p.Priority, p.Price, p.Description })
+            .Select(p => new PackageResponse(p.Id, p.Name, p.RadiusMeters, p.Priority, p.Price, p.Description))
             .ToListAsync();
         return Ok(packages);
     }
@@ -33,7 +34,8 @@ public class PackagesController(IAppDbContext db) : ControllerBase
         };
         db.Packages.Add(package);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetAll), new { id = package.Id }, package);
+        return CreatedAtAction(nameof(GetAll), new { id = package.Id },
+            new PackageResponse(package.Id, package.Name, package.RadiusMeters, package.Priority, package.Price, package.Description));
     }
 
     [HttpPut("{id:int}")]
@@ -48,8 +50,6 @@ public class PackagesController(IAppDbContext db) : ControllerBase
         package.Price = req.Price;
         package.Description = req.Description;
         await db.SaveChangesAsync();
-        return Ok(package);
+        return Ok(new PackageResponse(package.Id, package.Name, package.RadiusMeters, package.Priority, package.Price, package.Description));
     }
-
-    public record PackageRequest(string Name, int RadiusMeters, int Priority, decimal Price, string Description);
 }

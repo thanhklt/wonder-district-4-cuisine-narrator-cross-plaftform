@@ -40,7 +40,7 @@ public class VnPayService(IConfiguration config)
         };
 
         var query = string.Join("&", data.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
-        var hashData = string.Join("&", data.Select(kv => $"{kv.Key}={kv.Value}"));
+        var hashData = string.Join("&", data.Select(kv => $"{kv.Key}={System.Net.WebUtility.UrlEncode(kv.Value)}"));
         var secureHash = HmacSha512(hashSecret, hashData);
 
         return $"{vnpUrl}?{query}&vnp_SecureHash={secureHash}";

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ public class AuthController(IAppDbContext db, IConfiguration config) : Controlle
             return Unauthorized(new { message = "Invalid credentials" });
 
         var token = GenerateJwt(user.Id.ToString(), user.Email, user.Role.Name);
-        return Ok(new { token, role = user.Role.Name, userId = user.Id });
+        return Ok(new LoginResponse(token, user.Role.Name, user.Id));
     }
 
     private string GenerateJwt(string userId, string email, string role)
@@ -43,6 +44,4 @@ public class AuthController(IAppDbContext db, IConfiguration config) : Controlle
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
-    public record LoginRequest(string Email, string Password);
 }

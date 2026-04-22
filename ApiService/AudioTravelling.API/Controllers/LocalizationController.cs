@@ -1,3 +1,4 @@
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ public class LocalizationController(IAppDbContext db, ILocalizationService local
         var exists = await db.Pois.AnyAsync(p => p.Id == id);
         if (!exists) return NotFound();
         await localization.LocalizePoiAsync(id);
-        return Ok(new { message = "Localization triggered" });
+        return Ok(new MessageResponse("Localization triggered"));
     }
 
     [HttpGet("{id:guid}/audio")]
@@ -33,6 +34,6 @@ public class LocalizationController(IAppDbContext db, ILocalizationService local
         }
 
         if (loc?.AudioUrl is null) return NotFound();
-        return Ok(new { audioUrl = loc.AudioUrl });
+        return Ok(new AudioResponse(loc.AudioUrl));
     }
 }

@@ -1,3 +1,4 @@
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Entities;
 using AudioTravelling.Core.Interfaces;
 using AudioTravelling.Infrastructure.Services;
@@ -23,7 +24,7 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
         var paymentUrl = vnPay.CreatePaymentUrl(req.Code, 10000, ip, txnRef);
 
-        return Ok(new { paymentUrl, txnRef });
+        return Ok(new PaymentResponse(paymentUrl, txnRef));
     }
 
     [HttpGet("callback")]
@@ -67,15 +68,16 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
             .Where(p => p.Status == Core.Enums.PoiStatus.Approved)
             .Include(p => p.Images)
             .Include(p => p.Localizations)
-            .Select(p => new
-            {
-                p.Id, p.Name, p.Lat, p.Lng, p.RadiusMeters, p.Priority,
-                Images = p.Images.OrderBy(i => i.Order).Select(i => new { i.ImageUrl }),
-                Localizations = p.Localizations.Select(l => new { l.Language, l.TextContent, l.AudioUrl }),
-            })
             .ToListAsync();
 
-        return Ok(new { pois, sessionExpiresAt = session.ExpiresAt });
+        return Ok(new BootstrapResponse(
+            pois.Select(p => new PoiSummaryResponse(
+                p.Id, p.Name, p.Lat, p.Lng, p.RadiusMeters, p.Priority,
+                p.Images.OrderBy(i => i.Order).Select(i => i.ImageUrl),
+                p.Localizations.Select(l => new LocalizationDto(l.Language, l.TextContent, l.AudioUrl))
+            )),
+            session.ExpiresAt
+        ));
     }
 
     [HttpPost("verify")]
@@ -83,7 +85,7 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
     {
         var session = await ValidateSession(token);
         if (session is null) return Unauthorized();
-        return Ok(new { valid = true, expiresAt = session.ExpiresAt });
+        return Ok(new VerifyResponse(true, session.ExpiresAt));
     }
 
     private async Task<AccessSession?> ValidateSession(string? token)
@@ -92,6 +94,4 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
         return await db.AccessSessions
             .FirstOrDefaultAsync(s => s.SessionToken == token && s.ExpiresAt > DateTime.UtcNow);
     }
-
-    public record PayRequest(string Code);
 }

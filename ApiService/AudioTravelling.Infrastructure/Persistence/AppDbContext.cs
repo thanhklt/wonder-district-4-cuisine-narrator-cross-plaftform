@@ -56,12 +56,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         );
 
         // Seed default Admin user — password: Admin@123
+        // Hashes are pre-computed static values to prevent EF PendingModelChangesWarning
         b.Entity<User>().HasData(
             new User
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
                 Email = "admin@audiotravelling.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                PasswordHash = "$2a$11$WhkWccdt9qW.O1NdwVb76uhsDhhgR0WKytBTU24Ilnk/T.cGjWEKS",
                 RoleId = 1,
                 CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             },
@@ -69,7 +70,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
                 Email = "owner@audiotravelling.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Owner@123"),
+                PasswordHash = "$2a$11$vnHVv7WjT0NxVrxuX6T4ReyB/V9TCUCKGNSp7uBuCn/U5HaJAbQha",
                 RoleId = 2,
                 CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             }

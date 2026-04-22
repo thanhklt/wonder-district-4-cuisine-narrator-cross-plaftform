@@ -1,3 +1,4 @@
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,7 @@ namespace AudioTravelling.API.Controllers;
 public class StatsController(IAppDbContext db, IOnlineTracker tracker) : ControllerBase
 {
     [HttpGet("realtime")]
-    public IActionResult GetRealtime() => Ok(new { onlineCount = tracker.GetCount() });
+    public IActionResult GetRealtime() => Ok(new RealtimeResponse(tracker.GetCount()));
 
     [HttpGet("sessions")]
     public async Task<IActionResult> GetSessions([FromQuery] string period = "day")
@@ -30,7 +31,7 @@ public class StatsController(IAppDbContext db, IOnlineTracker tracker) : Control
             _ => sessions.GroupBy(s => s.CreatedAt.ToString("yyyy-MM-dd")),
         };
 
-        return Ok(grouped.Select(g => new { date = g.Key, count = g.Count() }).OrderBy(x => x.date));
+        return Ok(grouped.Select(g => new SessionStatResponse(g.Key, g.Count())).OrderBy(x => x.Date));
     }
 
     [HttpGet("heatmap")]
@@ -39,7 +40,7 @@ public class StatsController(IAppDbContext db, IOnlineTracker tracker) : Control
         var (from, _) = ParsePeriod(period);
         var points = await db.AccessSessions
             .Where(s => s.CreatedAt >= from && s.Lat != null && s.Lng != null)
-            .Select(s => new { lat = s.Lat, lng = s.Lng })
+            .Select(s => new HeatmapPointResponse(s.Lat, s.Lng))
             .ToListAsync();
         return Ok(points);
     }

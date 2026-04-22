@@ -27,13 +27,15 @@ services:
       - "${DEEP_TRANSLATE_PORT:-8000}:8000"
     environment:
       - PORT=8000
+      - DEEPL_API_KEY=${DEEPL_API_KEY}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 15s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
-  # ─── TTS Service ───── ──────────────────────────────────
+  # ─── TTS Service ───────────────────────────────────────
   tts:
     build:
       context: ./TTSService
@@ -47,10 +49,11 @@ services:
       - PORT=8001
       - AUDIO_STORAGE_PATH=/storage/audio
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
       interval: 15s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # ─── API Service (C#) ──────────────────────────────────
   api:
@@ -62,6 +65,7 @@ services:
       - "${API_PORT:-5000}:5000"
     volumes:
       - audio_storage:/storage/audio
+      - ./storage/qr:/storage/qr
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
@@ -76,6 +80,8 @@ services:
       - DEEP_TRANSLATE_URL=${DEEP_TRANSLATE_URL}
       - TTS_URL=${TTS_URL}
       - AUDIO_STORAGE_PATH=/storage/audio
+      - QR_STORAGE_PATH=/storage/qr
+      - MOBILE_APP_URL=${MOBILE_APP_URL}
     depends_on:
       postgres:
         condition: service_healthy

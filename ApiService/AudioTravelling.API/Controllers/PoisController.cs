@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AudioTravelling.API.DTOs;
 using AudioTravelling.Core.Entities;
 using AudioTravelling.Core.Enums;
 using AudioTravelling.Core.Interfaces;
@@ -26,12 +27,11 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
             .Include(p => p.Localizations)
             .ToListAsync();
 
-        return Ok(pois.Select(p => new
-        {
+        return Ok(pois.Select(p => new PoiSummaryResponse(
             p.Id, p.Name, p.Lat, p.Lng, p.RadiusMeters, p.Priority,
-            Images = p.Images.OrderBy(i => i.Order).Select(i => i.ImageUrl),
-            Localizations = p.Localizations.Select(l => new { l.Language, l.TextContent, l.AudioUrl }),
-        }));
+            p.Images.OrderBy(i => i.Order).Select(i => i.ImageUrl),
+            p.Localizations.Select(l => new LocalizationDto(l.Language, l.TextContent, l.AudioUrl))
+        )));
     }
 
     // ── Owner ────────────────────────────────────────────────
@@ -79,7 +79,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         });
 
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetOwnerPois), new { id = poi.Id }, new { poi.Id, poi.Status });
+        return CreatedAtAction(nameof(GetOwnerPois), new { id = poi.Id }, new PoiStatusResponse(poi.Id, poi.Status));
     }
 
     [HttpPut("{id:guid}")]
@@ -102,7 +102,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         if (viLoc is not null) viLoc.TextContent = req.Description;
 
         await db.SaveChangesAsync();
-        return Ok(new { poi.Id, poi.Status });
+        return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
 
     [HttpPatch("{id:guid}/submit")]
@@ -118,7 +118,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         poi.Status = PoiStatus.Pending;
         poi.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
-        return Ok(new { poi.Id, poi.Status });
+        return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
 
     [HttpDelete("{id:guid}")]
@@ -171,7 +171,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         // Trigger localization pipeline in background
         _ = Task.Run(() => localization.LocalizePoiAsync(poi.Id));
 
-        return Ok(new { poi.Id, poi.Status });
+        return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
 
     [HttpPatch("{id:guid}/reject")]
@@ -193,10 +193,6 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
             Note = req.Note,
         });
         await db.SaveChangesAsync();
-        return Ok(new { poi.Id, poi.Status });
+        return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
-
-    public record CreatePoiRequest(string Name, double Lat, double Lng, int PackageId, string Description);
-    public record UpdatePoiRequest(string Name, double Lat, double Lng, string Description);
-    public record RejectRequest(string? Note);
 }

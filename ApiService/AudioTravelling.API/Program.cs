@@ -75,7 +75,34 @@ builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
     policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new() { Title = "AudioTravelling API", Version = "v1" });
+
+    opt.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Nhập JWT token (không cần prefix 'Bearer ')",
+    });
+    opt.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -91,11 +118,8 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/swagger/v1/swagger.json", "AudioTravelling API v1"));
 
 // Serve audio files from shared volume
 var audioPath = builder.Configuration["AUDIO_STORAGE_PATH"] ?? "/storage/audio";
@@ -104,6 +128,15 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.GetFullPath(audioPath)),
     RequestPath = "/audio"
+});
+
+// Serve QR code images
+var qrPath = builder.Configuration["QR_STORAGE_PATH"] ?? "/storage/qr";
+Directory.CreateDirectory(qrPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.GetFullPath(qrPath)),
+    RequestPath = "/qr"
 });
 
 app.MapControllers().RequireRateLimiting("api");
