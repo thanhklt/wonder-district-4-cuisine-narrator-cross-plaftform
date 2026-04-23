@@ -54,7 +54,8 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
         db.AccessSessions.Add(session);
         await db.SaveChangesAsync();
 
-        var returnUrl = $"{config["VNPAY_RETURN_URL"]?.Replace("/payment/callback", "")}?token={sessionToken}";
+        var mobileUrl = config["MOBILE_APP_URL"] ?? config["VNPAY_RETURN_URL"]?.Replace("/payment/callback", "");
+        var returnUrl = $"{mobileUrl}?token={sessionToken}";
         return Redirect(returnUrl);
     }
 

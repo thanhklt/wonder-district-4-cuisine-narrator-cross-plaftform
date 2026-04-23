@@ -75,11 +75,12 @@ services:
     build:
       context: ./mobile-app
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     ports:
       - "${MOBILE_PORT:-3000}:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_MAPS_TILE=${NEXT_PUBLIC_MAPS_TILE}
     depends_on:
       - api
