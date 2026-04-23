@@ -16,8 +16,9 @@ builder.Configuration.AddEnvironmentVariables();
 
 // ── Database ───────────────────────────────────────────────
 var connectionString = builder.Configuration["DATABASE_URL"]
-    ?? "Host=localhost;Database=audiotravelling;Username=postgres;Password=postgres";
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionString));
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Server=localhost;Database=audiotravelling;User Id=sa;Password=sa;TrustServerCertificate=True;";
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
 // ── JWT Auth ───────────────────────────────────────────────

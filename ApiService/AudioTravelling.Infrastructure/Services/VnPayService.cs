@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Net;
 using Microsoft.Extensions.Configuration;
 
 namespace AudioTravelling.Infrastructure.Services;
@@ -22,7 +23,7 @@ public class VnPayService(IConfiguration config)
         var createDate = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
         var expireDate = DateTime.UtcNow.AddHours(7).AddMinutes(15).ToString("yyyyMMddHHmmss");
 
-        var data = new SortedDictionary<string, string>
+        var data = new SortedDictionary<string, string>(StringComparer.Ordinal)
         {
             ["vnp_Version"] = VERSION,
             ["vnp_Command"] = COMMAND,
@@ -39,8 +40,8 @@ public class VnPayService(IConfiguration config)
             ["vnp_TxnRef"] = txnRef,
         };
 
-        var query = string.Join("&", data.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
-        var hashData = string.Join("&", data.Select(kv => $"{kv.Key}={System.Net.WebUtility.UrlEncode(kv.Value)}"));
+        var query = BuildQueryString(data);
+        var hashData = BuildQueryString(data);
         var secureHash = HmacSha512(hashSecret, hashData);
 
         return $"{vnpUrl}?{query}&vnp_SecureHash={secureHash}";
@@ -53,12 +54,20 @@ public class VnPayService(IConfiguration config)
 
         var data = new SortedDictionary<string, string>(
             queryParams
-                .Where(kv => kv.Key.StartsWith("vnp_") && kv.Key != "vnp_SecureHash")
-                .ToDictionary(kv => kv.Key, kv => kv.Value));
+                .Where(kv => kv.Key.StartsWith("vnp_", StringComparison.Ordinal)
+                    && kv.Key != "vnp_SecureHash"
+                    && kv.Key != "vnp_SecureHashType")
+                .ToDictionary(kv => kv.Key, kv => kv.Value),
+            StringComparer.Ordinal);
 
-        var hashData = string.Join("&", data.Select(kv => $"{kv.Key}={kv.Value}"));
+        var hashData = BuildQueryString(data);
         var expectedHash = HmacSha512(hashSecret, hashData);
         return expectedHash.Equals(receivedHash, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> data)
+    {
+        return string.Join("&", data.Select(kv => $"{kv.Key}={WebUtility.UrlEncode(kv.Value)}"));
     }
 
     private static string HmacSha512(string key, string data)

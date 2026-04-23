@@ -1,22 +1,4 @@
 services:
-  # ─── Database ──────────────────────────────────────────
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # ─── DeepTranslate Service ─────────────────────────────
   deep-translate:
     build:
@@ -83,8 +65,6 @@ services:
       - QR_STORAGE_PATH=/storage/qr
       - MOBILE_APP_URL=${MOBILE_APP_URL}
     depends_on:
-      postgres:
-        condition: service_healthy
       deep-translate:
         condition: service_healthy
       tts:
@@ -118,5 +98,4 @@ services:
       - api
 
 volumes:
-  postgres_data:
   audio_storage:
