@@ -40,12 +40,34 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
     public async Task<IActionResult> GetOwnerPois()
     {
         var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
         var pois = await db.Pois
             .Where(p => p.OwnerId == ownerId)
-            .Include(p => p.Package)
-            .Include(p => p.Images)
             .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Lat = p.Lat,
+                Lng = p.Lng,
+                RadiusMeters = p.RadiusMeters,
+                Priority = p.Priority,
+                Status = p.Status,
+                PackageId = p.PackageId,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                Images = p.Images
+                    .OrderBy(i => i.Order)
+                    .Select(i => new
+                    {
+                        Id = i.Id,
+                        ImageUrl = i.ImageUrl,
+                        Order = i.Order
+                    })
+                    .ToList()
+            })
             .ToListAsync();
+
         return Ok(pois);
     }
 
@@ -138,14 +160,64 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetPending()
     {
-        var pois = await db.Pois
-            .Where(p => p.Status == PoiStatus.Pending)
-            .Include(p => p.Owner)
-            .Include(p => p.Images)
-            .Include(p => p.Localizations)
-            .OrderBy(p => p.CreatedAt)
-            .ToListAsync();
-        return Ok(pois);
+        try
+        {
+            var pois = await db.Pois
+                .Where(p => p.Status == PoiStatus.Pending)
+                .OrderBy(p => p.CreatedAt)
+                .Select(p => new
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Lat = p.Lat,
+                    Lng = p.Lng,
+                    RadiusMeters = p.RadiusMeters,
+                    Priority = p.Priority,
+                    Status = p.Status,
+                    PackageId = p.PackageId,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+
+                    Owner = p.Owner == null ? null : new
+                    {
+                        Id = p.Owner.Id,
+                        Email = p.Owner.Email
+                    },
+
+                    Images = p.Images
+                        .OrderBy(i => i.Order)
+                        .Select(i => new
+                        {
+                            Id = i.Id,
+                            ImageUrl = i.ImageUrl,
+                            Order = i.Order
+                        })
+                        .ToList(),
+
+                    Localizations = p.Localizations
+                        .Select(l => new
+                        {
+                            Id = l.Id,
+                            Language = l.Language,
+                            TextContent = l.TextContent,
+                            AudioUrl = l.AudioUrl,
+                            CreatedAt = l.CreatedAt
+                        })
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return Ok(pois);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "Failed to load pending POIs",
+                detail = ex.Message,
+                inner = ex.InnerException?.Message
+            });
+        }
     }
 
     [HttpPatch("{id:guid}/approve")]

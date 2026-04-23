@@ -1,12 +1,45 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\marcn\\Desktop\\Workspace\\AudioTravelling\\ApiService\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\Bao\\source\\repos\\VibeCode\\wonder-district-4-cuisine-narrator-cross-plaftform\\ApiService\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{767CE550-CB24-5AE6-E426-5A507E08D554}|AudioTravelling.API\\AudioTravelling.API.csproj|c:\\users\\bao\\source\\repos\\vibecode\\wonder-district-4-cuisine-narrator-cross-plaftform\\apiservice\\audiotravelling.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{767CE550-CB24-5AE6-E426-5A507E08D554}|AudioTravelling.API\\AudioTravelling.API.csproj|solutionrelative:audiotravelling.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Bao\\source\\repos\\VibeCode\\wonder-district-4-cuisine-narrator-cross-plaftform\\ApiService\\AudioTravelling.API\\Program.cs",
+              "RelativeDocumentMoniker": "AudioTravelling.API\\Program.cs",
+              "ToolTip": "C:\\Users\\Bao\\source\\repos\\VibeCode\\wonder-district-4-cuisine-narrator-cross-plaftform\\ApiService\\AudioTravelling.API\\Program.cs",
+              "RelativeToolTip": "AudioTravelling.API\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAABmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-23T05:36:23.216Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

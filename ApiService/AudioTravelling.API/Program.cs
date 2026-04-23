@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Configuration.AddEnvironmentVariables();
 // ── Database ───────────────────────────────────────────────
 var connectionString = builder.Configuration["DATABASE_URL"]
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=localhost;Database=audiotravelling;User Id=sa;Password=sa;TrustServerCertificate=True;";
+    ?? "Server=host.docker.internal\\SQLEXPRESS;Database=audiotravelling;User Id=sa;Password=Sa@123456;TrustServerCertificate=True;Encrypt=False;";
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
@@ -74,7 +75,11 @@ builder.Services.AddRateLimiter(opt =>
 builder.Services.AddSignalR();
 builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
     policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {

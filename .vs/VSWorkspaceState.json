@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\web-app",
+    "\\web-app\\src",
+    "\\web-app\\src\\app",
+    "\\web-app\\src\\app\\admin",
+    "\\web-app\\src\\app\\admin\\realtime",
+    "\\web-app\\src\\app\\admin\\stats",
+    "\\web-app\\src\\app\\login"
+  ],
+  "SelectedNode": "\\web-app\\src\\app\\layout.tsx",
+  "PreviewInSolutionExplorer": false
+}
