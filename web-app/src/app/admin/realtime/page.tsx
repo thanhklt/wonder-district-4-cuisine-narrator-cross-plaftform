@@ -1,15 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
-import { API_URL, getToken } from "@/lib/api";
+import { API_URL, getToken, getRealtimeCount } from "@/lib/api";
 import Sidebar from "@/components/Sidebar";
 
 export default function RealtimePage() {
-  const [onlineCount, setOnlineCount] = useState(0);
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [connected, setConnected] = useState(false);
   const [history, setHistory] = useState<{ time: string; count: number }[]>([]);
 
   useEffect(() => {
+    getRealtimeCount().then(data => setOnlineCount(data.count)).catch(() => {});
+
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_URL}/hubs/admin`, {
         accessTokenFactory: () => getToken() ?? "",
@@ -46,7 +48,9 @@ export default function RealtimePage() {
 
         <div className="bg-white rounded-2xl p-8 shadow-sm mb-6 text-center">
           <p className="text-sm text-gray-500 mb-2">Người dùng đang trực tuyến</p>
-          <p className="text-6xl font-bold text-orange-500">{onlineCount}</p>
+          <p className="text-6xl font-bold text-orange-500">
+            {onlineCount === null ? "..." : onlineCount}
+          </p>
         </div>
 
         <div className="bg-white rounded-2xl p-5 shadow-sm">

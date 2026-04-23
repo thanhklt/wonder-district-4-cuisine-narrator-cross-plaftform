@@ -2,10 +2,10 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from dotenv import load_dotenv
-from .models import TTSRequest, TTSResponse
-from .tts_engine import generate_audio
+from .models import TTSRequest, TTSResponse, TTSStreamRequest
+from .tts_engine import generate_audio, stream_audio_bytes
 
 load_dotenv()
 
@@ -32,5 +32,16 @@ async def generate(req: TTSRequest):
             audio_url=audio_url,
             voice=SUPPORTED_LANGUAGES[req.language],
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tts/stream")
+async def stream(req: TTSStreamRequest):
+    try:
+        audio_bytes = await stream_audio_bytes(req.language, req.text)
+        if not audio_bytes:
+            raise HTTPException(status_code=500, detail="No audio generated")
+        return Response(content=audio_bytes, media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

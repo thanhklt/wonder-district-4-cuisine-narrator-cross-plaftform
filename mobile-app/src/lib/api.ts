@@ -45,13 +45,19 @@ export async function fetchBootstrap() {
   return res.json();
 }
 
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
 export async function initiatePayment(code: string) {
   const res = await fetch(`${API_URL}/api/access/pay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),
   });
-  if (!res.ok) throw new Error("Payment init failed");
+  if (!res.ok) throw new ApiError(res.status, await res.text());
   return res.json() as Promise<{ paymentUrl: string; txnRef: string }>;
 }
 

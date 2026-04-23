@@ -55,8 +55,8 @@ builder.Services.AddHttpClient("TTS", c =>
 
 // ── Services ───────────────────────────────────────────────
 builder.Services.AddScoped<ILocalizationService, LocalizationService>();
-builder.Services.AddSingleton<IOnlineTracker, OnlineTracker>();
 builder.Services.AddSingleton<VnPayService>();
+builder.Services.AddHostedService<AudioTravelling.API.Services.ActiveSessionBroadcaster>();
 
 // ── Rate Limiting ──────────────────────────────────────────
 builder.Services.AddRateLimiter(opt =>

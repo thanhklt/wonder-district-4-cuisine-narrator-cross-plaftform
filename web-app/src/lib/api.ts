@@ -55,6 +55,14 @@ export async function submitPoi(id: string) {
   return res.json();
 }
 
+export async function updatePoi(id: string, data: any) {
+  const res = await fetch(`${API_URL}/api/pois/${id}`, {
+    method: "PUT", headers: authHeaders(), body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Update failed");
+  return res.json();
+}
+
 export async function deletePoi(id: string) {
   await fetch(`${API_URL}/api/pois/${id}`, { method: "DELETE", headers: authHeaders() });
 }
@@ -102,6 +110,14 @@ export async function toggleQr(id: string) {
 
 export async function deleteQr(id: string) {
   await fetch(`${API_URL}/api/qr/${id}`, { method: "DELETE", headers: authHeaders() });
+}
+
+export async function regenerateQr(id: string) {
+  const res = await fetch(`${API_URL}/api/qr/${id}/regenerate`, {
+    method: "POST", headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error("Regenerate QR failed");
+  return res.json();
 }
 
 // ── Stats ────────────────────────────────────────────────────

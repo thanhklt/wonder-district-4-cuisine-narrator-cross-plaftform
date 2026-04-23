@@ -1,5 +1,5 @@
-const CACHE_NAME = "audiotravelling-v1";
-const STATIC_ASSETS = ["/", "/scan", "/map", "/manifest.json"];
+const CACHE_NAME = "audiotravelling-v3";
+const STATIC_ASSETS = ["/", "/scan", "/pay", "/map", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -18,23 +18,38 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Bỏ qua các request không phải GET hoặc cross-origin
   if (event.request.method !== "GET") return;
+
   const url = new URL(event.request.url);
+
+  // Không cache API calls — luôn fetch từ network
+  if (url.pathname.startsWith("/api/")) return;
+
+  // Không xử lý cross-origin
   if (url.origin !== self.location.origin) return;
 
+  // Navigation requests (HTML pages): network-first, fallback cache
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match(event.request).then((cached) => cached ?? caches.match("/"))
+      )
+    );
+    return;
+  }
+
+  // Static assets (JS, CSS, images): cache-first, fallback network
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        // Chỉ cache các response hợp lệ
         if (!response || response.status !== 200 || response.type !== "basic") {
           return response;
         }
         const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      }).catch(() => cached ?? new Response("Offline", { status: 503 }));
+      });
     })
   );
 });

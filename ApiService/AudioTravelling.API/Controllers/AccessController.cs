@@ -75,7 +75,9 @@ public class AccessController(IAppDbContext db, VnPayService vnPay, IConfigurati
             pois.Select(p => new PoiSummaryResponse(
                 p.Id, p.Name, p.Lat, p.Lng, p.RadiusMeters, p.Priority,
                 p.Images.OrderBy(i => i.Order).Select(i => i.ImageUrl),
-                p.Localizations.Select(l => new LocalizationDto(l.Language, l.TextContent, l.AudioUrl))
+                p.Localizations
+                    .Where(l => l.Language == "vi" || l.Language == "en")
+                    .Select(l => new LocalizationDto(l.Language, l.TextContent, l.AudioUrl))
             )),
             session.ExpiresAt
         ));

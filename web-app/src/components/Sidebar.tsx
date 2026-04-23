@@ -8,6 +8,7 @@ const ownerLinks = [
 ];
 
 const adminLinks = [
+  { href: "/admin/manage-pois", label: "Quản lý POI" },
   { href: "/admin/pois", label: "Duyệt POI" },
   { href: "/admin/qr", label: "Quản lý QR" },
   { href: "/admin/stats", label: "Thống kê" },

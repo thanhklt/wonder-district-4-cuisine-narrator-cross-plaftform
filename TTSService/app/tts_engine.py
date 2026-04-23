@@ -16,3 +16,13 @@ async def generate_audio(poi_id: str, language: str, text: str, storage_path: st
     await communicate.save(str(output_file))
 
     return f"/audio/{poi_id}/{language}.mp3"
+
+async def stream_audio_bytes(language: str, text: str) -> bytes:
+    """Generate MP3 audio in memory and return raw bytes (no disk write)."""
+    voice = SUPPORTED_LANGUAGES[language]
+    communicate = edge_tts.Communicate(text, voice)
+    chunks = bytearray()
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            chunks.extend(chunk["data"])
+    return bytes(chunks)

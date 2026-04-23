@@ -8,7 +8,7 @@ namespace AudioTravelling.API.Controllers;
 
 [ApiController]
 [Route("api/pois")]
-public class LocalizationController(IAppDbContext db, ILocalizationService localization) : ControllerBase
+public class LocalizationController(IAppDbContext db, ILocalizationService localization, IServiceScopeFactory scopeFactory) : ControllerBase
 {
     [HttpPost("{id:guid}/localize")]
     [Authorize(Roles = "Admin")]
@@ -18,6 +18,20 @@ public class LocalizationController(IAppDbContext db, ILocalizationService local
         if (!exists) return NotFound();
         await localization.LocalizePoiAsync(id);
         return Ok(new MessageResponse("Localization triggered"));
+    }
+
+    [HttpPost("/api/admin/audio/bulk")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult BulkGenerateAudio([FromBody] BulkAudioRequest req)
+    {
+        var languages = req.Languages ?? ["vi", "en"];
+        _ = Task.Run(async () =>
+        {
+            using var scope = scopeFactory.CreateScope();
+            var svc = scope.ServiceProvider.GetRequiredService<ILocalizationService>();
+            await svc.GenerateAudioBulkAsync(languages);
+        });
+        return Accepted(new { message = $"Đang generate audio cho {string.Join(", ", languages)} trong background." });
     }
 
     [HttpGet("{id:guid}/audio")]

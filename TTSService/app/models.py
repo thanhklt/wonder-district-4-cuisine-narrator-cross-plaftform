@@ -43,3 +43,23 @@ class TTSResponse(BaseModel):
     language: str
     audio_url: str
     voice: str
+
+class TTSStreamRequest(BaseModel):
+    language: str
+    text: str
+
+    @field_validator("language")
+    @classmethod
+    def validate_language(cls, v: str) -> str:
+        if v not in SUPPORTED_LANGUAGES:
+            raise ValueError(f"Unsupported language '{v}'")
+        return v
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("text must not be empty")
+        if len(v) > 5000:
+            raise ValueError("text must be 5000 characters or fewer")
+        return v.strip()

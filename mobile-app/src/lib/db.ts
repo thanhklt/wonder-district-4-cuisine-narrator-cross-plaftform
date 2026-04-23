@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from "dexie";
+﻿import Dexie, { type EntityTable } from "dexie";
 
 export interface CachedPoi {
   id: string;
@@ -37,7 +37,6 @@ export interface PoiGeofenceState {
   pendingEnterAt?: number;
   lastTriggeredAt?: number;
   shortCooldownUntil?: number;
-  longCooldownUntil?: number;
   lastExitAt?: number;
 }
 
@@ -70,3 +69,4 @@ class AppDB extends Dexie {
 }
 
 export const db = new AppDB();
+

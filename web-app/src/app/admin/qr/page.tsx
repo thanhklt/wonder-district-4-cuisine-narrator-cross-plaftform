@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getQrCodes, createQr, toggleQr, deleteQr } from "@/lib/api";
+import { getQrCodes, createQr, toggleQr, deleteQr, regenerateQr } from "@/lib/api";
 import Sidebar from "@/components/Sidebar";
 
 export default function AdminQrPage() {
@@ -24,6 +24,12 @@ export default function AdminQrPage() {
     setCodes(codes.filter(c => c.id !== id));
   }
 
+  async function handleRegenerateAll() {
+    if (!confirm("Tạo lại tất cả QR với URL hiện tại?")) return;
+    await Promise.all(codes.map(c => regenerateQr(c.id)));
+    alert("Đã tạo lại tất cả QR. Reload trang để xem ảnh mới.");
+  }
+
   const API = process.env.NEXT_PUBLIC_WEBAPP_API_URL ?? "http://localhost:5000";
 
   return (
@@ -32,10 +38,18 @@ export default function AdminQrPage() {
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl font-bold">Quản lý QR</h1>
-          <button onClick={handleCreate}
-            className="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-600">
-            + Tạo QR mới
-          </button>
+          <div className="flex gap-2">
+            {codes.length > 0 && (
+              <button onClick={handleRegenerateAll}
+                className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600">
+                Tạo lại tất cả QR
+              </button>
+            )}
+            <button onClick={handleCreate}
+              className="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-600">
+              + Tạo QR mới
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

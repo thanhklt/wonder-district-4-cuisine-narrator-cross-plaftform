@@ -26,7 +26,7 @@ services:
     ports:
       - "${TTS_PORT:-8001}:8001"
     volumes:
-      - audio_storage:/storage/audio
+      - ./storage/audio:/storage/audio
     environment:
       - PORT=8001
       - AUDIO_STORAGE_PATH=/storage/audio
@@ -46,7 +46,7 @@ services:
     ports:
       - "${API_PORT:-5000}:5000"
     volumes:
-      - audio_storage:/storage/audio
+      - ./storage/audio:/storage/audio
       - ./storage/qr:/storage/qr
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -112,5 +112,3 @@ services:
     depends_on:
       - api
 
-volumes:
-  audio_storage:

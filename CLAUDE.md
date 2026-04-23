@@ -187,3 +187,34 @@ DeepTranslate flow (trong PWA):
 Role	Email	Password
 Admin	admin@audiotravelling.com	Admin@123
 Owner	owner@audiotravelling.com	Owner@123
+
+
+Flow hoàn chỉnh:
+
+
+Người dùng vào vùng POI
+  ├── vi / en  → phát /audio/{poiId}/{lang}.mp3 từ server (có sẵn)
+  │
+  └── zh / ja / ru / ... (ngôn ngữ khác)
+        ├── Đã có trong IndexedDB (CachedPoiAudio)
+        │     → phát từ blob URL
+        │
+        ├── Chưa có + online
+        │     → lấy text từ CachedPoiLocalization hoặc gọi DeepTranslate
+        │     → POST /api/tts/proxy → TTS stream (không lưu server)
+        │     → cache Blob vào IndexedDB
+        │     → phát từ blob URL
+        │
+        └── Chưa có + offline
+              → fallback phát tiếng Anh
+
+
+Mở /map
+  ├── Có cache → hiện map ngay (không chờ mạng)
+  │
+  ├── Offline → dùng cache, không đồng bộ
+  │
+  └── Online → gọi /api/access/bootstrap
+        ├── Xóa POI đã bị xóa trên server khỏi IndexedDB
+        ├── Cập nhật POI thay đổi (tên, tọa độ, mô tả, audioUrl)
+        └── Thêm POI mới → map tự cập nhật

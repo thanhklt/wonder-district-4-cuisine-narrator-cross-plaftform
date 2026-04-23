@@ -59,6 +59,27 @@ public class QrController(IAppDbContext db, IConfiguration config) : ControllerB
         return Ok(new QrToggleResponse(code.Id, code.IsActive));
     }
 
+    [HttpPost("{id:guid}/regenerate")]
+    public async Task<IActionResult> Regenerate(Guid id)
+    {
+        var code = await db.AccessCodes.FindAsync(id);
+        if (code is null) return NotFound();
+
+        var storagePath = config["QR_STORAGE_PATH"] ?? "/storage/qr";
+        Directory.CreateDirectory(storagePath);
+
+        var mobileAppUrl = config["MOBILE_APP_URL"] ?? "http://localhost:3000";
+        var qrContent = $"{mobileAppUrl}/pay?code={code.Code}";
+
+        var qrGenerator = new QRCodeGenerator();
+        var qrData = qrGenerator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new PngByteQRCode(qrData);
+        var pngBytes = qrCode.GetGraphic(10);
+        await System.IO.File.WriteAllBytesAsync(Path.Combine(storagePath, $"{code.Code}.png"), pngBytes);
+
+        return Ok(new QrCreateResponse(code.Id, code.Code, code.QrImageUrl, code.IsActive));
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

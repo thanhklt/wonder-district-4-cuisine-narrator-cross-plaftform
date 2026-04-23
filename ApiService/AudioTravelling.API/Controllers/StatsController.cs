@@ -9,10 +9,14 @@ namespace AudioTravelling.API.Controllers;
 [ApiController]
 [Route("api/stats")]
 [Authorize(Roles = "Admin")]
-public class StatsController(IAppDbContext db, IOnlineTracker tracker) : ControllerBase
+public class StatsController(IAppDbContext db) : ControllerBase
 {
     [HttpGet("realtime")]
-    public IActionResult GetRealtime() => Ok(new RealtimeResponse(tracker.GetCount()));
+    public async Task<IActionResult> GetRealtime()
+    {
+        var count = await db.AccessSessions.CountAsync(s => s.ExpiresAt > DateTime.UtcNow);
+        return Ok(new RealtimeResponse(count));
+    }
 
     [HttpGet("sessions")]
     public async Task<IActionResult> GetSessions([FromQuery] string period = "day")

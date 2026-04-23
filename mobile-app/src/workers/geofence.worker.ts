@@ -1,10 +1,6 @@
-// Geofence engine chạy trong Web Worker, tách biệt khỏi main thread
-
-const POLL_INTERVAL_MS = 5000;
-const DEBOUNCE_MS = 3000;
+﻿const DEBOUNCE_MS = 3000;
 const BUFFER_M = 1;
 const SHORT_COOLDOWN_MS = 45_000;
-const LONG_COOLDOWN_MS = 15 * 60_000;
 const MIN_ACCURACY_M = 50;
 
 interface Poi {
@@ -20,103 +16,236 @@ interface GeofenceState {
   pendingEnterAt?: number;
   lastTriggeredAt?: number;
   shortCooldownUntil?: number;
-  longCooldownUntil?: number;
   lastExitAt?: number;
+}
+
+interface PersistedGeofenceState extends GeofenceState {
+  poiId: string;
+}
+
+interface LocationPayload {
+  lat: number;
+  lng: number;
+  accuracy: number;
+  recordedAt?: number;
 }
 
 let pois: Poi[] = [];
 const states = new Map<string, GeofenceState>();
-let watchId: number | null = null;
+let latestLocation: LocationPayload | null = null;
+let pendingTimer: ReturnType<typeof setTimeout> | null = null;
 
-function toRad(deg: number) { return deg * Math.PI / 180; }
-
-function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371000;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+// Tinh khoang cach user-POI bang cong thuc Haversine.
+function toRad(deg: number) {
+  return (deg * Math.PI) / 180;
 }
 
+function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const earthRadius = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Moi POI co mot state rieng de theo doi outside/inside/pending enter/cooldown.
 function getState(poiId: string): GeofenceState {
-  if (!states.has(poiId)) states.set(poiId, { isInsideZone: false });
+  if (!states.has(poiId)) {
+    states.set(poiId, { isInsideZone: false });
+  }
   return states.get(poiId)!;
 }
 
-function processLocation(lat: number, lng: number) {
+// Dong bo state ve main thread de luu IndexedDB, giu duoc cooldown va lich su zone.
+function emitState(poiId: string) {
+  const state = getState(poiId);
+  const payload: PersistedGeofenceState = {
+    poiId,
+    isInsideZone: state.isInsideZone,
+    pendingEnterAt: state.pendingEnterAt,
+    lastTriggeredAt: state.lastTriggeredAt,
+    shortCooldownUntil: state.shortCooldownUntil,
+    lastExitAt: state.lastExitAt,
+  };
+
+  self.postMessage({ type: "STATE_UPDATED", payload });
+}
+
+function getDistanceFromLatest(poi: Poi): number | null {
+  if (!latestLocation) {
+    return null;
+  }
+
+  return distanceMeters(latestLocation.lat, latestLocation.lng, poi.lat, poi.lng);
+}
+
+// Khi nhieu POI cung pending enter, uu tien POI priority cao hon.
+// Neu cung priority thi chon POI gan user hon.
+function sortByPriorityAndDistance(a: { poi: Poi; distance: number }, b: { poi: Poi; distance: number }) {
+  return b.poi.priority - a.poi.priority || a.distance - b.distance;
+}
+
+// Debounce da pass: danh dau user da vao vung that su.
+function markEntered(poiId: string, enteredAt: number) {
+  const state = getState(poiId);
+  state.isInsideZone = true;
+  state.pendingEnterAt = undefined;
+  emitState(poiId);
+  self.postMessage({ type: "ENTER_CONFIRMED", poiId, enteredAt });
+}
+
+// Giai doan 3: chon pending enter "thang" trong priority queue va hen gio debounce 3s.
+function scheduleTopPendingEnter() {
+  if (pendingTimer) {
+    clearTimeout(pendingTimer);
+    pendingTimer = null;
+  }
+
+  if (!latestLocation) {
+    return;
+  }
+
+  const pendingCandidates = pois // Priority queue: pending enter + uu tien priority cao + gan user.
+    .map((poi) => {
+      const state = getState(poi.id);
+      const distance = getDistanceFromLatest(poi);
+      if (state.isInsideZone || !state.pendingEnterAt || distance === null) {
+        return null;
+      }
+      return { poi, state, distance };
+    })
+    .filter((item): item is { poi: Poi; state: GeofenceState; distance: number } => item !== null) 
+    .sort(sortByPriorityAndDistance); // Sort để giả lập priorityqueue
+
+  const nextCandidate = pendingCandidates[0];
+  if (!nextCandidate) {
+    return;
+  }
+
+  const dueAt = nextCandidate.state.pendingEnterAt! + DEBOUNCE_MS;
+  const waitMs = Math.max(0, dueAt - Date.now());
+  pendingTimer = setTimeout(() => confirmPendingEnter(nextCandidate.poi.id), waitMs);
+}
+
+// Sau 3s debounce, chi enter neu user van con nam trong nguong R - 1m.
+// Neu qua cooldown 45s thi moi trigger audio va cap nhat LastTriggeredAt/CooldownUntil.
+function confirmPendingEnter(poiId: string) {
+  pendingTimer = null;
+
+  const poi = pois.find((item) => item.id === poiId);
+  if (!poi || !latestLocation) {
+    scheduleTopPendingEnter();
+    return;
+  }
+
+  const state = getState(poiId);
   const now = Date.now();
-  const candidates: { poi: Poi; distance: number }[] = [];
+  const distance = distanceMeters(latestLocation.lat, latestLocation.lng, poi.lat, poi.lng);
+  const enterThreshold = poi.radiusMeters - BUFFER_M;
+
+  if (!state.pendingEnterAt || distance > enterThreshold) {
+    state.pendingEnterAt = undefined;
+    emitState(poiId);
+    scheduleTopPendingEnter();
+    return;
+  }
+
+  markEntered(poiId, now);
+
+  const inShortCooldown = Boolean(state.shortCooldownUntil && now < state.shortCooldownUntil);
+  if (!inShortCooldown) {
+    state.lastTriggeredAt = now;
+    state.shortCooldownUntil = now + SHORT_COOLDOWN_MS;
+    emitState(poiId);
+    self.postMessage({ type: "TRIGGER", poiId, distance });
+  }
+
+  scheduleTopPendingEnter();
+}
+
+// Giai doan 1 + 2:
+// - Nhan GPS moi
+// - Tinh khoang cach den tung POI
+// - Ap dung hysteresis voi enter = R - 1m, exit = R + 1m
+// - Outside -> pending enter
+// - Inside -> exit neu vuot nguong thoat
+function processLocation(location: LocationPayload) {
+  latestLocation = location;
+  const now = Date.now();
 
   for (const poi of pois) {
-    const dist = distanceMeters(lat, lng, poi.lat, poi.lng);
+    const distance = distanceMeters(location.lat, location.lng, poi.lat, poi.lng);
     const enterThreshold = poi.radiusMeters - BUFFER_M;
     const exitThreshold = poi.radiusMeters + BUFFER_M;
     const state = getState(poi.id);
 
-    if (!state.isInsideZone && dist <= enterThreshold) {
-      // Stage 2: outside → pending enter
+    if (!state.isInsideZone && distance <= enterThreshold) {
       if (!state.pendingEnterAt) {
         state.pendingEnterAt = now;
-      } else if (now - state.pendingEnterAt >= DEBOUNCE_MS) {
-        // Stage 3: debounce passed → check cooldowns
-        const inShortCooldown = state.shortCooldownUntil && now < state.shortCooldownUntil;
-        const inLongCooldown = state.longCooldownUntil && now < state.longCooldownUntil;
-        if (!inShortCooldown && !inLongCooldown) {
-          candidates.push({ poi, distance: dist });
-        }
+        emitState(poi.id);
       }
-    } else if (state.isInsideZone && dist >= exitThreshold) {
-      // Stage 7: exit
+      continue;
+    }
+
+    if (state.isInsideZone && distance >= exitThreshold) {
       state.isInsideZone = false;
       state.pendingEnterAt = undefined;
       state.lastExitAt = now;
+      emitState(poi.id);
       self.postMessage({ type: "EXIT", poiId: poi.id });
-    } else if (state.isInsideZone || dist > enterThreshold) {
-      // Still inside or moved away cleanly
+      continue;
+    }
+
+    if (!state.isInsideZone && state.pendingEnterAt && distance > enterThreshold) {
       state.pendingEnterAt = undefined;
+      emitState(poi.id);
     }
   }
 
-  // Stage 5: pick best candidate
-  if (candidates.length === 0) return;
-  candidates.sort((a, b) =>
-    b.poi.priority - a.poi.priority || a.distance - b.distance
-  );
-  const best = candidates[0];
-  const state = getState(best.poi.id);
-
-  // Stage 6: trigger
-  state.isInsideZone = true;
-  state.pendingEnterAt = undefined;
-  state.lastTriggeredAt = now;
-  state.shortCooldownUntil = now + SHORT_COOLDOWN_MS;
-  state.longCooldownUntil = now + LONG_COOLDOWN_MS;
-
-  self.postMessage({ type: "TRIGGER", poiId: best.poi.id, distance: best.distance });
+  scheduleTopPendingEnter();
 }
 
-self.onmessage = (e: MessageEvent) => {
-  const { type, payload } = e.data;
+// Worker chi xu ly geofence.
+// Main thread chiu trach nhiem lay GPS moi 5s va gui LOCATION vao day.
+self.onmessage = (event: MessageEvent) => {
+  const { type, payload } = event.data;
 
   if (type === "INIT") {
+    // Khoi tao danh sach POI va nap lai geofence state da luu tu truoc.
     pois = payload.pois ?? [];
-    startWatching();
-  } else if (type === "UPDATE_POIS") {
+    states.clear();
+    for (const savedState of payload.states ?? []) {
+      states.set(savedState.poiId, {
+        isInsideZone: savedState.isInsideZone,
+        pendingEnterAt: savedState.pendingEnterAt,
+        lastTriggeredAt: savedState.lastTriggeredAt,
+        shortCooldownUntil: savedState.shortCooldownUntil,
+        lastExitAt: savedState.lastExitAt,
+      });
+    }
+    scheduleTopPendingEnter();
+    return;
+  }
+
+  if (type === "UPDATE_POIS") {
+    // Khi bootstrap/sync thay doi danh sach POI, worker cap nhat tap POI ngay.
     pois = payload.pois ?? [];
-  } else if (type === "STOP") {
-    if (watchId !== null) self.clearInterval(watchId);
+    scheduleTopPendingEnter();
+    return;
+  }
+
+  if (type === "LOCATION") {
+    // Accuracy qua thap thi bo qua de tranh trigger sai geofence.
+    const { lat, lng, accuracy, recordedAt } = payload as LocationPayload;
+    if (accuracy > MIN_ACCURACY_M) {
+      self.postMessage({ type: "LOCATION_SKIPPED", reason: "LOW_ACCURACY", accuracy, recordedAt });
+      return;
+    }
+
+    processLocation({ lat, lng, accuracy, recordedAt });
   }
 };
 
-function startWatching() {
-  self.navigator.geolocation.watchPosition(
-    (pos) => {
-      self.postMessage({ type: "LOCATION", lat: pos.coords.latitude, lng: pos.coords.longitude });
-      if (pos.coords.accuracy > MIN_ACCURACY_M) return;
-      processLocation(pos.coords.latitude, pos.coords.longitude);
-    },
-    (err) => self.postMessage({ type: "GPS_ERROR", message: err.message }),
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
-  );
-}

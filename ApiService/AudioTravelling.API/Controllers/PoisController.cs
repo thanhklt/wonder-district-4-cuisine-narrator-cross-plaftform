@@ -11,7 +11,7 @@ namespace AudioTravelling.API.Controllers;
 
 [ApiController]
 [Route("api/pois")]
-public class PoisController(IAppDbContext db, ILocalizationService localization) : ControllerBase
+public class PoisController(IAppDbContext db, IServiceScopeFactory scopeFactory, IConfiguration config) : ControllerBase
 {
     // ── Tourist ─────────────────────────────────────────────
     [HttpGet("active")]
@@ -34,15 +34,16 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         )));
     }
 
-    // ── Owner ────────────────────────────────────────────────
+    // ── Owner / Admin ────────────────────────────────────────
     [HttpGet]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> GetOwnerPois()
     {
-        var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
 
         var pois = await db.Pois
-            .Where(p => p.OwnerId == ownerId)
+            .Where(p => isAdmin || p.OwnerId == userId)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new
             {
@@ -52,18 +53,16 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
                 Lng = p.Lng,
                 RadiusMeters = p.RadiusMeters,
                 Priority = p.Priority,
-                Status = p.Status,
+                Status = p.Status.ToString(),
                 PackageId = p.PackageId,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt,
                 Images = p.Images
                     .OrderBy(i => i.Order)
-                    .Select(i => new
-                    {
-                        Id = i.Id,
-                        ImageUrl = i.ImageUrl,
-                        Order = i.Order
-                    })
+                    .Select(i => new { Id = i.Id, ImageUrl = i.ImageUrl, Order = i.Order })
+                    .ToList(),
+                Localizations = p.Localizations
+                    .Select(l => new { l.Language, l.TextContent })
                     .ToList()
             })
             .ToListAsync();
@@ -72,13 +71,14 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
     }
 
     [HttpPost]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> Create([FromBody] CreatePoiRequest req)
     {
         var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var package = await db.Packages.FindAsync(req.PackageId);
         if (package is null) return BadRequest(new { message = "Package not found" });
 
+        var isAdmin = User.IsInRole("Admin");
         var poi = new Poi
         {
             OwnerId = ownerId,
@@ -88,11 +88,10 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
             RadiusMeters = package.RadiusMeters,
             Priority = package.Priority,
             PackageId = req.PackageId,
-            Status = PoiStatus.Draft,
+            Status = isAdmin ? PoiStatus.Approved : PoiStatus.Draft,
         };
         db.Pois.Add(poi);
 
-        // Add Vietnamese localization
         db.PoiLocalizations.Add(new PoiLocalization
         {
             PoiId = poi.Id,
@@ -101,19 +100,25 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         });
 
         await db.SaveChangesAsync();
+
+        // Admin tạo POI → dịch + generate TTS ngay
+        // Owner tạo POI → chỉ dịch text, TTS sẽ chạy sau khi được approve
+        RunInBackground(svc => isAdmin
+            ? svc.LocalizePoiAsync(poi.Id)
+            : svc.TranslateOnlyAsync(poi.Id));
+
         return CreatedAtAction(nameof(GetOwnerPois), new { id = poi.Id }, new PoiStatusResponse(poi.Id, poi.Status));
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePoiRequest req)
     {
-        var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
         var poi = await db.Pois.Include(p => p.Localizations)
-            .FirstOrDefaultAsync(p => p.Id == id && p.OwnerId == ownerId);
+            .FirstOrDefaultAsync(p => p.Id == id && (isAdmin || p.OwnerId == userId));
         if (poi is null) return NotFound();
-        if (poi.Status == PoiStatus.Approved)
-            return BadRequest(new { message = "Cannot edit an approved POI. Submit a new one." });
 
         poi.Name = req.Name;
         poi.Lat = req.Lat;
@@ -121,9 +126,21 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         poi.UpdatedAt = DateTime.UtcNow;
 
         var viLoc = poi.Localizations.FirstOrDefault(l => l.Language == "vi");
+        var descriptionChanged = viLoc is not null && viLoc.TextContent != req.Description;
         if (viLoc is not null) viLoc.TextContent = req.Description;
 
+        if (descriptionChanged)
+        {
+            // Xóa bản dịch cũ để dịch lại với nội dung mới
+            var oldTranslations = poi.Localizations.Where(l => l.Language != "vi").ToList();
+            db.PoiLocalizations.RemoveRange(oldTranslations);
+        }
+
         await db.SaveChangesAsync();
+
+        if (descriptionChanged)
+            RunInBackground(svc => svc.TranslateOnlyAsync(poi.Id));
+
         return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
 
@@ -144,15 +161,34 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var poi = await db.Pois.FirstOrDefaultAsync(p => p.Id == id && p.OwnerId == ownerId);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
+        var poi = await db.Pois.FirstOrDefaultAsync(p => p.Id == id && (isAdmin || p.OwnerId == userId));
         if (poi is null) return NotFound();
         db.Pois.Remove(poi);
         await db.SaveChangesAsync();
+
+        var audioDir = Path.Combine(
+            config["AUDIO_STORAGE_PATH"] ?? "/storage/audio",
+            id.ToString());
+        if (Directory.Exists(audioDir))
+            Directory.Delete(audioDir, recursive: true);
+
         return NoContent();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    private void RunInBackground(Func<ILocalizationService, Task> work)
+    {
+        _ = Task.Run(async () =>
+        {
+            using var scope = scopeFactory.CreateScope();
+            var svc = scope.ServiceProvider.GetRequiredService<ILocalizationService>();
+            await work(svc);
+        });
     }
 
     // ── Admin ────────────────────────────────────────────────
@@ -163,7 +199,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         try
         {
             var pois = await db.Pois
-                .Where(p => p.Status == PoiStatus.Pending)
+                .Where(p => p.Status == PoiStatus.Pending || p.Status == PoiStatus.Draft)
                 .OrderBy(p => p.CreatedAt)
                 .Select(p => new
                 {
@@ -227,7 +263,8 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         var adminId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var poi = await db.Pois.FindAsync(id);
         if (poi is null) return NotFound();
-        if (poi.Status != PoiStatus.Pending) return BadRequest(new { message = "POI is not pending" });
+        if (poi.Status != PoiStatus.Pending && poi.Status != PoiStatus.Draft)
+            return BadRequest(new { message = "POI is not waiting for approval" });
 
         poi.Status = PoiStatus.Approved;
         poi.UpdatedAt = DateTime.UtcNow;
@@ -240,8 +277,7 @@ public class PoisController(IAppDbContext db, ILocalizationService localization)
         });
         await db.SaveChangesAsync();
 
-        // Trigger localization pipeline in background
-        _ = Task.Run(() => localization.LocalizePoiAsync(poi.Id));
+        RunInBackground(svc => svc.LocalizePoiAsync(poi.Id));
 
         return Ok(new PoiStatusResponse(poi.Id, poi.Status));
     }
