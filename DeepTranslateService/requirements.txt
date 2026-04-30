@@ -1,5 +1,0 @@
-fastapi
-uvicorn
-deepl
-pydantic
-python-dotenv

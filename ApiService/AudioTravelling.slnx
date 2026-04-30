@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="AudioTravelling.API/AudioTravelling.API.csproj" />
-  <Project Path="AudioTravelling.Core/AudioTravelling.Core.csproj" />
-  <Project Path="AudioTravelling.Infrastructure/AudioTravelling.Infrastructure.csproj" />
-</Solution>

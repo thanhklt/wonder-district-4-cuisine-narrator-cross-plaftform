@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gói dịch vụ - Audio Travelling</title>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/layout.css">
+    <link rel="stylesheet" href="../../assets/css/plans.css">
+    <link rel="stylesheet" href="../../assets/css/theme-light.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div style="display:flex; height:100vh; overflow:hidden;">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    Du Hý Đó <span>Đây</span>
+                    <small>Phố Ẩm Thực Khánh Hội</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <a class="nav-link" href="./DashboardOwner.html">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                </a>
+                <a class="nav-link" href="./BoothOwner.html">
+                    <i class="fa-solid fa-store"></i> Quản lý gian hàng
+                </a>
+                <a class="nav-link" href="./FinanceOwner.html">
+                    <i class="fa-solid fa-coins"></i> Tài chính
+                </a>
+                <a class="nav-link active" href="./PackageOwner.html">
+                    <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                </a>
+                <a class="nav-link" href="./OrdersOwner.html">
+                    <i class="fa-solid fa-box-open"></i> Đơn hàng
+                </a>
+                <div class="nav-divider"></div>
+                <a class="nav-link" href="./SettingsOwner.html">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="Owner" class="sidebar-avatar">
+                    <div class="sidebar-user-info">
+                        <p id="sidebar-name" class="sidebar-user-name">Owner</p>
+                        <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="top-header">
+                <h2>Gói dịch vụ</h2>
+                <div></div>
+            </header>
+
+            <div class="content-wrapper">
+                <div id="view-packages" class="view-section active">
+                    <div class="flex-between mb-4">
+                        <div>
+                            <h3 class="section-title">Gói dịch vụ của tôi</h3>
+                            <p class="section-subtitle">Quản lý và nâng cấp gói dịch vụ của cửa hàng</p>
+                        </div>
+                    </div>
+
+                    <!-- Current Package -->
+                    <div class="glass-card" style="padding:24px; margin-bottom:24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <div>
+                                <h3 style="font-size:16px; font-weight:700; margin-bottom:4px;">
+                                    <i class="fa-solid fa-check-circle text-accent" style="margin-right:8px;"></i>Gói hiện tại
+                                </h3>
+                                <p style="font-size:12px; color:var(--text-muted);">Ngày hết hạn: <strong id="current-expire-date">30-03-2026</strong></p>
+                            </div>
+                            <div style="text-align:right;">
+                                <p style="font-size:24px; font-weight:700; color:var(--emerald); margin-bottom:4px;" id="current-package-name">Premium</p>
+                                <p style="font-size:13px; color:var(--text-muted);">Đang sử dụng</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display:grid; grid-template-columns: 1fr; gap:12px; font-size:13px;">
+                            <div>
+                                <p style="color:var(--text-muted); margin-bottom:4px;">Phí hoa hồng</p>
+                                <p style="font-weight:600; font-size:16px; color:#ef4444;" id="current-commission">10%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Plans -->
+                    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; margin-top:32px;">
+                        <i class="fa-solid fa-list" style="margin-right:8px;"></i>Các gói khác
+                    </h3>
+
+                    <div id="packages-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Subscription packages data
+            const packages = [
+                {
+                    id: 'basic',
+                    name: 'Gói BASIC',
+                    subtitle: '(Khởi nghiệp)',
+                    description: 'Sạp hàng nhỏ, mới tham gia.',
+                    price: 0,
+                    priceText: 'Miễn phí',
+                    period: 'tháng',
+                    commission: '10%',
+                    features: [
+                        'Phí hoa hồng: 10% (Cao nhất)',
+                        'Phí giao dịch: 5,000 VND',
+                        'Vị trí hiển thị: Không ưu tiên',
+                        'Thuyết minh Audio: Tiêu chuẩn (1 phút)',
+                        'Hỗ trợ AI: Tối ưu kích bản 10 lần/tháng',
+                        'Bản kính GPS: 15m (Phải dùng sắt mới hiển)'
+                    ],
+                    icon: 'fa-seedling',
+                    color: '#8b5cf6'
+                },
+                {
+                    id: 'gold',
+                    name: 'Gói GOLD',
+                    subtitle: '(Kinh doanh)',
+                    description: 'Hộ kinh doanh chuyên nghiệp.',
+                    price: 99000,
+                    priceText: '99.000 ₫',
+                    period: 'tháng',
+                    commission: '8%',
+                    features: [
+                        'Phí hoa hồng: 8% (Trung bình)',
+                        'Phí giao dịch: 3,000 VND',
+                        'Vị trí hiển thị: Ưu tiên Top 10',
+                        'Thuyết minh Audio: Tiêu chuẩn (2 phút)',
+                        'Hỗ trợ AI: Tối ưu kích bản 15 lần/tháng',
+                        'Bản kính GPS: 30m (Phát hiện từ xa)'
+                    ],
+                    icon: 'fa-gem',
+                    color: '#f59e0b',
+                    current: true
+                },
+                {
+                    id: 'diamond',
+                    name: 'Gói DIAMOND',
+                    subtitle: '(Đẳng cấp)',
+                    description: 'Doanh nghiệp lớn, thương hiệu.',
+                    price: 199000,
+                    priceText: '199.000 ₫',
+                    period: 'tháng',
+                    commission: '5%',
+                    features: [
+                        'Phí hoa hồng: 5% (Thấp nhất)',
+                        'Phí giao dịch: 1,000 VND',
+                        'Vị trí hiển thị: Luôn nằm trong Top 3',
+                        'Thuyết minh Audio: Chất lượng cao (Không giới hạn)',
+                        'Hỗ trợ AI: Tối ưu không giới hạn',
+                        'Bản kính GPS: 50m (Kéo khách từ sánh hội chợ)'
+                    ],
+                    icon: 'fa-crown',
+                    color: '#ec4899'
+                }
+            ];
+
+            const formatCurrency = function (value) {
+                return new Intl.NumberFormat('vi-VN').format(value || 0) + ' ₫';
+            };
+
+            // Populate packages grid
+            const packagesGrid = document.getElementById('packages-grid');
+            if (packagesGrid) {
+                packagesGrid.innerHTML = packages.map(pkg => `
+                    <div class="glass-card" style="padding:24px; display:flex; flex-direction:column;">
+                        <div style="margin-bottom:16px;">
+                            <h3 style="font-size:16px; font-weight:700; margin:0 0 4px 0;">${pkg.name} <span style="font-size:13px; color:var(--text-muted); font-weight:500;">${pkg.subtitle}</span></h3>
+                            <p style="font-size:12px; color:var(--text-muted); margin:0;">${pkg.description}</p>
+                            ${pkg.current ? '<p style="font-size:11px; color:var(--emerald); font-weight:600; margin:8px 0 0 0;"><i class="fa-solid fa-check-circle"></i> Đang sử dụng</p>' : ''}
+                        </div>
+
+                        <div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                            <p style="font-size:24px; font-weight:700; color:var(--text); margin:0;">${pkg.priceText}</p>
+                            <p style="font-size:12px; color:var(--text-muted); margin:4px 0 0 0;">/ ${pkg.period}</p>
+                        </div>
+
+                        <div style="margin-bottom:20px; flex:1;">
+                            <p style="font-size:11px; font-weight:600; color:var(--text-muted); margin:0 0 12px 0; text-transform:uppercase;">Miễn phí</p>
+                            <ul style="margin:0; padding:0; list-style:none;">
+                                ${pkg.features.map(feature => `
+                                    <li style="display:flex; gap:8px; margin-bottom:10px; font-size:12px;">
+                                        <i class="fa-solid fa-check" style="color:var(--emerald); margin-top:2px; min-width:16px; flex-shrink:0;"></i>
+                                        <span>${feature}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+
+                        <button style="
+                            padding:12px 16px;
+                            border:2px solid ${pkg.current ? '#d1d5db' : 'var(--text-muted)'};
+                            background-color:transparent;
+                            color:${pkg.current ? '#d1d5db' : 'var(--text)'};
+                            font-size:14px;
+                            font-weight:600;
+                            border-radius:8px;
+                            cursor:${pkg.current ? 'not-allowed' : 'pointer'};
+                            transition:all 0.3s ease;
+                            width:100%;
+                        "
+                        ${pkg.current ? 'disabled' : 'onmouseover="this.style.borderColor=\'var(--text)\'; this.style.color=\'var(--text)\'; this.style.backgroundColor=\'rgba(0,0,0,0.02)\';" onmouseout="this.style.borderColor=\'var(--text-muted)\'; this.style.color=\'var(--text)\'; this.style.backgroundColor=\'transparent\';"'}>
+                            <i class="fa-solid fa-arrow-right"></i> ${pkg.current ? 'Gói hiện tại' : 'Chuyển gói'}
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Set current package info
+            const currentPackage = packages.find(p => p.current);
+            if (currentPackage) {
+                const nameEl = document.getElementById('current-package-name');
+                const commissionEl = document.getElementById('current-commission');
+
+                if (nameEl) nameEl.textContent = currentPackage.name + ' ' + currentPackage.subtitle;
+                if (commissionEl) commissionEl.textContent = currentPackage.commission;
+            }
+        });
+    </script>
+</body>
+
+</html>

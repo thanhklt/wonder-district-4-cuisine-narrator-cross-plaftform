@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="vn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý gian hàng - Admin Du Hý Đó Đây</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/Admin/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ===== Additional Admin Booth Styles ===== */
+        .booth-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .booth-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .booth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .booth-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .booth-company {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .booth-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .booth-status.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .booth-status.inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .booth-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .booth-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #111827;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-action:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn-action.danger {
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        .btn-action.danger:hover {
+            background: #fee2e2;
+        }
+
+        .btn-action.success {
+            color: #16a34a;
+            border-color: #86efac;
+        }
+
+        .btn-action.success:hover {
+            background: #dcfce7;
+        }
+
+        .search-filter {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .table-responsive {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table thead {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .admin-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .admin-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.category {
+            background: #dbeafe;
+            color: #0284c7;
+        }
+
+        @media (max-width: 1024px) {
+            .booth-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .booth-card {
+                padding: 16px;
+            }
+
+            .booth-actions {
+                flex-direction: column;
+            }
+
+            .booth-info {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-table {
+                font-size: 12px;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        .map-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .map-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+        }
+
+        .map-card-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .map-card-content.collapsed {
+            display: none;
+        }
+
+        .btn-map-toggle {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        .btn-map-toggle:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .booth-area {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .booth-area:hover {
+            opacity: 0.95 !important;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .booth-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 90%;
+            max-width: 520px;
+            animation: slideIn 0.3s ease;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .booth-popup-header {
+            padding: 24px;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .booth-popup-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .booth-popup-close {
+            background: white;
+            border: 1px solid #e5e7eb;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .booth-popup-close:hover {
+            color: #111827;
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .booth-popup-body {
+            padding: 16px 20px;
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .booth-popup-body .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 16px;
+        }
+
+        .booth-popup-body .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .booth-popup-body .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 80px;
+            font-size: 13px;
+        }
+
+        .booth-popup-body .info-value {
+            font-weight: 700;
+            color: #111827;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <img src="../../images/logo_cty.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+            </div>
+            <div class="sidebar-brand-text">
+                Du Hý Đó <span>Đây</span>
+                <small>Phố Ẩm Thực Khánh Hội</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-link" href="./DashboardAdmin.html">
+                <i class="fa-solid fa-chart-pie"></i> Tổng quan
+            </a>
+            <a class="nav-link active" href="./BoothAdmin.html">
+                <i class="fa-solid fa-store"></i> Quản lý gian hàng
+            </a>
+            <a class="nav-link" href="#users">
+                <i class="fa-solid fa-users"></i> Quản lý người dùng
+            </a>
+            <a class="nav-link" href="#finances">
+                <i class="fa-solid fa-coins"></i> Tài chính
+            </a>
+            <a class="nav-link" href="#reports">
+                <i class="fa-solid fa-chart-bar"></i> Báo cáo
+            </a>
+            <div class="nav-divider"></div>
+            <a class="nav-link" href="./SettingsAdmin.html">
+                <i class="fa-solid fa-gear"></i> Cài đặt
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <img src="https://i.pravatar.cc/150?img=1" alt="Admin" class="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <p class="sidebar-user-name">Admin</p>
+                    <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-header">
+            <h2>Quản lý gian hàng</h2>
+            <div></div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1><i class="fa-solid fa-store" style="margin-right: 10px; color: #3b82f6;"></i>Quản lý gian hàng</h1>
+                    <p>Theo dõi và quản lý tất cả các gian hàng trên nền tảng</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid-4" style="margin-bottom: 32px;">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fa-solid fa-store"></i></div>
+                        <div class="stat-content">
+                            <h3>Tổng gian hàng</h3>
+                            <p id="total-booths">48</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-content">
+                            <h3>Đang hoạt động</h3>
+                            <p id="active-booths">42</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fa-solid fa-pause-circle"></i></div>
+                        <div class="stat-content">
+                            <h3>Tạm dừng</h3>
+                            <p id="inactive-booths">6</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="stat-content">
+                            <h3>Cần chú ý</h3>
+                            <p id="alert-booths">2</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="search-filter">
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px;">Tìm kiếm gian hàng</label>
+                            <input type="text" id="search-booths" class="search-input" placeholder="Tìm theo tên gian hàng hoặc công ty...">
+                        </div>
+                        <div style="width: 200px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px;">Danh mục</label>
+                            <select id="filter-category" class="search-input" style="padding: 10px 12px;">
+                                <option value="">Tất cả danh mục</option>
+                                <option value="Food">Thực phẩm & Đồ uống</option>
+                                <option value="Technology">Công nghệ</option>
+                                <option value="Fashion">Thời trang</option>
+                                <option value="Health">Sức khỏe</option>
+                                <option value="Art">Nghệ thuật</option>
+                            </select>
+                        </div>
+                        <div style="width: 150px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px;">Trạng thái</label>
+                            <select id="filter-status" class="search-input" style="padding: 10px 12px;">
+                                <option value="">Tất cả</option>
+                                <option value="active">Hoạt động</option>
+                                <option value="inactive">Tạm dừng</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Sắp xếp theo đánh giá</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button id="sort-asc-btn" class="sort-btn-booth" onclick="sortBooths('asc')">
+                                <i class="fa-solid fa-arrow-up"></i> Tăng dần
+                            </button>
+                            <button id="sort-desc-btn" class="sort-btn-booth" onclick="sortBooths('desc')">
+                                <i class="fa-solid fa-arrow-down"></i> Giảm dần
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Card (Draggable) -->
+                <div id="map-card" class="map-card" style="margin-bottom: 32px; cursor: move; user-select: none;">
+                    <div class="map-card-header">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-grip" style="color: #9ca3af; cursor: grab;"></i>
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">🗺️ Bản đồ Phố Ẩm Thực Khánh Hội</h3>
+                        </div>
+                        <button id="toggle-map" class="btn-map-toggle">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div id="map-content" class="map-card-content">
+                        <div style="border: 2px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); min-height: 450px;">
+                            <svg id="booth-map" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 450px; display: block;">
+                                <!-- Map background grid -->
+                                <defs>
+                                    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                                        <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#e5e7eb" stroke-width="1" opacity="0.5"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="1200" height="700" fill="#fef3c7"/>
+                                <rect width="1200" height="700" fill="url(#grid)"/>
+                                
+                                <!-- Booth 1 (Diamond) -->
+                                <rect x="40" y="40" width="180" height="140" fill="#ec4899" stroke="#be185d" stroke-width="3" class="booth-area" data-id="1" style="cursor: pointer;"/>
+                                <text x="130" y="120" text-anchor="middle" font-size="16" font-weight="bold" fill="white">Du Hý Đó Đây</text>
+                                <text x="130" y="145" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Diamond</text>
+                                
+                                <!-- Booth 2 (Gold) -->
+                                <rect x="270" y="40" width="170" height="140" fill="#f59e0b" stroke="#d97706" stroke-width="3" class="booth-area" data-id="2" style="cursor: pointer;"/>
+                                <text x="355" y="120" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng A</text>
+                                <text x="355" y="145" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Gold</text>
+                                
+                                <!-- Booth 3 (Gold) -->
+                                <rect x="500" y="40" width="170" height="140" fill="#f59e0b" stroke="#d97706" stroke-width="3" class="booth-area" data-id="3" style="cursor: pointer;"/>
+                                <text x="585" y="120" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng B</text>
+                                <text x="585" y="145" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Gold</text>
+                                
+                                <!-- Booth 4 (Basic) -->
+                                <rect x="730" y="40" width="160" height="140" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3" class="booth-area" data-id="4" style="cursor: pointer;"/>
+                                <text x="810" y="120" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng C</text>
+                                <text x="810" y="145" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Basic</text>
+                                
+                                <!-- Booth 5 (Basic) -->
+                                <rect x="950" y="40" width="150" height="140" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3" class="booth-area" data-id="5" style="cursor: pointer;"/>
+                                <text x="1025" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Gian H. D</text>
+                                <text x="1025" y="145" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Basic</text>
+                                
+                                <!-- Second row -->
+                                <!-- Booth A2 (Gold) -->
+                                <rect x="40" y="230" width="190" height="150" fill="#f59e0b" stroke="#d97706" stroke-width="3" class="booth-area" data-id="2" style="cursor: pointer;"/>
+                                <text x="135" y="320" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng A</text>
+                                <text x="135" y="345" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Gold</text>
+                                
+                                <!-- Booth B2 (Basic) -->
+                                <rect x="280" y="230" width="170" height="150" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3" class="booth-area" data-id="3" style="cursor: pointer;"/>
+                                <text x="365" y="320" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng B</text>
+                                <text x="365" y="345" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Basic</text>
+                                
+                                <!-- Booth C2 (Gold) -->
+                                <rect x="510" y="230" width="190" height="150" fill="#f59e0b" stroke="#d97706" stroke-width="3" class="booth-area" data-id="4" style="cursor: pointer;"/>
+                                <text x="605" y="320" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Gian Hàng C</text>
+                                <text x="605" y="345" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Gold</text>
+                                
+                                <!-- Booth D2 (Diamond) -->
+                                <rect x="760" y="230" width="170" height="150" fill="#ec4899" stroke="#be185d" stroke-width="3" class="booth-area" data-id="1" style="cursor: pointer;"/>
+                                <text x="845" y="320" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Du Hý Đó Đây</text>
+                                <text x="845" y="345" text-anchor="middle" font-size="12" fill="white" opacity="0.9">Diamond</text>
+                                
+                                <!-- Legend -->
+                                <g transform="translate(40, 450)">
+                                    <text x="0" y="0" font-size="13" font-weight="bold" fill="#111827">Huyền thoại:</text>
+                                    
+                                    <rect x="0" y="15" width="20" height="20" fill="#ec4899" stroke="#be185d" stroke-width="1"/>
+                                    <text x="28" y="30" font-size="12" fill="#111827">Diamond</text>
+                                    
+                                    <rect x="180" y="15" width="20" height="20" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                                    <text x="208" y="30" font-size="12" fill="#111827">Gold</text>
+                                    
+                                    <rect x="320" y="15" width="20" height="20" fill="#8b5cf6" stroke="#6d28d9" stroke-width="1"/>
+                                    <text x="348" y="30" font-size="12" fill="#111827">Basic</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <p style="font-size: 13px; color: #6b7280; margin-top: 16px; text-align: center;">💡 <strong>Click vào gian hàng</strong> để xem chi tiết thông tin</p>
+                    </div>
+                </div>
+
+                <!-- Booths List -->
+                <div id="booths-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" style="text-align: center; padding: 60px 20px; color: #9ca3af; display: none;">
+                    <i class="fa-solid fa-store" style="font-size: 64px; display: block; margin-bottom: 16px; color: #d1d5db;"></i>
+                    <p style="margin: 0; font-size: 16px; font-weight: 600;">Không tìm thấy gian hàng nào</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dummy booth data
+        const boothsData = [
+            {
+                id: 1,
+                name: 'Du Hý Đó Đây',
+                owner: 'Nguyễn Văn A',
+                company: 'Phố Ẩm Thực Khánh Hội',
+                category: 'Food',
+                status: 'active',
+                package: 'Diamond',
+                orders: 1250,
+                revenue: '₫125.5M',
+                rating: 4.8,
+                products: 45,
+                latitude: 10.7769,
+                longitude: 106.6983,
+                radius: 50,
+                description: 'Gian hàng nổi tiếng với các món ăn truyền thống Khánh Hội, phục vụ khách hàng chất lượng cao'
+            },
+            {
+                id: 2,
+                name: 'Gian Hàng A',
+                owner: 'Trần Thị B',
+                company: 'Công ty A',
+                category: 'Technology',
+                status: 'active',
+                package: 'Gold',
+                orders: 980,
+                revenue: '₫89.2M',
+                rating: 4.6,
+                products: 32,
+                latitude: 10.7800,
+                longitude: 106.6920,
+                radius: 40,
+                description: 'Chuyên cung cấp các sản phẩm công nghệ chất lượng cao'
+            },
+            {
+                id: 3,
+                name: 'Gian Hàng B',
+                owner: 'Lê Minh C',
+                company: 'Công ty B',
+                category: 'Food',
+                status: 'active',
+                package: 'Gold',
+                orders: 750,
+                revenue: '₫65.3M',
+                rating: 4.5,
+                products: 28,
+                latitude: 10.7750,
+                longitude: 106.7050,
+                radius: 35,
+                description: 'Địa điểm ẩm thực nổi tiếng với các món ăn đặc sản miền Nam'
+            },
+            {
+                id: 4,
+                name: 'Gian Hàng C',
+                owner: 'Phạm Thu D',
+                company: 'Công ty C',
+                category: 'Fashion',
+                status: 'inactive',
+                package: 'Basic',
+                orders: 620,
+                revenue: '₫42.1M',
+                rating: 4.3,
+                products: 18,
+                latitude: 10.7710,
+                longitude: 106.7100,
+                radius: 30,
+                description: 'Cửa hàng thời trang tối giản với các bộ sưu tập mới nhất'
+            },
+            {
+                id: 5,
+                name: 'Gian Hàng D',
+                owner: 'Đỗ Văn E',
+                company: 'Công ty D',
+                category: 'Health',
+                status: 'active',
+                package: 'Basic',
+                orders: 480,
+                revenue: '₫35.8M',
+                rating: 4.2,
+                products: 15,
+                latitude: 10.7820,
+                longitude: 106.6850,
+                radius: 25,
+                description: 'Cửa hàng sức khỏe cung cấp các sản phẩm tự nhiên và hữu cơ'
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render booths
+            const boothsList = document.getElementById('booths-list');
+            boothsList.innerHTML = boothsData.map(booth => `
+                <div class="booth-card">
+                    <div class="booth-header">
+                        <div>
+                            <div class="booth-name">${booth.name}</div>
+                            <div class="booth-company">${booth.company}</div>
+                        </div>
+                        <div class="booth-status ${booth.status}">
+                            <i class="fa-solid fa-circle" style="font-size: 6px;"></i>
+                            ${booth.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
+                        </div>
+                    </div>
+
+                    <div class="booth-info">
+                        <div class="info-item">
+                            <div class="info-label">Danh mục</div>
+                            <div class="info-value">
+                                <span class="badge category">${booth.category}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Gói dịch vụ</div>
+                            <div class="info-value">${booth.package}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Đơn hàng</div>
+                            <div class="info-value">${booth.orders.toLocaleString('vi-VN')}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Doanh thu</div>
+                            <div class="info-value">${booth.revenue}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Đánh giá</div>
+                            <div class="info-value">
+                                <i class="fa-solid fa-star" style="color: #fbbf24;"></i> ${booth.rating}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Sản phẩm</div>
+                            <div class="info-value">${booth.products} sản phẩm</div>
+                        </div>
+                    </div>
+
+                    <div class="booth-actions">
+                        <button class="btn-action" onclick="viewBooth(${booth.id})">
+                            <i class="fa-solid fa-eye"></i> Xem chi tiết
+                        </button>
+                        <button class="btn-action" onclick="editBooth(${booth.id})">
+                            <i class="fa-solid fa-pen"></i> Chỉnh sửa
+                        </button>
+                        <button class="btn-action" onclick="viewProducts(${booth.id})">
+                            <i class="fa-solid fa-box"></i> Sản phẩm
+                        </button>
+                        <button class="btn-action ${booth.status === 'active' ? 'danger' : 'success'}" onclick="suspendBooth(${booth.id})">
+                            <i class="fa-solid fa-${booth.status === 'active' ? 'ban' : 'play'}"></i> ${booth.status === 'active' ? 'Tạm dừng' : 'Hoạt động'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update stats
+            const activeBooths = boothsData.filter(b => b.status === 'active').length;
+            const inactiveBooths = boothsData.filter(b => b.status === 'inactive').length;
+            document.getElementById('total-booths').textContent = boothsData.length;
+            document.getElementById('active-booths').textContent = activeBooths;
+            document.getElementById('inactive-booths').textContent = inactiveBooths;
+            document.getElementById('alert-booths').textContent = '2';
+
+            // Search functionality
+            const searchInput = document.getElementById('search-booths');
+            searchInput.addEventListener('keyup', filterBooths);
+            document.getElementById('filter-category').addEventListener('change', filterBooths);
+            document.getElementById('filter-status').addEventListener('change', filterBooths);
+        });
+
+        function filterBooths() {
+            const search = document.getElementById('search-booths').value.toLowerCase();
+            const category = document.getElementById('filter-category').value;
+            const status = document.getElementById('filter-status').value;
+
+            let filtered = boothsData.filter(booth =>
+                (booth.name.toLowerCase().includes(search) || booth.company.toLowerCase().includes(search)) &&
+                (!category || booth.category === category) &&
+                (!status || booth.status === status)
+            );
+
+            // Apply sorting if a sort direction is selected
+            if (currentBoothhSort === 'asc') {
+                filtered.sort((a, b) => a.rating - b.rating);
+            } else if (currentBoothhSort === 'desc') {
+                filtered.sort((a, b) => b.rating - a.rating);
+            }
+
+            const boothsList = document.getElementById('booths-list');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                boothsList.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                boothsList.style.display = 'block';
+                emptyState.style.display = 'none';
+                boothsList.innerHTML = filtered.map(booth => `
+                    <div class="booth-card">
+                        <div class="booth-header">
+                            <div>
+                                <div class="booth-name">${booth.name}</div>
+                                <div class="booth-company">${booth.company}</div>
+                            </div>
+                            <div class="booth-status ${booth.status}">
+                                <i class="fa-solid fa-circle" style="font-size: 6px;"></i>
+                                ${booth.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
+                            </div>
+                        </div>
+
+                        <div class="booth-info">
+                            <div class="info-item">
+                                <div class="info-label">Danh mục</div>
+                                <div class="info-value">
+                                    <span class="badge category">${booth.category}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Gói dịch vụ</div>
+                                <div class="info-value">${booth.package}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Đơn hàng</div>
+                                <div class="info-value">${booth.orders.toLocaleString('vi-VN')}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Doanh thu</div>
+                                <div class="info-value">${booth.revenue}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Đánh giá</div>
+                                <div class="info-value">
+                                    <i class="fa-solid fa-star" style="color: #fbbf24;"></i> ${booth.rating}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Sản phẩm</div>
+                                <div class="info-value">${booth.products} sản phẩm</div>
+                            </div>
+                        </div>
+
+                        <div class="booth-actions">
+                            <button class="btn-action" onclick="viewBooth(${booth.id})">
+                                <i class="fa-solid fa-eye"></i> Xem chi tiết
+                            </button>
+                            <button class="btn-action" onclick="editBooth(${booth.id})">
+                                <i class="fa-solid fa-pen"></i> Chỉnh sửa
+                            </button>
+                            <button class="btn-action" onclick="viewProducts(${booth.id})">
+                                <i class="fa-solid fa-box"></i> Sản phẩm
+                            </button>
+                            <button class="btn-action ${booth.status === 'active' ? 'danger' : 'success'}" onclick="suspendBooth(${booth.id})">
+                                <i class="fa-solid fa-${booth.status === 'active' ? 'ban' : 'play'}"></i> ${booth.status === 'active' ? 'Tạm dừng' : 'Hoạt động'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function viewBooth(id) {
+            alert(`Xem chi tiết gian hàng #${id}`);
+        }
+
+        function editBooth(id) {
+            alert(`Chỉnh sửa gian hàng #${id}`);
+        }
+
+        function viewProducts(id) {
+            alert(`Xem sản phẩm của gian hàng #${id}`);
+        }
+
+        function suspendBooth(id) {
+            const booth = boothsData.find(b => b.id === id);
+            if (booth) {
+                booth.status = booth.status === 'active' ? 'inactive' : 'active';
+                filterBooths();
+            }
+        }
+
+        let currentBoothhSort = null;
+
+        function sortBooths(direction) {
+            currentBoothhSort = direction;
+            
+            // Update button states
+            const ascBtn = document.getElementById('sort-asc-btn');
+            const descBtn = document.getElementById('sort-desc-btn');
+            
+            if (direction === 'asc') {
+                ascBtn.style.background = '#3b82f6';
+                ascBtn.style.color = 'white';
+                descBtn.style.background = '';
+                descBtn.style.color = '';
+            } else {
+                descBtn.style.background = '#3b82f6';
+                descBtn.style.color = 'white';
+                ascBtn.style.background = '';
+                ascBtn.style.color = '';
+            }
+            
+            filterBooths();
+        }
+
+        // Map functionality - Drag and Drop
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+        const mapCard = document.getElementById('map-card');
+
+        mapCard.addEventListener('mousedown', function(e) {
+            if (e.target.closest('.map-card-header') && !e.target.closest('.btn-map-toggle')) {
+                isDragging = true;
+                offsetX = e.clientX - mapCard.offsetLeft;
+                offsetY = e.clientY - mapCard.offsetTop;
+                mapCard.style.position = 'relative';
+                mapCard.style.zIndex = '100';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                mapCard.style.left = (e.clientX - offsetX) + 'px';
+                mapCard.style.top = (e.clientY - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+
+        // Map toggle functionality
+        const toggleBtn = document.getElementById('toggle-map');
+        const mapContent = document.getElementById('map-content');
+        let isCollapsed = false;
+
+        toggleBtn.addEventListener('click', function() {
+            isCollapsed = !isCollapsed;
+            mapContent.style.display = isCollapsed ? 'none' : 'block';
+            toggleBtn.innerHTML = isCollapsed ? '<i class="fa-solid fa-chevron-up"></i>' : '<i class="fa-solid fa-chevron-down"></i>';
+        });
+
+        // Booth area click event
+        document.querySelectorAll('.booth-area').forEach(area => {
+            area.addEventListener('click', function() {
+                const boothId = parseInt(this.getAttribute('data-id'));
+                const booth = boothsData.find(b => b.id === boothId);
+                if (booth) {
+                    showBoothPopup(booth);
+                }
+            });
+        });
+
+        function showBoothPopup(booth) {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay';
+            overlay.onclick = closeBoothPopup;
+
+            // Create popup
+            const popup = document.createElement('div');
+            popup.className = 'booth-popup';
+            
+            const tierClass = booth.package === 'Diamond' ? 'tier-diamond' : booth.package === 'Gold' ? 'tier-gold' : 'tier-basic';
+            const statusColor = booth.status === 'active' ? '#10b981' : '#ef4444';
+            const statusText = booth.status === 'active' ? 'Hoạt động' : 'Tạm dừng';
+            const statusIcon = booth.status === 'active' ? 'fa-circle-check' : 'fa-pause-circle';
+            
+            popup.innerHTML = `
+                <div class="booth-popup-header">
+                    <div>
+                        <h3>${booth.name}</h3>
+                        <p style="margin: 4px 0 0 0; font-size: 11px; color: #6b7280;">Mã: <strong>#${booth.id}</strong> | ${booth.company}</p>
+                    </div>
+                    <button class="booth-popup-close" onclick="closeBoothPopup()">×</button>
+                </div>
+                <div class="booth-popup-body">
+                    <p style="margin: 0 0 10px 0; font-size: 12px; color: #0284c7; background: #f0f9ff; padding: 8px; border-radius: 6px;"><i class="fa-solid fa-building"></i> ${booth.description}</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                        <!-- Left Column -->
+                        <div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Chủ cửa hàng:</span>
+                                <div style="color: #111827; font-weight: 700; margin-top: 2px;">${booth.owner}</div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Danh mục:</span>
+                                <div style="background: #dbeafe; color: #0284c7; padding: 2px 6px; border-radius: 12px; font-size: 11px; display: inline-block; margin-top: 2px;">${booth.category}</div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Gói dịch vụ:</span>
+                                <div style="margin-top: 2px;"><span class="tier-badge ${tierClass}">${booth.package}</span></div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Trạng thái:</span>
+                                <div style="color: ${statusColor}; font-weight: 700; margin-top: 2px;"><i class="fa-solid ${statusIcon}"></i> ${statusText}</div>
+                            </div>
+                            <div style="padding: 6px 0;">
+                                <span style="color: #6b7280; font-weight: 600;">Kinh độ:</span>
+                                <div style="font-family: monospace; color: #111827; margin-top: 2px;">${booth.longitude.toFixed(4)}</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Đơn hàng:</span>
+                                <div style="color: #111827; font-weight: 700; margin-top: 2px;">${booth.orders.toLocaleString('vi-VN')} 📦</div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Doanh thu:</span>
+                                <div style="color: #059669; font-weight: 700; margin-top: 2px;">${booth.revenue}</div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Đánh giá:</span>
+                                <div style="color: #111827; font-weight: 700; margin-top: 2px;"><i class="fa-solid fa-star" style="color: #fbbf24;"></i> ${booth.rating}/5</div>
+                            </div>
+                            <div style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                                <span style="color: #6b7280; font-weight: 600;">Sản phẩm:</span>
+                                <div style="color: #111827; font-weight: 700; margin-top: 2px;">${booth.products} <i class="fa-solid fa-box" style="color: #3b82f6;"></i></div>
+                            </div>
+                            <div style="padding: 6px 0;">
+                                <span style="color: #6b7280; font-weight: 600;">Vĩ độ:</span>
+                                <div style="font-family: monospace; color: #111827; margin-top: 2px;">${booth.latitude.toFixed(4)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom section with radius -->
+                    <div style="padding: 8px 0; margin-top: 8px; border-top: 2px solid #f3f4f6; font-size: 12px;">
+                        <span style="color: #6b7280; font-weight: 600;">📍 Bán kính:</span>
+                        <span style="color: #111827; font-weight: 700; margin-left: 8px;">${booth.radius}m</span>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+        }
+
+        function closeBoothPopup() {
+            const popup = document.querySelector('.booth-popup');
+            const overlay = document.querySelector('.popup-overlay');
+            if (popup) popup.remove();
+            if (overlay) overlay.remove();
+        }
+
+        // Close popup on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeBoothPopup();
+            }
+        });
+    </script>
+
+    <style>
+        .sort-btn-booth {
+            padding: 8px 14px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .sort-btn-booth:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</body>
+
+</html>

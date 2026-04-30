@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng - Audio Travelling</title>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/layout.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/misc.css">
+    <link rel="stylesheet" href="../../assets/css/theme-light.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div style="display:flex; height:100vh; overflow:hidden;">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <img src="../../images/logo_cty.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                </div>
+                <div class="sidebar-brand-text">
+                    Du Hý Đó <span>Đây</span>
+                    <small>Phố Ẩm Thực Khánh Hội</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <a class="nav-link" href="./DashboardOwner.html">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                </a>
+                <a class="nav-link" href="./BoothOwner.html">
+                    <i class="fa-solid fa-store"></i> Quản lý gian hàng
+                </a>
+                <a class="nav-link" href="./FinanceOwner.html">
+                    <i class="fa-solid fa-coins"></i> Tài chính
+                </a>
+                <a class="nav-link" href="./PackageOwner.html">
+                    <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                </a>
+                <a class="nav-link active" href="./OrdersOwner.html">
+                    <i class="fa-solid fa-box-open"></i> Đơn hàng
+                </a>
+                <div class="nav-divider"></div>
+                <a class="nav-link" href="./SettingsOwner.html">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="Owner" class="sidebar-avatar">
+                    <div class="sidebar-user-info">
+                        <p id="sidebar-name" class="sidebar-user-name">Owner</p>
+                        <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="top-header">
+                <h2>Đơn hàng</h2>
+                <div></div>
+            </header>
+
+            <div class="content-wrapper">
+    <div id="view-orders-owner" class="view-section active">
+        <div class="flex-between mb-4">
+            <div>
+                <h3 class="section-title">Quản lý Đơn hàng</h3>
+                <p class="section-subtitle">Theo dõi chi tiết các đơn hàng và trạng thái thanh toán</p>
+            </div>
+            <div class="booth-search-wrapper">
+                <div class="booth-search-box">
+                    <i class="fa-solid fa-magnifying-glass booth-search-icon"></i>
+                    <input type="text" id="orders-owner-search" class="booth-search-input" placeholder="Tìm kiếm mã đơn hàng..." autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Filter Section -->
+        <div class="date-filter-container mb-4">
+            <div class="date-filter-buttons">
+                <button class="date-filter-btn active" data-filter="today" title="Hôm nay">
+                    <i class="fa-solid fa-calendar-day"></i> Hôm nay
+                </button>
+                <button class="date-filter-btn" data-filter="week" title="7 ngày qua">
+                    <i class="fa-solid fa-calendar-week"></i> 1 tuần qua
+                </button>
+                <button class="date-filter-btn" data-filter="month" title="30 ngày qua">
+                    <i class="fa-solid fa-calendar"></i> 1 tháng qua
+                </button>
+            </div>
+            <div class="date-filter-custom">
+                <label for="date-from">Từ ngày:</label>
+                <input type="date" id="date-from" class="date-input">
+                <label for="date-to">Đến ngày:</label>
+                <input type="date" id="date-to" class="date-input">
+                <button id="btn-filter-custom" class="btn-filter-apply">Lọc</button>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+            
+            <div class="glass-card" style="padding:24px; overflow-x:auto; align-self: start;">
+                <div class="flex-between mb-4">
+                    <h3 style="font-size:16px; font-weight:700;">
+                        <i class="fa-solid fa-list-ul text-accent" style="margin-right:8px;"></i>Danh sách đơn hàng
+                    </h3>
+                    <span id="orders-owner-count" style="font-size:12px; color:var(--text-muted);">0 đơn</span>
+                </div>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày</th>
+                            <th style="width:120px; text-align:center;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-owner-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="glass-card" style="padding:24px; align-self: start;">
+                <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">
+                    <i class="fa-solid fa-file-invoice-dollar text-accent" style="margin-right:8px;"></i>Chi tiết đơn hàng
+                </h3>
+                
+                <div id="orders-owner-details">
+                    <p style="text-align:center; color:var(--text-dim); padding:40px 0; font-style:italic;">
+                        Vui lòng chọn một đơn hàng bên danh sách để xem chi tiết.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .orders-table thead {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(100, 200, 150, 0.05));
+            border-bottom: 2px solid var(--border);
+        }
+
+        .orders-table th {
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .orders-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s ease;
+        }
+
+        .orders-table tbody tr:hover {
+            background-color: rgba(34, 197, 94, 0.03);
+        }
+
+        .orders-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .orders-table td {
+            padding: 14px 12px;
+            color: var(--text);
+        }
+
+        .orders-table td:first-child {
+            font-weight: 600;
+            color: var(--text-accent);
+        }
+
+        .order-status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-success {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #16a34a;
+        }
+
+        .status-pending {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: #d97706;
+        }
+
+        .status-cancelled {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .status-waiting {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
+        }
+
+        .btn-confirm-order {
+            padding: 6px 12px;
+            background-color: #d1d5db;
+            color: #6b7280;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-confirm-order:not(:disabled) {
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-confirm-order:not(:disabled):hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-confirm-order:disabled {
+            opacity: 0.6;
+        }
+
+        .booth-search-wrapper {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .booth-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 0 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .booth-search-box:hover {
+            border-color: #c7d2fe;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .booth-search-box:focus-within {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+        }
+
+        .booth-search-icon {
+            color: #6b7280;
+            margin-right: 10px;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .booth-search-box:focus-within .booth-search-icon {
+            color: #3b82f6;
+        }
+
+        .booth-search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #1f2937;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .booth-search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Date Filter Styles */
+        .date-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .date-filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .date-filter-btn {
+            padding: 10px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .date-filter-btn:hover {
+            border-color: #d1d5db;
+            background-color: #f9fafb;
+            color: #4b5563;
+        }
+
+        .date-filter-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .date-filter-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .date-filter-custom label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1f2937;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .date-input:hover {
+            border-color: #d1d5db;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-filter-apply {
+            padding: 8px 16px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-filter-apply:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-filter-apply:active {
+            transform: translateY(0);
+        }
+    </style>
+
+    <script src="../../assets/js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dummy orders data
+            const dummyOrders = [
+                { id: 'ORD-2108', items: [{ name: 'Cơm Chiên Dương Châu', quantity: 5, price: 75000 }, { name: 'Gà Xào Hạt Tiêu', quantity: 5, price: 95000 }, { name: 'Canh Chua Cá', quantity: 5, price: 85000 }, { name: 'Trà Nhài', quantity: 5, price: 25000 }], totalPrice: 1400000, status: 'success', date: '2026-03-19', customerId: 'KH-0108', customerName: 'Võ Thị N', customerPhone: '0945123456' },
+                { id: 'ORD-2107', items: [{ name: 'Bò Cuốn Lá Chuối', quantity: 10, price: 65000 }, { name: 'Tôm Sú Nướng Muối', quantity: 10, price: 125000 }, { name: 'Mực Nướng Mỡ Hành', quantity: 10, price: 110000 }, { name: 'Bún Nước Chấm', quantity: 10, price: 45000 }, { name: 'Nước Mía Tươi', quantity: 10, price: 35000 }], totalPrice: 1800000, status: 'waiting', date: '2026-03-19', customerId: 'KH-0107', customerName: 'Đinh Hữu O', customerPhone: '0956234567' },
+                { id: 'ORD-2106', items: [{ name: 'Phở Bò Tái Nạm', quantity: 8, price: 79000 }, { name: 'Bánh Mỳ Pâté', quantity: 8, price: 45000 }, { name: 'Canh Cua Cà Chua', quantity: 8, price: 55000 }], totalPrice: 1192000, status: 'pending', date: '2026-03-19', customerId: 'KH-0106', customerName: 'Ưu Văn P', customerPhone: '0967345678' },
+                { id: 'ORD-2105', items: [{ name: 'Canh Chua Tôm', quantity: 8, price: 84000 }], totalPrice: 672000, status: 'waiting', date: '2026-03-19', customerId: 'KH-0105', customerName: 'Nguyễn Văn A', customerPhone: '0912345678' },
+                { id: 'ORD-2104', items: [{ name: 'Vịt Quay Beijing', quantity: 3, price: 380000 }], totalPrice: 1140000, status: 'waiting', date: '2026-03-19', customerId: 'KH-0104', customerName: 'Trần Thị B', customerPhone: '0987654321' },
+                { id: 'ORD-2103', items: [{ name: 'Cơm Tấm Sườn Nạm', quantity: 5, price: 65000 }, { name: 'Nước Ép Cam', quantity: 5, price: 35000 }], totalPrice: 850000, status: 'waiting', date: '2026-03-19', customerId: 'KH-0103', customerName: 'Phạm Minh C', customerPhone: '0945678901' },
+                { id: 'ORD-2101', items: [{ name: 'Combo Bánh Mì Chào', quantity: 6, price: 89000 }, { name: 'Trà Đào', quantity: 6, price: 89000 }], totalPrice: 1068000, status: 'success', date: '2026-03-18', customerId: 'KH-0101', customerName: 'Lê Đức D', customerPhone: '0934567890' },
+                { id: 'ORD-2102', items: [{ name: 'Set Lẩu Thái Mini', quantity: 6, price: 159000 }], totalPrice: 954000, status: 'pending', date: '2026-03-18', customerId: 'KH-0102', customerName: 'Đặng Hoa E', customerPhone: '0923456789' },
+                { id: 'ORD-2099', items: [{ name: 'Bún Bò Đặc Biệt', quantity: 9, price: 79000 }], totalPrice: 711000, status: 'success', date: '2026-03-17', customerId: 'KH-0099', customerName: 'Hoàng Kim F', customerPhone: '0956789012' },
+                { id: 'ORD-2096', items: [{ name: 'Trà Đào Cam Sa', quantity: 10, price: 39000 }, { name: 'Nước Mía Đá', quantity: 10, price: 39000 }], totalPrice: 780000, status: 'cancelled', date: '2026-03-16', customerId: 'KH-0096', customerName: 'Vũ Xuân G', customerPhone: '0967890123' },
+                { id: 'ORD-2092', items: [{ name: 'Cơm Sườn Nướng', quantity: 15, price: 69000 }], totalPrice: 1035000, status: 'success', date: '2026-03-15', customerId: 'KH-0092', customerName: 'Bùi Thanh H', customerPhone: '0978901234' },
+                { id: 'ORD-2087', items: [{ name: 'Gà Rán Sốt Mật Ong', quantity: 8, price: 119000 }], totalPrice: 952000, status: 'success', date: '2026-03-14', customerId: 'KH-0087', customerName: 'Mạc Vy I', customerPhone: '0989012345' },
+                { id: 'ORD-2085', items: [{ name: 'Mì Ý Sốt Cà Chua', quantity: 10, price: 85000 }], totalPrice: 850000, status: 'pending', date: '2026-03-13', customerId: 'KH-0085', customerName: 'Tạ Quang J', customerPhone: '0901234567' },
+                { id: 'ORD-2082', items: [{ name: 'Lẩu Beef Premium', quantity: 5, price: 499000 }], totalPrice: 2495000, status: 'success', date: '2026-03-12', customerId: 'KH-0082', customerName: 'Cao Kỳ K', customerPhone: '0912340987' },
+                { id: 'ORD-2080', items: [{ name: 'Bánh Mỳ Thập Cẩm', quantity: 7, price: 85000 }, { name: 'Trà Ổi', quantity: 7, price: 30000 }], totalPrice: 1190000, status: 'success', date: '2026-03-11', customerId: 'KH-0080', customerName: 'Sơn Nơi L', customerPhone: '0923451098' },
+                { id: 'ORD-2078', items: [{ name: 'Nước Cam Tươi', quantity: 15, price: 30000 }], totalPrice: 450000, status: 'cancelled', date: '2026-03-10', customerId: 'KH-0078', customerName: 'Giang Hồ M', customerPhone: '0934562109' }
+            ];
+
+            const formatCurrency = function (value) {
+                return new Intl.NumberFormat('vi-VN').format(value || 0) + ' ₫';
+            };
+
+            const formatDate = function (dateString) {
+                const [year, month, day] = dateString.split('-');
+                return `${day}-${month}-${year}`;
+            };
+
+            // Populate orders table
+            const ordersBody = document.getElementById('orders-owner-body');
+            const ordersCount = document.getElementById('orders-owner-count');
+
+            if (ordersBody) {
+                ordersBody.innerHTML = dummyOrders.map(order => {
+                    const statusLabel = order.status === 'success' ? 'Hoàn thành' : order.status === 'pending' ? 'Đang xử lý' : order.status === 'waiting' ? 'Chờ xác nhận' : 'Bị hủy';
+                    const statusClass = `status-${order.status}`;
+                    const isWaiting = order.status === 'waiting';
+                    
+                    return `
+                        <tr style="cursor:pointer;" onclick="selectOrder('${order.id}')">
+                            <td>${order.id}</td>
+                            <td>${formatCurrency(order.totalPrice)}</td>
+                            <td><span class="order-status-badge ${statusClass}">${statusLabel}</span></td>
+                            <td style="color:var(--text-muted);">${formatDate(order.date)}</td>
+                            <td style="text-align:center;">
+                                <button class="btn-confirm-order" ${isWaiting ? '' : 'disabled'} onclick="confirmOrder('${order.id}', event)">
+                                    <i class="fa-solid fa-check"></i> Xác nhận
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                if (ordersCount) {
+                    ordersCount.textContent = dummyOrders.length + ' đơn';
+                }
+            }
+
+            // Order details display function
+            window.selectOrder = function (orderId) {
+                const order = dummyOrders.find(o => o.id === orderId);
+                const detailsEl = document.getElementById('orders-owner-details');
+
+                if (order && detailsEl) {
+                    const statusLabel = order.status === 'success' ? 'Hoàn thành' : order.status === 'pending' ? 'Đang xử lý' : order.status === 'waiting' ? 'Chờ xác nhận' : 'Bị hủy';
+                    const statusColor = order.status === 'success' ? '#22c55e' : order.status === 'pending' ? '#fbbf24' : order.status === 'waiting' ? '#3b82f6' : '#ef4444';
+
+                    detailsEl.innerHTML = `
+                        <div style="margin-bottom:20px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                <h4 style="font-size:14px; font-weight:700; margin:0;">${order.id}</h4>
+                                <span class="order-status-badge status-${order.status}">${statusLabel}</span>
+                            </div>
+
+                            <div style="margin-bottom:16px;">
+                                <p style="font-size:11px; font-weight:600; color:var(--text-muted); margin:0 0 8px 0; text-transform:uppercase;">Danh sách sản phẩm</p>
+                                <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                                    <thead style="background:rgba(0,0,0,0.02);">
+                                        <tr>
+                                            <th style="text-align:left; padding:8px 0; border-bottom:1px solid var(--border); font-weight:600;">Sản phẩm</th>
+                                            <th style="text-align:center; padding:8px 0; border-bottom:1px solid var(--border); font-weight:600; width:60px;">Số lượng</th>
+                                            <th style="text-align:right; padding:8px 0; border-bottom:1px solid var(--border); font-weight:600; width:80px;">Giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${order.items.map(item => `
+                                            <tr>
+                                                <td style="padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.04);">${item.name}</td>
+                                                <td style="text-align:center; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.04);">${item.quantity}</td>
+                                                <td style="text-align:right; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.04); font-weight:600;">${formatCurrency(item.price * item.quantity)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="padding:16px; background:rgba(59, 130, 246, 0.08); border-radius:8px; margin-bottom:16px; border-left:3px solid #3b82f6;">
+                                <p style="font-size:11px; font-weight:600; color:#3b82f6; margin:0 0 8px 0; text-transform:uppercase;">Thông tin khách hàng</p>
+                                <div style="display:grid; gap:8px;">
+                                    <div>
+                                        <p style="font-size:11px; color:var(--text-muted); margin:0 0 2px 0;">Mã khách hàng</p>
+                                        <p style="font-size:13px; font-weight:600; margin:0;">${order.customerId}</p>
+                                    </div>
+                                    <div>
+                                        <p style="font-size:11px; color:var(--text-muted); margin:0 0 2px 0;">Tên khách hàng</p>
+                                        <p style="font-size:13px; font-weight:600; margin:0;">${order.customerName}</p>
+                                    </div>
+                                    <div>
+                                        <p style="font-size:11px; color:var(--text-muted); margin:0 0 2px 0;">Số điện thoại</p>
+                                        <p style="font-size:13px; font-weight:600; margin:0;"><i class="fa-solid fa-phone" style="margin-right:6px; color:#3b82f6;"></i>${order.customerPhone}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:grid; gap:12px; margin-bottom:16px;">
+                                <div>
+                                    <p style="font-size:12px; color:var(--text-muted); margin:0 0 4px 0;">Ngày đặt</p>
+                                    <p style="font-size:14px; font-weight:600; margin:0;">${formatDate(order.date)}</p>
+                                </div>
+                            </div>
+
+                            <div style="padding:16px; background:${statusColor}15; border-left:3px solid ${statusColor}; border-radius:4px;">
+                                <p style="font-size:12px; color:var(--text-muted); margin:0 0 6px 0;">Tổng tiền</p>
+                                <p style="font-size:22px; font-weight:700; color:${statusColor}; margin:0;">${formatCurrency(order.totalPrice)}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            };
+
+            // Confirm order function
+            window.confirmOrder = function (orderId, event) {
+                event.stopPropagation();
+                alert(`Đơn hàng ${orderId} đã được xác nhận!`);
+            };
+
+            // Date filter functionality
+            let filteredOrders = [...dummyOrders];
+            let currentFilter = 'today';
+
+            const updateOrdersDisplay = function (orders) {
+                ordersBody.innerHTML = orders.map(order => {
+                    const statusLabel = order.status === 'success' ? 'Hoàn thành' : order.status === 'pending' ? 'Đang xử lý' : order.status === 'waiting' ? 'Chờ xác nhận' : 'Bị hủy';
+                    const statusClass = `status-${order.status}`;
+                    const isWaiting = order.status === 'waiting';
+                    
+                    return `
+                        <tr style="cursor:pointer;" onclick="selectOrder('${order.id}')">
+                            <td>${order.id}</td>
+                            <td>${formatCurrency(order.totalPrice)}</td>
+                            <td><span class="order-status-badge ${statusClass}">${statusLabel}</span></td>
+                            <td style="color:var(--text-muted);">${formatDate(order.date)}</td>
+                            <td style="text-align:center;">
+                                <button class="btn-confirm-order" ${isWaiting ? '' : 'disabled'} onclick="confirmOrder('${order.id}', event)">
+                                    <i class="fa-solid fa-check"></i> Xác nhận
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                if (ordersCount) {
+                    ordersCount.textContent = orders.length + ' đơn';
+                }
+            };
+
+            const getDateRange = function (filter) {
+                const today = new Date('2026-03-19');
+                const endDate = new Date(today);
+                let startDate = new Date(today);
+
+                if (filter === 'today') {
+                    startDate = new Date(today);
+                } else if (filter === 'week') {
+                    startDate.setDate(today.getDate() - 7);
+                } else if (filter === 'month') {
+                    startDate.setDate(today.getDate() - 30);
+                }
+
+                return { startDate, endDate };
+            };
+
+            const formatDateForComparison = function (date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const applyDateFilter = function (filter, customStart = null, customEnd = null) {
+                let startDate, endDate;
+
+                if (customStart && customEnd) {
+                    startDate = new Date(customStart);
+                    endDate = new Date(customEnd);
+                } else {
+                    const range = getDateRange(filter);
+                    startDate = range.startDate;
+                    endDate = range.endDate;
+                }
+
+                filteredOrders = dummyOrders.filter(order => {
+                    const orderDate = new Date(order.date);
+                    return orderDate >= startDate && orderDate <= endDate;
+                });
+
+                updateOrdersDisplay(filteredOrders);
+            };
+
+            // Event listeners for date filter buttons
+            document.querySelectorAll('.date-filter-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    currentFilter = filter;
+                    applyDateFilter(filter);
+                    
+                    // Clear custom date inputs
+                    document.getElementById('date-from').value = '';
+                    document.getElementById('date-to').value = '';
+                });
+            });
+
+            // Custom date range filter
+            document.getElementById('btn-filter-custom').addEventListener('click', function () {
+                const fromDate = document.getElementById('date-from').value;
+                const toDate = document.getElementById('date-to').value;
+
+                if (!fromDate || !toDate) {
+                    alert('Vui lòng chọn cả hai ngày!');
+                    return;
+                }
+
+                if (new Date(fromDate) > new Date(toDate)) {
+                    alert('Ngày bắt đầu không thể lớn hơn ngày kết thúc!');
+                    return;
+                }
+
+                // Remove active state from preset buttons
+                document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+                
+                applyDateFilter(null, fromDate, toDate);
+            });
+
+            // Search functionality
+            document.getElementById('orders-owner-search').addEventListener('input', function (e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                let searchResults = filteredOrders;
+                if (searchTerm) {
+                    searchResults = filteredOrders.filter(order => 
+                        order.id.toLowerCase().includes(searchTerm) ||
+                        order.customerName.toLowerCase().includes(searchTerm) ||
+                        order.customerId.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                updateOrdersDisplay(searchResults);
+            });
+        });
+    </script>
+</body>
+
+</html>

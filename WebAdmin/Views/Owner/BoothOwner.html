@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý gian hàng - Audio Travelling</title>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/layout.css">
+    <link rel="stylesheet" href="../../assets/css/booth-manager.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/theme-light.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- WaveSurfer.js -->
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <div style="display:flex; height:100vh; overflow:hidden;">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    Du Hý Đó <span>Đây</span>
+                    <small>Phố Ẩm Thực Khánh Hội</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <a class="nav-link" href="./DashboardOwner.html">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                </a>
+                <a class="nav-link active" href="./BoothOwner.html">
+                    <i class="fa-solid fa-store"></i> Quản lý gian hàng
+                </a>
+                <a class="nav-link" href="./FinanceOwner.html">
+                    <i class="fa-solid fa-coins"></i> Tài chính
+                </a>
+                <a class="nav-link" href="./PackageOwner.html">
+                    <i class="fa-solid fa-tags"></i> Gói dịch vụ
+                </a>
+                <a class="nav-link" href="./OrdersOwner.html">
+                    <i class="fa-solid fa-box-open"></i> Đơn hàng
+                </a>
+                <div class="nav-divider"></div>
+                <a class="nav-link" href="./SettingsOwner.html">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="Owner" class="sidebar-avatar">
+                    <div class="sidebar-user-info">
+                        <p id="sidebar-name" class="sidebar-user-name">Owner</p>
+                        <a href="../../index.html" class="btn-signout" style="text-decoration:none;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="top-header">
+                <h2>Quản lý gian hàng</h2>
+                <div></div>
+            </header>
+
+            <div class="content-wrapper">
+    <!-- Tab Navigation -->
+    <div style="display: flex; gap: 16px; margin-bottom: 32px; padding: 20px 0; border-bottom: 2px solid #f0f0f0;">
+        <a href="./BoothOwner.html" class="nav-tab active">
+            <i class="fa-solid fa-store"></i>
+            <span>Quản lý gian hàng</span>
+        </a>
+        <a href="./ProductOwner.html" class="nav-tab">
+            <i class="fa-solid fa-box"></i>
+            <span>Quản lý sản phẩm</span>
+        </a>
+    </div>
+
+    <!-- ════════════════════════════════════
+     TAB 1: BOOTH MANAGER
+     ════════════════════════════════════ -->
+    <div id="view-booths-admin" class="view-section active">
+
+        <!-- Top Bar -->
+        <div class="flex-between mb-4">
+            <div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:13px; color:var(--text-muted); font-weight:500;">Trạng thái:</span>
+                    <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:rgba(34,197,94,0.15); color:#22c55e; font-size:12px; font-weight:600;">
+                        <i class="fa-solid fa-circle" style="font-size:6px;"></i> Hoạt động
+                    </span>
+                </div>
+            </div>
+            <div>
+                <button id="btn-save-booth" class="btn-primary btn-ripple">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu gian hàng
+                </button>
+            </div>
+        </div>
+
+        <!-- 2-Column Layout: Chi tiết (left) | Phạm vi + Map (right) -->
+        <div style="display:flex; gap:20px; align-items:stretch; height:calc(100vh - 198px);">
+
+            <!-- LEFT: Chi tiết gian hàng (full height, scrollable) -->
+            <div class="glass-card booth-panel" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:0;">
+
+                <!-- Booth Details -->
+                <div class="booth-panel-title" style="margin-bottom:16px;">
+                    <i class="fa-solid fa-pen-ruler"></i> Chi tiết gian hàng
+                </div>
+
+                <div class="grid-2 mb-4">
+                    <div>
+                        <label class="form-label">Tên gian hàng</label>
+                        <input type="text" id="booth-name" class="form-input" placeholder="Nhập tên gian hàng">
+                    </div>
+                    <div>
+                        <label class="form-label">Công ty</label>
+                        <input type="text" id="booth-company" class="form-input" placeholder="Tên công ty">
+                    </div>
+                </div>
+
+                <div class="grid-2 mb-4">
+                    <div>
+                        <label class="form-label">Danh mục</label>
+                        <select id="booth-category" class="form-input form-select">
+                            <option value="Technology">Công nghệ</option>
+                            <option value="Food & Beverage">Thực phẩm & Đồ uống</option>
+                            <option value="Fashion">Thời trang</option>
+                            <option value="Health & Wellness">Sức khỏe & Thể chất</option>
+                            <option value="Education">Giáo dục</option>
+                            <option value="Art & Culture">Nghệ thuật & Văn hóa</option>
+                            <option value="Automotive">Ô tô</option>
+                            <option value="Other">Khác</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Gói dịch vụ</label>
+                        <select id="booth-tier" class="form-input form-select" disabled>
+                            <option value="Basic">Đơn giản</option>
+                            <option value="Gold" selected>Vàng</option>
+                            <option value="Diamond">Kim cương</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; padding:12px; background:rgba(255,255,255,0.04); border-radius:8px; border:1px solid var(--border);">
+                    <input type="checkbox" id="booth-hide" class="form-checkbox">
+                    <label for="booth-hide" class="form-label" style="margin-bottom:0; cursor:pointer;">Ẩn gian hàng khỏi công khai</label>
+                </div>
+
+                <hr style="border:none; border-top:1px solid var(--border); margin:8px 0 20px;">
+
+                <!-- Audio Editor -->
+                <div class="flex-between mb-4">
+                    <div class="booth-panel-title" style="margin-bottom:0;">
+                        <i class="fa-solid fa-headphones-simple"></i> Thuyết minh sản phẩm
+                    </div>
+                    <span id="audio-status" style="font-size:11px; color:var(--text-dim); background:rgba(255,255,255,0.04); padding:4px 10px; border-radius:6px;">
+                        Không có file
+                    </span>
+                </div>
+
+                <div class="audio-zone" style="margin-bottom:16px;">
+                    <div id="audio-upload-overlay" class="audio-upload-overlay">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p style="font-size:13px; font-weight:500; color:var(--text-muted);">Nhấn hoặc kéo thả file âm thanh vào đây</p>
+                        <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">MP3, WAV, OGG (Tối đa 15MB)</p>
+                        <input type="file" id="audio-input" accept="audio/*" class="hidden">
+                    </div>
+                    <div id="waveform" style="width:100%; height:80px; margin-bottom:12px;"></div>
+                    <div class="audio-controls">
+                        <div class="audio-playback">
+                            <button id="btn-play" class="btn-play-circle" disabled>
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button id="btn-stop" class="btn-icon" disabled style="border-radius:50%; width:36px; height:36px;">
+                                <i class="fa-solid fa-stop"></i>
+                            </button>
+                            <div class="volume-group">
+                                <i class="fa-solid fa-volume-low"></i>
+                                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                            </div>
+                        </div>
+                        <div class="time-display">
+                            <span id="time-current">0:00</span> / <span id="time-total">0:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-clear-audio" class="btn-danger-ghost hidden mt-2" style="margin-bottom:16px;">
+                    <i class="fa-solid fa-trash-can"></i> Xóa file
+                </button>
+
+                <div style="display:flex; gap:10px; margin-bottom:16px;">
+                    <button id="btn-delete-audio" class="btn-danger-ghost" style="flex:1;">
+                        <i class="fa-solid fa-trash-can"></i> Xóa
+                    </button>
+                    <button id="btn-save-audio" class="btn-primary" style="flex:1;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu
+                    </button>
+                </div>
+
+                <hr style="border:none; border-top:1px solid var(--border); margin:8px 0 20px;">
+
+                <!-- Script Editor -->
+                <div style="flex:1; position:relative;">
+                    <div class="flex-between mb-4">
+                        <div class="booth-panel-title" style="margin-bottom:0;">
+                            <i class="fa-solid fa-pen-nib"></i>
+                            <span id="script-title">Giới thiệu gian hàng</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <select id="lang-select" class="form-input form-select" style="width:auto; padding:6px 32px 6px 10px; font-size:12px;">
+                                <option value="VI">Tiếng Việt (VI)</option>
+                                <option value="EN" selected>Tiếng Anh (EN)</option>
+                                <option value="JA">Tiếng Nhật (JA)</option>
+                                <option value="FR">Tiếng Pháp (FR)</option>
+                                <option value="KO">Tiếng Hàn (KO)</option>
+                                <option value="ZH">Tiếng Trung (ZH)</option>
+                            </select>
+                            <button id="btn-ai-optimize" class="btn-ai pulse-glow">
+                                <i class="fa-solid fa-wand-magic-sparkles ai-icon"></i>
+                                <span class="ai-text">Tối ưu bằng AI</span>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="booth-script" class="form-input" rows="8" style="min-height:160px; width:100%;" placeholder="Viết kịch bản thuyết minh sản phẩm cho gian hàng này..."></textarea>
+                    <div class="flex-between mt-2">
+                        <span id="word-count" style="font-size:11px; color:var(--text-dim);">0 từ</span>
+                        <span id="last-saved-time" style="font-size:11px; color:var(--text-dim);">Chưa được lưu</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Phạm vi + Dummy Map Image -->
+            <div style="width:310px; display:flex; flex-direction:column; gap:20px; overflow-y:auto;">
+
+
+
+                <!-- Live Location Map -->
+                <div class="glass-card booth-panel" style="padding:12px; flex-shrink:0;">
+                    <div class="booth-panel-title" style="margin-bottom:12px;">
+                        <i class="fa-solid fa-map-location-dot"></i> Vị trí trên bản đồ
+                    </div>
+
+                    <!-- Lat / Lng inputs -->
+                    <div class="grid-2 mb-4">
+                        <div>
+                            <label class="form-label">Vĩ độ</label>
+                            <input type="number" step="0.000001" id="loc-lat" value="10.7680" class="form-input mono" placeholder="10.7680" disabled>
+                        </div>
+                        <div>
+                            <label class="form-label">Kinh độ</label>
+                            <input type="number" step="0.000001" id="loc-lng" value="106.7050" class="form-input mono" placeholder="106.7050" disabled>
+                        </div>
+                    </div>
+
+                    <!-- Radius buttons -->
+                    <div style="margin-bottom:14px;">
+                        <label class="form-label" style="margin-bottom:8px;"><i class="fa-solid fa-bullseye text-accent" style="margin-right:6px;"></i>Bán kính</label>
+                        <div style="display:flex; gap:8px;">
+                            <button class="loc-radius-btn" data-r="15" disabled style="flex:1; padding:7px 0; border-radius:8px; border:1.5px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text-muted); font-size:12px; font-weight:600; cursor:not-allowed; transition:.18s; opacity:0.5;">15m</button>
+                            <button class="loc-radius-btn loc-radius-active" data-r="30" style="flex:1; padding:7px 0; border-radius:8px; border:1.5px solid #6366f1; background:rgba(99,102,241,0.18); color:#a5b4fc; font-size:12px; font-weight:600; cursor:pointer; transition:.18s;">30m</button>
+                            <button class="loc-radius-btn" data-r="50" disabled style="flex:1; padding:7px 0; border-radius:8px; border:1.5px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text-muted); font-size:12px; font-weight:600; cursor:not-allowed; transition:.18s; opacity:0.5;">50m</button>
+                        </div>
+                    </div>
+
+                    <div id="location-map" style="width:100%; height:220px; border-radius:8px; overflow:hidden;"></div>
+                    <div id="location-map-coords" style="margin-top:8px; font-size:11px; color:var(--text-dim); font-family:monospace; text-align:center;">
+                        10.768000, 106.705000
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+     TAB 2: PRODUCT MANAGER
+     ════════════════════════════════════ -->
+    <div id="view-products" class="view-section" style="display: none;">
+        <div class="section-header">
+            <div>
+                <h3 class="section-title">Quản lý sản phẩm</h3>
+                <p class="section-subtitle">Thêm, chỉnh sửa và quản lý các sản phẩm trong cửa hàng của bạn</p>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 2; min-width: 250px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Tìm kiếm sản phẩm</label>
+                <input type="text" id="search-products" placeholder="Nhập tên sản phẩm..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s ease;">
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Danh mục</label>
+                <select id="filter-category" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s ease;">
+                    <option value="">Tất cả</option>
+                    <option value="Electronics">Điện tử</option>
+                    <option value="Food">Thực phẩm</option>
+                    <option value="Clothing">Quần áo</option>
+                    <option value="Books">Sách</option>
+                    <option value="Others">Khác</option>
+                </select>
+            </div>
+            <button onclick="openAddProductModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); transition: all 0.2s ease;">
+                <i class="fa-solid fa-plus"></i> Thêm sản phẩm
+            </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid">
+            <!-- Products will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" style="text-align: center; padding: 60px 20px; color: #9ca3af; display: none;">
+            <i class="fa-solid fa-box" style="font-size: 64px; display: block; margin-bottom: 16px; color: #d1d5db;"></i>
+            <p style="margin: 0; font-size: 16px; font-weight: 600;">Chưa có sản phẩm nào</p>
+        </div>
+    </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-title">Thêm sản phẩm mới</div>
+
+            <form id="product-form">
+                <div class="form-group">
+                    <label class="form-label">Tên sản phẩm</label>
+                    <input type="text" id="product-name" class="form-input" placeholder="Nhập tên sản phẩm" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Danh mục</label>
+                    <select id="product-category" class="form-input" required>
+                        <option value="">Chọn danh mục</option>
+                        <option value="Electronics">Điện tử</option>
+                        <option value="Food">Thực phẩm</option>
+                        <option value="Clothing">Quần áo</option>
+                        <option value="Books">Sách</option>
+                        <option value="Others">Khác</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Giá (₫)</label>
+                    <input type="number" id="product-price" class="form-input" placeholder="Nhập giá" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số lượng tồn kho</label>
+                    <input type="number" id="product-stock" class="form-input" placeholder="Nhập số lượng" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mô tả</label>
+                    <input type="text" id="product-description" class="form-input" placeholder="Nhập mô tả sản phẩm">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hình ảnh sản phẩm</label>
+                    <div class="image-upload-container">
+                        <input type="file" id="product-image" accept="image/*" class="image-input" onchange="previewProductImage(this)">
+                        <label for="product-image" class="image-upload-label">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Chọn hình ảnh hoặc kéo thả vào đây</span>
+                        </label>
+                        <div id="image-preview" class="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button type="button" class="remove-image-btn" onclick="removeProductImage()">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeProductModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        /* Navigation Tabs - Modern Underline Style */
+        .nav-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-tab i {
+            font-size: 18px;
+        }
+
+        .nav-tab:hover {
+            color: #3b82f6;
+            border-bottom-color: #cbd5e1;
+        }
+
+        .nav-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .booth-tab {
+            padding: 12px 24px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .booth-tab:hover {
+            color: #3b82f6;
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+
+        .booth-tab.active {
+            color: white;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 48px;
+            color: #cbd5e1;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .product-stock {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-icon {
+            flex: 1;
+            padding: 8px;
+            background-color: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .btn-icon:hover {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn-icon.delete:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #111827;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 10px;
+            background-color: #f3f4f6;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            position: relative;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 0;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-container:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        .image-input {
+            display: none;
+        }
+
+        .image-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-label i {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-label span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .image-upload-container:hover .image-upload-label i {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .image-upload-container:hover .image-upload-label span {
+            color: #3b82f6;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .remove-image-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Products Grid Layout */
+        #products-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+            gap: 20px !important;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* Ensure product cards display properly */
+        .product-card {
+            background: white !important;
+            border-radius: 12px !important;
+            border: 1px solid #e5e7eb !important;
+            padding: 16px !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+    </style>
+
+    <script src="../../assets/js/booth-manager.js"></script>
+    <script>
+        // Set active tab based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname;
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                const href = tab.getAttribute('href');
+                if (currentPage.includes('BoothOwner') && href.includes('BoothOwner')) {
+                    tab.classList.add('active');
+                } else if (currentPage.includes('ProductOwner') && href.includes('ProductOwner')) {
+                    tab.classList.add('active');
+                }
+            });
+        });
+
+        // Location map — syncs with its own lat/lng inputs and radius buttons
+        (function () {
+            var currentRadius = 30;
+
+            var lat = parseFloat(document.getElementById('loc-lat').value) || 10.7680;
+            var lng = parseFloat(document.getElementById('loc-lng').value) || 106.7050;
+
+            var locationMap = L.map('location-map', { zoomControl: true, attributionControl: false }).setView([lat, lng], 16);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(locationMap);
+
+            var marker = L.marker([lat, lng]).addTo(locationMap);
+            var circle = L.circle([lat, lng], {
+                radius: currentRadius,
+                color: '#6366f1',
+                fillColor: '#6366f1',
+                fillOpacity: 0.15,
+                weight: 2
+            }).addTo(locationMap);
+
+            function updateCoordsDisplay(la, ln) {
+                document.getElementById('location-map-coords').textContent = la.toFixed(6) + ', ' + ln.toFixed(6);
+            }
+
+            function syncMap() {
+                var la = parseFloat(document.getElementById('loc-lat').value);
+                var ln = parseFloat(document.getElementById('loc-lng').value);
+                if (isNaN(la) || isNaN(ln)) return;
+                marker.setLatLng([la, ln]);
+                circle.setLatLng([la, ln]);
+                circle.setRadius(currentRadius);
+                locationMap.setView([la, ln]);
+                updateCoordsDisplay(la, ln);
+            }
+
+            document.getElementById('loc-lat').addEventListener('input', syncMap);
+            document.getElementById('loc-lng').addEventListener('input', syncMap);
+
+            // Radius buttons
+            document.querySelectorAll('.loc-radius-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    currentRadius = parseInt(this.dataset.r);
+                    document.querySelectorAll('.loc-radius-btn').forEach(function (b) {
+                        b.style.border = '1.5px solid var(--border)';
+                        b.style.background = 'rgba(255,255,255,0.04)';
+                        b.style.color = 'var(--text-muted)';
+                    });
+                    this.style.border = '1.5px solid #6366f1';
+                    this.style.background = 'rgba(99,102,241,0.18)';
+                    this.style.color = '#a5b4fc';
+                    syncMap();
+                });
+            });
+
+            updateCoordsDisplay(lat, lng);
+            setTimeout(function () { locationMap.invalidateSize(); }, 200);
+        })();
+
+        // Tab switching function
+        window.switchTab = function(tabName, button) {
+            // Update button styles
+            document.querySelectorAll('.booth-tab').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+
+            // Show/hide sections
+            var boothSection = document.getElementById('view-booths-admin');
+            var productSection = document.getElementById('view-products');
+
+            if (tabName === 'booth') {
+                boothSection.style.display = 'block';
+                productSection.style.display = 'none';
+            } else if (tabName === 'products') {
+                boothSection.style.display = 'none';
+                productSection.style.display = 'block';
+                renderProducts();
+            }
+        };
+
+        // ═══════════════════════════════════
+        // PRODUCT MANAGEMENT FUNCTIONS
+        // ═══════════════════════════════════
+        let products = [
+            { id: 1, name: 'Loa Bluetooth Mini', category: 'Electronics', price: 250000, stock: 15, description: 'Loa di động chất lượng cao' },
+            { id: 2, name: 'Tai nghe Không dây', category: 'Electronics', price: 450000, stock: 8, description: 'Tai nghe chống ồn chủ động' },
+            { id: 3, name: 'Micro USB', category: 'Electronics', price: 150000, stock: 25, description: 'Cáp sạc nhanh' },
+            { id: 4, name: 'Bàn phím Cơ', category: 'Electronics', price: 800000, stock: 5, description: 'Bàn phím RGB gaming' },
+            { id: 5, name: 'Chuột Wireless', category: 'Electronics', price: 200000, stock: 20, description: 'Chuột không dây chính xác' },
+            { id: 6, name: 'Cà phê Espresso', category: 'Food', price: 45000, stock: 50, description: 'Hạt cà phê nhập khẩu' }
+        ];
+
+        let editingProductId = null;
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (products.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${Number(product.price).toLocaleString('vi-VN')} ₫</div>
+                    <div class="product-stock">Tồn kho: ${product.stock}</div>
+                    <div class="product-actions">
+                        <button class="btn-icon" onclick="editProduct(${product.id})">
+                            <i class="fa-solid fa-pen"></i> Sửa
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteProduct(${product.id})">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.openAddProductModal = function() {
+            editingProductId = null;
+            document.getElementById('modal-title').textContent = 'Thêm sản phẩm mới';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-modal').classList.add('active');
+        };
+
+        window.closeProductModal = function() {
+            document.getElementById('product-modal').classList.remove('active');
+            document.getElementById('product-form').reset();
+            window.removeProductImage();
+        };
+
+        window.previewProductImage = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('image-preview');
+                    const previewImg = document.getElementById('preview-img');
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'flex';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.removeProductImage = function() {
+            document.getElementById('product-image').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('preview-img').src = '';
+        };
+
+        window.editProduct = function(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('modal-title').textContent = 'Chỉnh sửa sản phẩm';
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-category').value = product.category;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-stock').value = product.stock;
+            document.getElementById('product-description').value = product.description;
+            document.getElementById('product-modal').classList.add('active');
+        };
+
+        window.deleteProduct = function(id) {
+            if (confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) {
+                products = products.filter(p => p.id !== id);
+                renderProducts();
+            }
+        };
+
+        // Form submission
+        document.getElementById('product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('product-name').value;
+            const category = document.getElementById('product-category').value;
+            const price = parseInt(document.getElementById('product-price').value);
+            const stock = parseInt(document.getElementById('product-stock').value);
+            const description = document.getElementById('product-description').value;
+
+            if (editingProductId) {
+                const product = products.find(p => p.id === editingProductId);
+                if (product) {
+                    product.name = name;
+                    product.category = category;
+                    product.price = price;
+                    product.stock = stock;
+                    product.description = description;
+                }
+            } else {
+                const newId = Math.max(...products.map(p => p.id), 0) + 1;
+                products.push({
+                    id: newId,
+                    name,
+                    category,
+                    price,
+                    stock,
+                    description
+                });
+            }
+
+            closeProductModal();
+            renderProducts();
+        });
+
+        // Search functionality
+        document.getElementById('search-products').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const categoryFilter = document.getElementById('filter-category').value;
+
+            const filtered = products.filter(product =>
+                (product.name.toLowerCase().includes(searchTerm) || searchTerm === '') &&
+                (product.category === categoryFilter || categoryFilter === '')
+            );
+
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${Number(product.price).toLocaleString('vi-VN')} ₫</div>
+                    <div class="product-stock">Tồn kho: ${product.stock}</div>
+                    <div class="product-actions">
+                        <button class="btn-icon" onclick="editProduct(${product.id})">
+                            <i class="fa-solid fa-pen"></i> Sửa
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteProduct(${product.id})">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        // Category filter
+        document.getElementById('filter-category').addEventListener('change', function() {
+            const searchTerm = document.getElementById('search-products').value.toLowerCase();
+            const categoryFilter = this.value;
+
+            const filtered = products.filter(product =>
+                (product.name.toLowerCase().includes(searchTerm) || searchTerm === '') &&
+                (product.category === categoryFilter || categoryFilter === '')
+            );
+
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${Number(product.price).toLocaleString('vi-VN')} ₫</div>
+                    <div class="product-stock">Tồn kho: ${product.stock}</div>
+                    <div class="product-actions">
+                        <button class="btn-icon" onclick="editProduct(${product.id})">
+                            <i class="fa-solid fa-pen"></i> Sửa
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteProduct(${product.id})">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('product-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProductModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
