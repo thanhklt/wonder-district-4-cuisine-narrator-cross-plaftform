@@ -1,0 +1,68 @@
+<!-- Admin: Package Management -->
+<div id="view-package-management" class="view-section" style="display:none;">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Quản lý gói đăng ký</h3>
+            <p class="section-subtitle">Tạo và quản lý các gói đăng ký cho Owner</p>
+        </div>
+        <button class="btn-primary btn-ripple" id="btn-create-package">
+            <i class="fa-solid fa-plus"></i> Tạo gói mới
+        </button>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Tên gói</th>
+                    <th style="text-align:center;">Bán kính POI (m)</th>
+                    <th style="text-align:center;">Độ ưu tiên</th>
+                    <th style="text-align:right;">Giá</th>
+                    <th>Mô tả</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="package-table-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Package Modal -->
+    <div id="modal-package" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3 id="modal-package-title" style="font-size:18px; font-weight:700; margin-bottom:20px;">
+                Tạo gói mới
+            </h3>
+            <form id="package-form" onsubmit="return false;">
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;font-size:13px;font-weight:600;">Tên gói</label>
+                    <input type="text" id="pkg-name" class="input-field" placeholder="Nhập tên gói" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);" />
+                </div>
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;font-size:13px;font-weight:600;">Bán kính (mét)</label>
+                    <input type="number" id="pkg-radius" class="input-field" placeholder="Bán kính POI" min="1" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);" />
+                </div>
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;font-size:13px;font-weight:600;">Độ ưu tiên</label>
+                    <input type="number" id="pkg-priority" class="input-field" placeholder="Ví dụ: 0, 1, 2" min="0" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);" />
+                </div>
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;font-size:13px;font-weight:600;">Giá</label>
+                    <input type="number" id="pkg-price" class="input-field" placeholder="Giá" min="0" step="1000" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);" />
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label style="display:block;margin-bottom:5px;font-size:13px;font-weight:600;">Mô tả</label>
+                    <textarea id="pkg-description" class="input-field" placeholder="Mô tả gói đăng ký" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);"></textarea>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-ghost" id="btn-cancel-package">Hủy</button>
+                    <button type="button" class="btn-primary btn-ripple" id="btn-save-package">
+                        <i class="fa-solid fa-check"></i> Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

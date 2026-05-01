@@ -34,7 +34,7 @@
                     '<div style="display:flex;align-items:center;gap:12px;">' +
                     '<i class="fa-solid ' + icon + '" style="font-size:20px;color:var(--text-muted);"></i>' +
                     '<div><h4 style="font-size:15px;font-weight:600;">' + p.name + '</h4>' +
-                    '<p style="font-size:12px;color:var(--text-dim);">' + p.address + '</p></div></div>' +
+                    '</div></div>' +
                     '<span class="status-badge status-' + p.status + '">' + p.status + '</span></div>' +
                     '<div style="margin-top:12px;display:flex;gap:16px;font-size:12px;color:var(--text-dim);">' +
                     '<span><i class="fa-solid fa-calendar"></i> Tạo: ' + Fmt.date(p.createdAt) + '</span>' +

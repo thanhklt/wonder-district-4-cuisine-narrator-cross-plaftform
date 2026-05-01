@@ -58,6 +58,15 @@
             navLabel: 'Duyệt POI',
             navKey: 'nav-poi-approval'
         },
+        'view-package-management': {
+            viewId: 'view-package-management',
+            role: Roles.ADMIN,
+            title: 'Quản lý gói đăng ký',
+            initFn: 'initPackageManagement',
+            navIcon: 'fa-solid fa-box',
+            navLabel: 'Quản lý gói đăng ký',
+            navKey: 'nav-package-management'
+        },
 
 
         // ── Owner Routes ──
