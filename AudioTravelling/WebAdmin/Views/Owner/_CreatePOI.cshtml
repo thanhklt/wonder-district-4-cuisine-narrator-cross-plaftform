@@ -1,0 +1,46 @@
+<!-- Owner: Create / Edit POI -->
+<div id="view-create-poi" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title" id="create-poi-title">Tạo POI mới</h3>
+            <p class="section-subtitle">Nhập thông tin điểm tham quan âm thanh</p>
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px; max-width:800px;">
+        <div class="poi-form-grid">
+            <div>
+                <label class="form-label">Tên POI *</label>
+                <input type="text" id="poi-name" class="form-input" placeholder="VD: Phở Hòa Pasteur">
+            </div>
+            <div class="full-width">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" id="poi-address" class="form-input" placeholder="VD: 260C Pasteur, Q.3">
+            </div>
+            <div class="full-width">
+                <label class="form-label">Mô tả</label>
+                <textarea id="poi-description" class="form-input" rows="4" placeholder="Mô tả chi tiết về điểm tham quan..."></textarea>
+            </div>
+            <div>
+                <label class="form-label">Vĩ độ (Latitude)</label>
+                <input type="number" step="0.000001" id="poi-lat" class="form-input mono" placeholder="10.7845">
+            </div>
+            <div>
+                <label class="form-label">Kinh độ (Longitude)</label>
+                <input type="number" step="0.000001" id="poi-lng" class="form-input mono" placeholder="106.6912">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+            <button class="btn-ghost" id="btn-cancel-poi">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại
+            </button>
+            <button class="btn-ghost btn-ripple" id="btn-save-poi">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu nháp
+            </button>
+            <button class="btn-primary btn-ripple" id="btn-save-and-submit-poi">
+                <i class="fa-solid fa-paper-plane"></i> Lưu & Gửi duyệt
+            </button>
+        </div>
+    </div>
+</div>

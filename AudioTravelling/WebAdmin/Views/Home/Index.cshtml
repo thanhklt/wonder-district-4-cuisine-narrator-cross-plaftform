@@ -1,34 +1,26 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Tổng quan";
+    ViewData["Title"] = "Portal";
 }
 
 <!-- ════════════════════════════════════
-     SCREEN 1: DASHBOARD OVERVIEW
+     ADMIN VIEWS
      ════════════════════════════════════ -->
 <partial name="~/Views/Dashboard/_DashboardAdmin.cshtml" />
+<partial name="~/Views/Admin/_Heatmap.cshtml" />
+<partial name="~/Views/Admin/_QRManagement.cshtml" />
+<partial name="~/Views/Admin/_POIApproval.cshtml" />
+
+
+<!-- ════════════════════════════════════
+     OWNER VIEWS
+     ════════════════════════════════════ -->
 <partial name="~/Views/Dashboard/_DashboardOwner.cshtml" />
+<partial name="~/Views/Owner/_MyPOIs.cshtml" />
+<partial name="~/Views/Owner/_CreatePOI.cshtml" />
+<partial name="~/Views/Owner/_POIStatus.cshtml" />
 
 <!-- ════════════════════════════════════
-     SCREEN 2: BOOTH MANAGER
+     SHARED
      ════════════════════════════════════ -->
-<partial name="~/Views/Booth/_BoothManager.cshtml" />
-<partial name="~/Views/Booth/_BoothInformation.cshtml" />
-
-<!-- ════════════════════════════════════
-     SCREEN 3: FINANCE & COMMISSION
-     ════════════════════════════════════ -->
-<partial name="~/Views/CustomerManagement/_CustomerManagement.cshtml" />
-<partial name="~/Views/Finance/_FinanceOwner.cshtml" />
-
-<!-- ════════════════════════════════════
-     4. SUBSCRIPTION PLANS
-     ════════════════════════════════════ -->
-<partial name="~/Views/Subscription/_Subscription.cshtml" />
-
-<partial name="~/Views/Order/_OrdersOwner.cshtml" />
-
-<!-- ════════════════════════════════════
-     SCREEN 5: ADMIN PROFILE & SETTINGS
-     ════════════════════════════════════ -->
-<partial name="~/Views/Settings/_Settings.cshtml" />
+<partial name="~/Views/Shared/_403.cshtml" />

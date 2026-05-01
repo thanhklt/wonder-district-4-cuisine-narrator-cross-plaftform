@@ -1,0 +1,45 @@
+<!-- Admin: POI Approval -->
+<div id="view-poi-approval" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Duyệt POI</h3>
+            <p class="section-subtitle">Xem và duyệt các POI đang chờ phê duyệt từ Owner</p>
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã POI</th>
+                    <th>Tên POI</th>
+                    <th>Chủ cửa hàng</th>
+                    <th>Ngày gửi</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="poi-approval-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Reject Modal -->
+    <div id="modal-reject-poi" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:20px;">
+                <i class="fa-solid fa-circle-xmark" style="color:#ef4444; margin-right:8px;"></i>Từ chối POI
+            </h3>
+            <div class="mb-4">
+                <label class="form-label">Lý do từ chối</label>
+                <textarea id="reject-reason" class="form-input" rows="4" placeholder="Nhập lý do từ chối..."></textarea>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="btn-ghost" id="btn-cancel-reject">Hủy</button>
+                <button class="btn-danger-ghost" id="btn-confirm-reject" style="padding:10px 20px;">
+                    <i class="fa-solid fa-xmark"></i> Xác nhận từ chối
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

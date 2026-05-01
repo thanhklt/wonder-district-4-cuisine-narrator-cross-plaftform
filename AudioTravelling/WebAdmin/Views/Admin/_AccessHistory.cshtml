@@ -1,0 +1,39 @@
+<!-- Admin: Access History -->
+<div id="view-access-history" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Lịch sử truy cập</h3>
+            <p class="section-subtitle">Xem lịch sử truy cập của người dùng qua mã QR</p>
+        </div>
+        <span style="font-size:13px; color:var(--text-dim);" id="history-count">0 bản ghi</span>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-controls">
+        <label class="form-label" style="margin:0;">Từ</label>
+        <input type="date" id="filter-history-from" class="form-input" style="width:160px; padding:8px 10px;">
+        <label class="form-label" style="margin:0;">Đến</label>
+        <input type="date" id="filter-history-to" class="form-input" style="width:160px; padding:8px 10px;">
+        <button class="btn-primary" id="btn-filter-history" style="font-size:13px;">
+            <i class="fa-solid fa-filter"></i> Lọc
+        </button>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>QR đã quét</th>
+                    <th>POI truy cập</th>
+                    <th>Khu vực</th>
+                    <th>Thiết bị</th>
+                    <th>Thời lượng</th>
+                </tr>
+            </thead>
+            <tbody id="access-history-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<!-- Admin: Realtime Access -->
+<div id="view-realtime-access" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Truy cập thời gian thực</h3>
+            <p class="section-subtitle">Theo dõi các phiên truy cập đang hoạt động trên hệ thống</p>
+        </div>
+        <div class="glass-card" style="padding:12px 20px; display:inline-flex; align-items:center; gap:8px;">
+            <div style="width:10px; height:10px; border-radius:50%; background:#22c55e; animation: pulse 2s infinite;"></div>
+            <span style="font-size:14px; font-weight:600;" id="realtime-session-count">0</span>
+            <span style="font-size:13px; color:var(--text-dim);">phiên đang hoạt động</span>
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>QR đã quét</th>
+                    <th>POI đang xem</th>
+                    <th>Thời gian bắt đầu</th>
+                    <th>Hoạt động cuối</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="realtime-sessions-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+</style>

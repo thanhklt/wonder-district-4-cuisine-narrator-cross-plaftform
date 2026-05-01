@@ -1,0 +1,29 @@
+<!-- Owner: My POIs -->
+<div id="view-my-pois" class="view-section">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">POI của tôi</h3>
+            <p class="section-subtitle">Quản lý các điểm tham quan âm thanh của bạn</p>
+        </div>
+        <button class="btn-primary btn-ripple" onclick="AudioTravelling.Core.Router.navigate('view-create-poi')">
+            <i class="fa-solid fa-plus"></i> Tạo POI mới
+        </button>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên POI</th>
+                    <th>Trạng thái</th>
+                    <th>Cập nhật</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="my-pois-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
