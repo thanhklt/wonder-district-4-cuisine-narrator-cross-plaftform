@@ -15,20 +15,172 @@
     var UI = AT.Core.UI;
 
     /**
-     * TODO: Replace mock accounts with real API authentication.
-     * When backend is ready, doLogin should call POST /api/auth/login
-     * and parse JWT token for role information.
+     * API base URL
+     * Vì API của bạn đang chạy ở port 5000
+     */
+    var API_BASE_URL = 'http://localhost:5264/api';
+
+    /**
+     * Dev offline mode
+     * false = dùng API thật
+     * true  = dùng mock account
+     */
+    window.AT_USE_MOCK = window.AT_USE_MOCK || false;
+
+    /**
+     * Mock accounts chỉ dùng khi window.AT_USE_MOCK = true
      */
     var MOCK_ACCOUNTS = [
-        { name: 'Admin User', email: 'admin@audiotravelling.com', password: btoa('admin123'), role: Roles.ADMIN },
-        { name: 'POI Owner', email: 'owner@audiotravelling.com', password: btoa('owner123'), role: Roles.OWNER }
+        {
+            userId: 1,
+            name: 'Admin User',
+            email: 'admin@audiotravelling.com',
+            password: btoa('admin123'),
+            role: Roles.ADMIN
+        },
+        {
+            userId: 2,
+            name: 'POI Owner',
+            email: 'owner@audiotravelling.com',
+            password: btoa('owner123'),
+            role: Roles.OWNER
+        }
     ];
 
-    function determineRole(email) {
+    /**
+     * Login bằng mock data
+     */
+    function loginWithMock(email, password) {
         var account = MOCK_ACCOUNTS.find(function (a) {
             return a.email.toLowerCase() === email.toLowerCase();
         });
-        return account ? account.role : null;
+
+        if (!account) {
+            return {
+                success: false,
+                error: 'Không tìm thấy tài khoản với email này.'
+            };
+        }
+
+        if (account.password !== btoa(password)) {
+            return {
+                success: false,
+                error: 'Sai mật khẩu.'
+            };
+        }
+
+        if (AT.Config.ALLOWED_ROLES.indexOf(account.role) === -1) {
+            return {
+                success: false,
+                error: 'Tài khoản của bạn không có quyền truy cập portal.'
+            };
+        }
+
+        var session = {
+            userId: account.userId,
+            name: account.name,
+            email: account.email,
+            role: account.role,
+            loggedIn: true,
+            token: 'mock-jwt-' + Date.now()
+        };
+
+        Storage.setSession(session);
+
+        return {
+            success: true,
+            session: session
+        };
+    }
+
+    /**
+     * Login bằng API thật
+     */
+    async function loginWithApi(email, password) {
+        try {
+            var response = await fetch(API_BASE_URL + '/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            if (response.status === 401) {
+                return {
+                    success: false,
+                    error: 'Sai email hoặc mật khẩu.'
+                };
+            }
+
+            if (response.status === 403) {
+                return {
+                    success: false,
+                    error: 'Tài khoản của bạn không có quyền truy cập portal.'
+                };
+            }
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: 'Đăng nhập thất bại. Vui lòng thử lại.'
+                };
+            }
+
+            var data = await response.json();
+
+            /**
+             * Backend nên trả về:
+             * {
+             *   userId: 1,
+             *   fullName: "Admin User",
+             *   email: "admin@gmail.com",
+             *   roleName: "Admin",
+             *   token: "..."
+             * }
+             */
+            var role = data.roleName;
+
+            if (!role) {
+                return {
+                    success: false,
+                    error: 'API chưa trả về roleName.'
+                };
+            }
+
+            if (AT.Config.ALLOWED_ROLES.indexOf(role) === -1) {
+                return {
+                    success: false,
+                    error: 'Tài khoản của bạn không có quyền truy cập portal.'
+                };
+            }
+
+            var session = {
+                userId: data.userId,
+                name: data.fullName || data.name || data.email,
+                email: data.email,
+                role: role,
+                loggedIn: true,
+                token: data.token
+            };
+
+            Storage.setSession(session);
+
+            return {
+                success: true,
+                session: session
+            };
+        } catch (err) {
+            console.error('Login API error:', err);
+
+            return {
+                success: false,
+                error: 'Không thể kết nối đến API. Hãy kiểm tra API đã chạy ở port 5000 chưa.'
+            };
+        }
     }
 
     AT.Core.Auth = {
@@ -42,43 +194,30 @@
         },
 
         /** Attempt login with email + password */
-        login: function (email, password) {
-            var account = MOCK_ACCOUNTS.find(function (a) {
-                return a.email.toLowerCase() === email.toLowerCase();
-            });
-
-            if (!account) {
-                return { success: false, error: 'Không tìm thấy tài khoản với email này.' };
+        login: async function (email, password) {
+            if (!email || !password) {
+                return {
+                    success: false,
+                    error: 'Vui lòng nhập email và mật khẩu.'
+                };
             }
 
-            if (account.password !== btoa(password)) {
-                return { success: false, error: 'Sai mật khẩu.' };
+            if (window.AT_USE_MOCK) {
+                return loginWithMock(email, password);
             }
 
-            // Check if role is allowed on portal
-            if (AT.Config.ALLOWED_ROLES.indexOf(account.role) === -1) {
-                return { success: false, error: 'Tài khoản của bạn không có quyền truy cập portal.' };
-            }
-
-            // Create session
-            var session = {
-                name: account.name,
-                email: account.email,
-                role: account.role,
-                loggedIn: true,
-                token: 'mock-jwt-' + Date.now() // TODO: Replace with real JWT
-            };
-
-            Storage.setSession(session);
-            return { success: true, session: session };
+            return await loginWithApi(email, password);
         },
 
         /** Logout — clear session, show auth screen */
         logout: function () {
             Storage.clearSession();
             UI.showAuthScreen();
+
             var loginForm = document.getElementById('form-login');
-            if (loginForm) loginForm.reset();
+            if (loginForm) {
+                loginForm.reset();
+            }
         },
 
         /** Get current session */
@@ -102,17 +241,21 @@
 
         _checkExistingSession: function () {
             var session = Storage.getSession();
+
             if (session && session.loggedIn) {
                 var role = session.role;
+
                 if (AT.Config.ALLOWED_ROLES.indexOf(role) === -1) {
                     this.logout();
                     return;
                 }
+
                 UI.showDashboardApp();
                 UI.updateSidebarUser(session.name);
                 UI.renderSidebar(role);
 
                 var defaultView = AT.Config.getDefaultView(role);
+
                 setTimeout(function () {
                     AT.Core.Router.navigate(defaultView);
                 }, 50);
@@ -122,9 +265,10 @@
         _bindLoginForm: function () {
             var self = this;
             var form = document.getElementById('form-login');
+
             if (!form) return;
 
-            form.addEventListener('submit', function (e) {
+            form.addEventListener('submit', async function (e) {
                 e.preventDefault();
 
                 var emailEl = document.getElementById('login-email');
@@ -138,49 +282,71 @@
                 var password = passwordEl ? passwordEl.value : '';
                 var remember = rememberEl ? rememberEl.checked : false;
 
-                if (errorEl) errorEl.classList.add('hidden');
+                if (errorEl) {
+                    errorEl.classList.add('hidden');
+                }
 
-                var result = self.login(email, password);
+                if (btn) {
+                    btn.disabled = true;
+
+                    var btnText = btn.querySelector('.auth-btn-text');
+                    if (btnText) {
+                        btnText.textContent = 'Đang đăng nhập...';
+                    }
+                }
+
+                var result = await self.login(email, password);
 
                 if (!result.success) {
-                    if (errorText) errorText.textContent = result.error;
-                    if (errorEl) errorEl.classList.remove('hidden');
+                    if (btn) {
+                        btn.disabled = false;
+
+                        var failBtnText = btn.querySelector('.auth-btn-text');
+                        if (failBtnText) {
+                            failBtnText.textContent = 'Đăng nhập';
+                        }
+                    }
+
+                    if (errorText) {
+                        errorText.textContent = result.error;
+                    }
+
+                    if (errorEl) {
+                        errorEl.classList.remove('hidden');
+                    }
+
                     return;
                 }
 
-                // Remember email
                 Storage.setRememberEmail(remember ? email : null);
 
-                // Show loading state
                 if (btn) {
-                    btn.disabled = true;
-                    var btnText = btn.querySelector('.auth-btn-text');
-                    if (btnText) btnText.textContent = 'Đang đăng nhập...';
+                    btn.disabled = false;
+
+                    var successBtnText = btn.querySelector('.auth-btn-text');
+                    if (successBtnText) {
+                        successBtnText.textContent = 'Đăng nhập';
+                    }
                 }
 
-                setTimeout(function () {
-                    if (btn) {
-                        btn.disabled = false;
-                        var btnText = btn.querySelector('.auth-btn-text');
-                        if (btnText) btnText.textContent = 'Đăng nhập';
-                    }
+                var session = result.session;
 
-                    var session = result.session;
-                    UI.showDashboardApp();
-                    UI.updateSidebarUser(session.name);
-                    UI.renderSidebar(session.role);
+                UI.showDashboardApp();
+                UI.updateSidebarUser(session.name);
+                UI.renderSidebar(session.role);
 
-                    var defaultView = AT.Config.getDefaultView(session.role);
-                    AT.Core.Router.navigate(defaultView);
+                var defaultView = AT.Config.getDefaultView(session.role);
+                AT.Core.Router.navigate(defaultView);
 
-                    UI.showToast('Chào mừng trở lại, ' + session.name.split(' ')[0] + '!', 'success');
-                }, 600);
+                var firstName = session.name ? session.name.split(' ')[0] : 'bạn';
+                UI.showToast('Chào mừng trở lại, ' + firstName + '!', 'success');
             });
         },
 
         _bindLogout: function () {
             var self = this;
             var btn = document.getElementById('btn-logout');
+
             if (btn) {
                 btn.addEventListener('click', function () {
                     self.logout();
@@ -194,7 +360,9 @@
                     var targetId = btn.getAttribute('data-target');
                     var input = document.getElementById(targetId);
                     var icon = btn.querySelector('i');
+
                     if (!input || !icon) return;
+
                     if (input.type === 'password') {
                         input.type = 'text';
                         icon.className = 'fa-solid fa-eye-slash';
@@ -210,9 +378,13 @@
             var savedEmail = Storage.getRememberEmail();
             var emailInput = document.getElementById('login-email');
             var rememberCheck = document.getElementById('login-remember');
+
             if (savedEmail && emailInput) {
                 emailInput.value = savedEmail;
-                if (rememberCheck) rememberCheck.checked = true;
+
+                if (rememberCheck) {
+                    rememberCheck.checked = true;
+                }
             }
         }
     };

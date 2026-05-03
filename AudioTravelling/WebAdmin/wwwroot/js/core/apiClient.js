@@ -15,7 +15,7 @@
     AT.Core = AT.Core || {};
 
     // TODO: Replace with real API base URL from config
-    var BASE_URL = '/api';
+    var BASE_URL = 'http://localhost:5264/api';
 
     function getAuthHeaders() {
         var session = AT.Core.Storage.getSession();
