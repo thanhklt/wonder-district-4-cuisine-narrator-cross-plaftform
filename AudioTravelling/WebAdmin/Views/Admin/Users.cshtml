@@ -1,0 +1,88 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<!-- Admin: User Management -->
+<div id="view-users" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Quản lý người dùng</h3>
+            <p class="section-subtitle">Quản lý tài khoản, vai trò và trạng thái người dùng trong hệ thống</p>
+        </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <select id="filter-user-role" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
+            <option value="">Tất cả vai trò</option>
+            <option value="Admin">Admin</option>
+            <option value="Owner">Owner</option>
+        </select>
+        <select id="filter-user-status" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="locked">Đã khóa</option>
+        </select>
+        <div style="position:relative;flex:1;max-width:320px;">
+            <i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;"></i>
+            <input type="text" id="search-user" class="form-input" placeholder="Tìm theo tên hoặc email..."
+                   style="width:100%;padding:8px 10px 8px 34px;font-size:13px;">
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Action Legend -->
+    <div style="margin-top:12px;font-size:12px;color:var(--text-dim);display:flex;gap:16px;flex-wrap:wrap;">
+        <span><i class="fa-solid fa-eye"></i> Xem chi tiết</span>
+        <span><i class="fa-solid fa-lock"></i> Khóa / Mở khóa</span>
+        <span><i class="fa-solid fa-user-gear"></i> Đổi vai trò</span>
+        <span><i class="fa-solid fa-key"></i> Reset mật khẩu</span>
+    </div>
+</div>
+
+<!-- User Detail Modal -->
+<div id="modal-user-detail" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:480px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;">
+                <i class="fa-solid fa-user text-accent" style="margin-right:8px;"></i>Chi tiết tài khoản
+            </h3>
+            <button class="btn-ghost" id="btn-close-user-detail" style="font-size:14px;padding:6px 10px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="user-detail-content">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initUserManagement) {
+                AudioTravelling.Modules.initUserManagement();
+            }
+        });
+    </script>
+}

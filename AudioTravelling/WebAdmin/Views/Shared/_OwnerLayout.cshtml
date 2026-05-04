@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Travelling — Owner Portal</title>
+    <meta name="description"
+          content="Audio Travelling Owner Portal - Quản lý POI của bạn">
+
+    <!-- Portal Guard — MUST load first to redirect unauthorized users -->
+    <script src="~/js/core/portalGuard.js" data-portal="owner"></script>
+
+    <!-- Design System - Owner CSS only (no auth.css, no admin.css) -->
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/layout.css">
+    <link rel="stylesheet" href="~/css/dashboard.css">
+    <link rel="stylesheet" href="~/css/misc.css">
+    <link rel="stylesheet" href="~/css/theme-light.css">
+    <link rel="stylesheet" href="~/css/owner.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════
+         OWNER DASHBOARD APP
+         ═══════════════════════════════════════ -->
+    <div id="dashboard-app" style="height:100vh;">
+
+        <div style="display:flex; height:100vh; overflow:hidden;">
+
+            <!-- ── SIDEBAR (Owner only) ── -->
+            <aside class="sidebar" id="app-sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-headphones"></i>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        Du Hí <span>Đó Đây</span>
+                        <small>Owner Portal</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav" id="sidebar-nav">
+                    <a class="nav-link" href="/owner" data-path="/owner">
+                        <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                    </a>
+                    <a class="nav-link" href="/owner/pois" data-path="/owner/pois">
+                        <i class="fa-solid fa-location-dot"></i> Quản lý POI
+                    </a>
+                    <a class="nav-link" href="/owner/pois/create" data-path="/owner/pois/create">
+                        <i class="fa-solid fa-plus-circle"></i> Tạo POI
+                    </a>
+                    <a class="nav-link" href="/owner/pois/status" data-path="/owner/pois/status">
+                        <i class="fa-solid fa-list-check"></i> Trạng thái POI
+                    </a>
+                    <a class="nav-link" href="/owner/profile" data-path="/owner/profile">
+                        <i class="fa-solid fa-user"></i> Hồ sơ
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="User"
+                             class="sidebar-avatar">
+                        <div class="sidebar-user-info">
+                            <p id="sidebar-name" class="sidebar-user-name">Owner</p>
+                            <button id="btn-logout" class="btn-signout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ── MAIN CONTENT ── -->
+            <main class="main-area">
+                <!-- Top Header Bar -->
+                <header class="top-header">
+                    <h2 id="header-title">Owner Portal</h2>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                    </div>
+                </header>
+
+                <!-- Scrollable Content -->
+                <div class="content-wrapper">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCRIPTS — Owner Portal only
+         ═══════════════════════════════════════ -->
+
+    <!-- 1. Config -->
+    <script src="~/js/config/roles.js"></script>
+    <script src="~/js/config/routes.js"></script>
+
+    <!-- 2. Core -->
+    <script src="~/js/core/storage.js"></script>
+    <script src="~/js/core/apiClient.js"></script>
+    <script src="~/js/core/ui.js"></script>
+    <script src="~/js/core/auth.js"></script>
+    <script src="~/js/core/roleGuard.js"></script>
+    <script src="~/js/core/router.js"></script>
+
+    <!-- 3. Mocks -->
+    <script src="~/js/mocks/mockData.js"></script>
+
+    <!-- 4. Services -->
+    <script src="~/js/services/poiService.js"></script>
+
+    <!-- 5. Utils -->
+    <script src="~/js/utils/formatters.js"></script>
+    <script src="~/js/utils/validators.js"></script>
+
+    <!-- 6. Owner Modules ONLY (no admin modules loaded) -->
+    <script src="~/js/modules/owner/ownerDashboard.js"></script>
+    <script src="~/js/modules/owner/myPois.js"></script>
+    <script src="~/js/modules/owner/createPoi.js"></script>
+    <script src="~/js/modules/owner/poiStatus.js"></script>
+
+    <!-- 7. Owner App Bootstrap -->
+    <script src="~/js/appOwner.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

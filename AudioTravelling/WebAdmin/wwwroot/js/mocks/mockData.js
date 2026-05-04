@@ -62,4 +62,26 @@
         pendingPOIs: 2
     };
 
+    // ── Mock User Profiles (Hồ sơ người dùng) ──
+    // TODO: Replace with real API (GET /api/admin/user-profiles)
+    AT.Mocks.UserProfiles = [
+        { id: 'USR-001', fullName: 'Nguyễn Văn An', email: 'admin@audiotravelling.com', role: 'Admin', phone: '0901234567', status: 'active', avatar: 'https://i.pravatar.cc/150?img=11', address: '123 Nguyễn Huệ, Q.1, TP.HCM', bio: 'Quản trị viên hệ thống Audio Travelling.', createdAt: '2025-12-01T08:00:00' },
+        { id: 'USR-002', fullName: 'Trần Thị Bình', email: 'owner@audiotravelling.com', role: 'Owner', phone: '0912345678', status: 'active', avatar: 'https://i.pravatar.cc/150?img=5', address: '456 Lê Lợi, Q.3, TP.HCM', bio: 'Chủ quán Phở Hòa Pasteur, đam mê ẩm thực truyền thống.', createdAt: '2026-01-15T10:00:00' },
+        { id: 'USR-003', fullName: 'Lê Hoàng Cường', email: 'owner2@audiotravelling.com', role: 'Owner', phone: '0923456789', status: 'active', avatar: 'https://i.pravatar.cc/150?img=8', address: '789 Hai Bà Trưng, Q.1, TP.HCM', bio: 'Chủ chuỗi quán chè Thái và hủ tiếu Nam Vang.', createdAt: '2026-02-10T14:00:00' },
+        { id: 'USR-004', fullName: 'Phạm Minh Đức', email: 'admin2@audiotravelling.com', role: 'Admin', phone: '0934567890', status: 'active', avatar: 'https://i.pravatar.cc/150?img=12', address: '321 Võ Văn Tần, Q.3, TP.HCM', bio: 'Quản trị viên nội dung và duyệt POI.', createdAt: '2026-01-20T09:00:00' },
+        { id: 'USR-005', fullName: 'Hoàng Thị Em', email: 'owner3@audiotravelling.com', role: 'Owner', phone: '0945678901', status: 'locked', avatar: 'https://i.pravatar.cc/150?img=9', address: '654 Cách Mạng Tháng 8, Q.10, TP.HCM', bio: 'Chủ quán bánh mì và cơm tấm.', createdAt: '2026-03-05T11:00:00' },
+        { id: 'USR-006', fullName: 'Võ Thanh Phong', email: 'owner4@audiotravelling.com', role: 'Owner', phone: '0956789012', status: 'active', avatar: 'https://i.pravatar.cc/150?img=15', address: '987 Trần Hưng Đạo, Q.5, TP.HCM', bio: 'Chủ quán bún bò Huế và bún chả Hà Nội.', createdAt: '2026-03-18T16:00:00' }
+    ];
+
+    // ── Mock Users (Quản lý người dùng / tài khoản) ──
+    // TODO: Replace with real API (GET /api/admin/users)
+    AT.Mocks.Users = [
+        { id: 'USR-001', fullName: 'Nguyễn Văn An', email: 'admin@audiotravelling.com', role: 'Admin', status: 'active', createdAt: '2025-12-01T08:00:00', lastLogin: '2026-05-04T07:30:00' },
+        { id: 'USR-002', fullName: 'Trần Thị Bình', email: 'owner@audiotravelling.com', role: 'Owner', status: 'active', createdAt: '2026-01-15T10:00:00', lastLogin: '2026-05-03T22:15:00' },
+        { id: 'USR-003', fullName: 'Lê Hoàng Cường', email: 'owner2@audiotravelling.com', role: 'Owner', status: 'active', createdAt: '2026-02-10T14:00:00', lastLogin: '2026-05-04T06:45:00' },
+        { id: 'USR-004', fullName: 'Phạm Minh Đức', email: 'admin2@audiotravelling.com', role: 'Admin', status: 'active', createdAt: '2026-01-20T09:00:00', lastLogin: '2026-05-03T18:00:00' },
+        { id: 'USR-005', fullName: 'Hoàng Thị Em', email: 'owner3@audiotravelling.com', role: 'Owner', status: 'locked', createdAt: '2026-03-05T11:00:00', lastLogin: '2026-04-20T10:00:00' },
+        { id: 'USR-006', fullName: 'Võ Thanh Phong', email: 'owner4@audiotravelling.com', role: 'Owner', status: 'active', createdAt: '2026-03-18T16:00:00', lastLogin: '2026-05-04T08:00:00' }
+    ];
+
 })();

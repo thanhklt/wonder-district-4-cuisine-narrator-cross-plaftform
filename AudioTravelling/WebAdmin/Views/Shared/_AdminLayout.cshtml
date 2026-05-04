@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vn" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHỐ ẨM THỰC VĨNH KHÁNH</title>
+    <meta name="description"
+          content="Audio Travelling Admin Portal - Quản lý POI, mã QR và thống kê truy cập hệ thống">
+
+    <!-- Portal Guard — MUST load first to redirect unauthorized users -->
+    <script src="~/js/core/portalGuard.js" data-portal="admin"></script>
+
+    <!-- Design System - Admin CSS only (no auth.css, no owner.css) -->
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/layout.css">
+    <link rel="stylesheet" href="~/css/dashboard.css">
+    <link rel="stylesheet" href="~/css/misc.css">
+    <link rel="stylesheet" href="~/css/theme-light.css">
+    <link rel="stylesheet" href="~/css/admin.css">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet Heat Plugin (for heatmap) -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════
+         ADMIN DASHBOARD APP
+         ═══════════════════════════════════════ -->
+    <div id="dashboard-app" style="height:100vh;">
+
+        <div style="display:flex; height:100vh; overflow:hidden;">
+
+            <!-- ── SIDEBAR (Admin only) ── -->
+            <aside class="sidebar" id="app-sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-headphones"></i>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        Du Hí <span>Đó Đây</span>
+                        <small>Admin Portal</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav" id="sidebar-nav">
+                    <a class="nav-link" href="/admin" data-path="/admin">
+                        <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                    </a>
+                    <a class="nav-link" href="/admin/profiles" data-path="/admin/profiles">
+                        <i class="fa-solid fa-id-card"></i> Hồ sơ người dùng
+                    </a>
+                    <a class="nav-link" href="/admin/users" data-path="/admin/users">
+                        <i class="fa-solid fa-users"></i> Quản lý người dùng
+                    </a>
+                    <a class="nav-link" href="/admin/stats" data-path="/admin/stats">
+                        <i class="fa-solid fa-chart-line"></i> Quản lý lượt truy cập
+                    </a>
+                    <a class="nav-link" href="/admin/qr" data-path="/admin/qr">
+                        <i class="fa-solid fa-qrcode"></i> Quản lý QR
+                    </a>
+                    <a class="nav-link" href="/admin/pois/pending" data-path="/admin/pois/pending">
+                        <i class="fa-solid fa-clipboard-check"></i> Duyệt POI
+                    </a>
+                    <a class="nav-link" href="/admin/packages" data-path="/admin/packages">
+                        <i class="fa-solid fa-box"></i> Gói đăng ký
+                    </a>
+                    <a class="nav-link" href="/admin/heatmap" data-path="/admin/heatmap">
+                        <i class="fa-solid fa-map-location-dot"></i> Heatmap
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <img id="sidebar-avatar" src="https://i.pravatar.cc/150?img=11" alt="User"
+                             class="sidebar-avatar">
+                        <div class="sidebar-user-info">
+                            <p id="sidebar-name" class="sidebar-user-name">Admin</p>
+                            <button id="btn-logout" class="btn-signout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ── MAIN CONTENT ── -->
+            <main class="main-area">
+                <!-- Top Header Bar -->
+                <header class="top-header">
+                    <h2 id="header-title">Admin Portal</h2>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                    </div>
+                </header>
+
+                <!-- Scrollable Content -->
+                <div class="content-wrapper">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCRIPTS — Admin Portal only
+         ═══════════════════════════════════════ -->
+
+    <!-- 1. Config -->
+    <script src="~/js/config/roles.js"></script>
+    <script src="~/js/config/routes.js"></script>
+
+    <!-- 2. Core -->
+    <script src="~/js/core/storage.js"></script>
+    <script src="~/js/core/apiClient.js"></script>
+    <script src="~/js/core/ui.js"></script>
+    <script src="~/js/core/auth.js"></script>
+    <script src="~/js/core/roleGuard.js"></script>
+    <script src="~/js/core/router.js"></script>
+
+    <!-- 3. Mocks -->
+    <script src="~/js/mocks/mockData.js"></script>
+
+    <!-- 4. Services -->
+    <script src="~/js/services/poiService.js" asp-append-version="true"></script>
+    <script src="~/js/services/qrService.js" asp-append-version="true"></script>
+    <script src="~/js/services/accessStatsService.js" asp-append-version="true"></script>
+    <script src="~/js/services/heatmapService.js" asp-append-version="true"></script>
+    <script src="~/js/services/packageService.js" asp-append-version="true"></script>
+    <script src="~/js/services/userService.js" asp-append-version="true"></script>
+
+    <!-- 5. Utils -->
+    <script src="~/js/utils/formatters.js" asp-append-version="true"></script>
+    <script src="~/js/utils/validators.js" asp-append-version="true"></script>
+
+    <!-- 6. Admin Modules ONLY (no owner modules loaded) -->
+    <script src="~/js/modules/admin/adminDashboard.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/qrManagement.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/poiApproval.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/packageManagement.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/heatmap.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/accessHistory.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/realtimeAccess.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/userProfiles.js" asp-append-version="true"></script>
+    <script src="~/js/modules/admin/userManagement.js" asp-append-version="true"></script>
+
+    <!-- 7. Admin App Bootstrap -->
+    <script src="~/js/appAdmin.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

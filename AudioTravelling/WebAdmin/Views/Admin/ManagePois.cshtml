@@ -1,0 +1,38 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý POI";
+}
+
+<!-- Admin: Manage POIs -->
+<div id="view-manage-pois" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Quản lý POI</h3>
+            <p class="section-subtitle">Xem và quản lý tất cả POI trong hệ thống</p>
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã POI</th>
+                    <th>Tên POI</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Trạng thái</th>
+                    <th>Cập nhật</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="manage-pois-body">
+                <!-- TODO: Inject by JS — implement managePois module -->
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:40px; color:var(--text-dim);">
+                        <i class="fa-solid fa-inbox" style="font-size:32px; margin-bottom:12px; display:block;"></i>
+                        Tính năng đang được phát triển
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
