@@ -2,7 +2,6 @@
  * ═══════════════════════════════════════════════════
  * Audio Travelling — User Profiles Module (Admin)
  * Hồ sơ người dùng — quản lý hồ sơ Admin & Owner
- * TODO: Replace mock data with real API calls.
  * ═══════════════════════════════════════════════════
  */
 (function () {
@@ -20,9 +19,24 @@
     };
 
     function loadProfiles() {
+        var tbody = document.getElementById('profiles-table-body');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-dim);">' +
+                '<i class="fa-solid fa-spinner fa-spin" style="font-size:24px;margin-bottom:12px;display:block;"></i>' +
+                'Đang tải hồ sơ...</td></tr>';
+        }
+
         AT.Services.User.getAllProfiles().then(function (profiles) {
-            _allProfiles = profiles;
-            renderProfiles(profiles);
+            console.log('[UserProfiles] Loaded profiles:', profiles);
+            _allProfiles = profiles || [];
+            renderProfiles(_allProfiles);
+        }).catch(function (err) {
+            console.error('[UserProfiles] Error loading profiles:', err);
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:red;">' +
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:24px;margin-bottom:12px;display:block;"></i>' +
+                    'Không thể tải dữ liệu hồ sơ. Lỗi: ' + (err.message || err) + '</td></tr>';
+            }
         });
     }
 
@@ -30,7 +44,7 @@
         var tbody = document.getElementById('profiles-table-body');
         if (!tbody) return;
 
-        if (profiles.length === 0) {
+        if (!profiles || profiles.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-dim);">' +
                 '<i class="fa-solid fa-id-card" style="font-size:32px;margin-bottom:12px;display:block;"></i>' +
                 'Không tìm thấy hồ sơ nào</td></tr>';
@@ -38,27 +52,27 @@
         }
 
         tbody.innerHTML = profiles.map(function (p) {
-            var statusClass = p.status === 'active' ? 'status-approved' : 'status-rejected';
-            var statusText = p.status === 'active' ? 'Hoạt động' : 'Đã khóa';
-            var roleBadge = p.role === 'Admin'
+            var status = String(p.status || '').toLowerCase();
+            var statusClass = status === 'active' ? 'status-approved' : 'status-rejected';
+            var statusText = status === 'active' ? 'Hoạt động' : 'Không hoạt động';
+            var roleBadge = (p.role || '') === 'Admin'
                 ? '<span class="status-badge status-listening">' + p.role + '</span>'
                 : '<span class="status-badge status-browsing">' + p.role + '</span>';
 
-            return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" class="profile-row" data-profile-id="' + p.id + '">' +
-                '<td style="padding:10px;font-weight:600;font-size:13px;">' + p.id + '</td>' +
-                '<td style="padding:10px;font-size:13px;font-weight:500;">' +
+            return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" class="profile-row" data-profile-id="' + p.userId + '">' +
+                '<td style="padding:12px 10px;font-weight:600;font-size:13px;">' + (p.userId || '—') + '</td>' +
+                '<td style="padding:12px 10px;font-size:13px;font-weight:500;">' +
                     '<div style="display:flex;align-items:center;gap:8px;">' +
-                        '<img src="' + (p.avatar || 'https://i.pravatar.cc/32') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" alt="">' +
-                        p.fullName +
+                        (p.fullName || '—') +
                     '</div>' +
                 '</td>' +
-                '<td style="padding:10px;font-size:13px;">' + p.email + '</td>' +
-                '<td style="padding:10px;">' + roleBadge + '</td>' +
-                '<td style="padding:10px;font-size:13px;">' + (p.phone || '—') + '</td>' +
-                '<td style="padding:10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
-                '<td style="padding:10px;font-size:13px;">' + Fmt.date(p.createdAt) + '</td>' +
-                '<td style="padding:10px;text-align:center;">' +
-                    '<button class="btn-ghost btn-view-profile" data-profile-id="' + p.id + '" style="font-size:12px;padding:6px 12px;" title="Xem chi tiết">' +
+                '<td style="padding:12px 10px;font-size:13px;">' + (p.email || '—') + '</td>' +
+                '<td style="padding:12px 10px;">' + roleBadge + '</td>' +
+                '<td style="padding:12px 10px;font-size:13px;">' + (p.phoneNumber || '—') + '</td>' +
+                '<td style="padding:12px 10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
+                '<td style="padding:12px 10px;font-size:13px;">' + Fmt.date(p.createdDate) + '</td>' +
+                '<td style="padding:12px 10px;text-align:center;">' +
+                    '<button class="btn-ghost btn-view-profile" data-profile-id="' + p.userId + '" style="font-size:12px;padding:6px 12px;" title="Xem chi tiết">' +
                         '<i class="fa-solid fa-eye"></i> Xem' +
                     '</button>' +
                 '</td>' +
@@ -87,23 +101,23 @@
             var container = document.getElementById('profile-detail-content');
             if (!container) return;
 
-            var statusClass = p.status === 'active' ? 'status-approved' : 'status-rejected';
-            var statusText = p.status === 'active' ? 'Hoạt động' : 'Đã khóa';
+            var status = String(p.status || '').toLowerCase();
+            var statusClass = status === 'active' ? 'status-approved' : 'status-rejected';
+            var statusText = status === 'active' ? 'Hoạt động' : 'Không hoạt động';
 
             container.innerHTML =
                 '<div style="text-align:center;margin-bottom:20px;">' +
-                    '<img src="' + (p.avatar || 'https://i.pravatar.cc/80') + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:12px;" alt="">' +
-                    '<h4 style="font-size:18px;font-weight:700;margin:0;">' + p.fullName + '</h4>' +
-                    '<p style="font-size:13px;color:var(--text-dim);margin:4px 0 8px;">' + p.email + '</p>' +
+                    '<img src="' + (p.avatarUrl || 'https://i.pravatar.cc/80?u=' + (p.userId || '')) + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:12px;" alt="">' +
+                    '<h4 style="font-size:18px;font-weight:700;margin:0;">' + (p.fullName || '—') + '</h4>' +
+                    '<p style="font-size:13px;color:var(--text-dim);margin:4px 0 8px;">' + (p.email || '—') + '</p>' +
                     '<span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
                 '</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">ID</strong>' + p.id + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Vai trò</strong>' + p.role + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Số điện thoại</strong>' + (p.phone || '—') + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(p.createdAt) + '</div>' +
+                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">ID</strong>' + (p.userId || '—') + '</div>' +
+                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Vai trò</strong>' + (p.role || '—') + '</div>' +
+                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Số điện thoại</strong>' + (p.phoneNumber || '—') + '</div>' +
+                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(p.createdDate) + '</div>' +
                     '<div style="grid-column:1/-1;"><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Địa chỉ</strong>' + (p.address || '—') + '</div>' +
-                    '<div style="grid-column:1/-1;"><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Giới thiệu</strong>' + (p.bio || '—') + '</div>' +
                 '</div>';
 
             UI.showModal('modal-profile-detail');
@@ -118,7 +132,9 @@
 
         var filtered = _allProfiles.filter(function (p) {
             if (role && p.role !== role) return false;
-            if (query && p.fullName.toLowerCase().indexOf(query) === -1 && p.email.toLowerCase().indexOf(query) === -1) return false;
+            var fullName = (p.fullName || '').toLowerCase();
+            var email = (p.email || '').toLowerCase();
+            if (query && fullName.indexOf(query) === -1 && email.indexOf(query) === -1) return false;
             return true;
         });
 
@@ -143,7 +159,6 @@
             });
         }
 
-        // Close modal on overlay click
         var modalOverlay = document.getElementById('modal-profile-detail');
         if (modalOverlay) {
             modalOverlay.addEventListener('click', function (e) {

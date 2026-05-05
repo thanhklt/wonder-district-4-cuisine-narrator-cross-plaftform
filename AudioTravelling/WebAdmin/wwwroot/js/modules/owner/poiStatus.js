@@ -11,19 +11,25 @@
         var session = AT.Core.Auth.getSession();
         if (!session) return;
 
-        AT.Services.POI.getByOwner(session.email).then(function (pois) {
+        AT.Services.POI.getByOwner().then(function (pois) {
+            console.log('[POIStatus] Loaded POIs:', pois);
             var container = document.getElementById('poi-status-list');
             if (!container) return;
-            if (pois.length === 0) {
+            if (!pois || pois.length === 0) {
                 container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-dim);">Bạn chưa có POI nào</p>';
                 return;
             }
 
             container.innerHTML = pois.map(function (p) {
-                var statusIcon = { draft: 'fa-file-pen', pending: 'fa-clock', approved: 'fa-circle-check', rejected: 'fa-circle-xmark' };
-                var icon = statusIcon[p.status] || 'fa-question';
+                var poiName = p.poiName || p.name || 'Không có tên';
+                var status = String(p.status || '').toLowerCase();
+                var statusText = p.statusText || p.status || status;
+                var createdDate = p.createdDate || p.createdAt || '';
+                var updatedDate = p.updatedDate || p.updatedAt || '';
+                var statusIcon = { pending: 'fa-clock', approved: 'fa-circle-check', rejected: 'fa-circle-xmark' };
+                var icon = statusIcon[status] || 'fa-question';
                 var rejectionHtml = '';
-                if (p.status === 'rejected' && p.rejectionReason) {
+                if (status === 'rejected' && p.rejectionReason) {
                     rejectionHtml = '<div style="margin-top:8px;padding:10px;background:rgba(239,68,68,0.08);border-radius:8px;border-left:3px solid #ef4444;">' +
                         '<p style="font-size:12px;color:#ef4444;font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-comment-dots"></i> Lý do từ chối:</p>' +
                         '<p style="font-size:13px;color:var(--text-primary);">' + p.rejectionReason + '</p></div>';
@@ -31,16 +37,18 @@
 
                 return '<div class="glass-card" style="padding:20px;margin-bottom:16px;">' +
                     '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-                    '<div style="display:flex;align-items:center;gap:12px;">' +
-                    '<i class="fa-solid ' + icon + '" style="font-size:20px;color:var(--text-muted);"></i>' +
-                    '<div><h4 style="font-size:15px;font-weight:600;">' + p.name + '</h4>' +
+                    '<div style="display:flex;align-items:center;gap:16px;">' +
+                    '<img src="' + (p.imageUrl || 'https://via.placeholder.com/40') + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" alt="">' +
+                    '<div><h4 style="font-size:16px;font-weight:600;margin-bottom:4px;">' + poiName + '</h4>' +
                     '</div></div>' +
-                    '<span class="status-badge status-' + p.status + '">' + p.status + '</span></div>' +
+                    '<span class="status-badge status-' + status + '">' + statusText + '</span></div>' +
                     '<div style="margin-top:12px;display:flex;gap:16px;font-size:12px;color:var(--text-dim);">' +
-                    '<span><i class="fa-solid fa-calendar"></i> Tạo: ' + Fmt.date(p.createdAt) + '</span>' +
-                    '<span><i class="fa-solid fa-pen"></i> Cập nhật: ' + Fmt.date(p.updatedAt) + '</span></div>' +
+                    '<span><i class="fa-solid fa-calendar"></i> Tạo: ' + Fmt.date(createdDate) + '</span>' +
+                    '<span><i class="fa-solid fa-pen"></i> Cập nhật: ' + Fmt.date(updatedDate) + '</span></div>' +
                     rejectionHtml + '</div>';
             }).join('');
+        }).catch(function (err) {
+            console.error('[POIStatus] Error:', err);
         });
     };
 })();

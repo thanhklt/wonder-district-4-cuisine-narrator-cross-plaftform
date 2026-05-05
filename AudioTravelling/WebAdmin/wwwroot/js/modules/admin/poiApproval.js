@@ -17,22 +17,27 @@
 
     function renderPendingPOIs() {
         AT.Services.POI.getPending().then(function (pois) {
+            console.log('[POIApproval] Loaded pending POIs:', pois);
             var tbody = document.getElementById('poi-approval-body');
             if (!tbody) return;
-            if (pois.length === 0) {
+            if (!pois || pois.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-dim);">Không có POI nào đang chờ duyệt</td></tr>';
                 return;
             }
             tbody.innerHTML = pois.map(function (poi) {
+                var poiId = poi.poiId || poi.id || '';
+                var poiName = poi.poiName || poi.name || 'Không có tên';
+                var ownerName = poi.ownerName || poi.owner || '—';
+                var updatedDate = poi.updatedDate || poi.updatedAt || poi.createdDate || '';
                 return '<tr style="border-bottom:1px solid var(--border);">' +
-                    '<td style="padding:10px;font-weight:600;font-size:13px;">' + poi.id + '</td>' +
-                    '<td style="padding:10px;font-size:13px;font-weight:500;">' + poi.name + '</td>' +
-                    '<td style="padding:10px;font-size:13px;">' + poi.owner + '</td>' +
-                    '<td style="padding:10px;font-size:13px;">' + Fmt.dateTime(poi.updatedAt) + '</td>' +
+                    '<td style="padding:10px;font-weight:600;font-size:13px;">' + poiId + '</td>' +
+                    '<td style="padding:10px;font-size:13px;font-weight:500;">' + poiName + '</td>' +
+                    '<td style="padding:10px;font-size:13px;">' + ownerName + '</td>' +
+                    '<td style="padding:10px;font-size:13px;">' + Fmt.dateTime(updatedDate) + '</td>' +
                     '<td style="padding:10px;text-align:center;">' +
-                    '<button class="btn-primary btn-approve-poi" data-poi-id="' + poi.id + '" style="font-size:12px;padding:6px 14px;margin-right:6px;">' +
+                    '<button class="btn-primary btn-approve-poi" data-poi-id="' + poiId + '" style="font-size:12px;padding:6px 14px;margin-right:6px;">' +
                     '<i class="fa-solid fa-check"></i> Duyệt</button>' +
-                    '<button class="btn-danger-ghost btn-reject-poi" data-poi-id="' + poi.id + '" style="font-size:12px;padding:6px 14px;">' +
+                    '<button class="btn-danger-ghost btn-reject-poi" data-poi-id="' + poiId + '" style="font-size:12px;padding:6px 14px;">' +
                     '<i class="fa-solid fa-xmark"></i> Từ chối</button>' +
                     '</td></tr>';
             }).join('');
@@ -57,6 +62,8 @@
                     UI.showModal('modal-reject-poi');
                 });
             });
+        }).catch(function (err) {
+            console.error('[POIApproval] Error loading POIs:', err);
         });
     }
 

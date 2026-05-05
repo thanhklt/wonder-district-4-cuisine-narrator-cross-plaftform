@@ -102,35 +102,33 @@
          ═══════════════════════════════════════ -->
 
     <!-- 1. Config -->
-    <script src="~/js/config/roles.js"></script>
-    <script src="~/js/config/routes.js"></script>
+    <script src="~/js/config/roles.js" asp-append-version="true"></script>
+    <script src="~/js/config/routes.js" asp-append-version="true"></script>
 
     <!-- 2. Core -->
-    <script src="~/js/core/storage.js"></script>
-    <script src="~/js/core/apiClient.js"></script>
-    <script src="~/js/core/ui.js"></script>
-    <script src="~/js/core/auth.js"></script>
-    <script src="~/js/core/roleGuard.js"></script>
-    <script src="~/js/core/router.js"></script>
+    <script src="~/js/core/storage.js" asp-append-version="true"></script>
+    <script src="~/js/core/apiClient.js" asp-append-version="true"></script>
+    <script src="~/js/core/ui.js" asp-append-version="true"></script>
+    <script src="~/js/core/auth.js" asp-append-version="true"></script>
+    <script src="~/js/core/roleGuard.js" asp-append-version="true"></script>
+    <script src="~/js/core/router.js" asp-append-version="true"></script>
 
-    <!-- 3. Mocks -->
-    <script src="~/js/mocks/mockData.js"></script>
+    <!-- 3. Services -->
+    <script src="~/js/services/poiService.js" asp-append-version="true"></script>
+    <script src="~/js/services/packageService.js" asp-append-version="true"></script>
 
-    <!-- 4. Services -->
-    <script src="~/js/services/poiService.js"></script>
+    <!-- 4. Utils -->
+    <script src="~/js/utils/formatters.js" asp-append-version="true"></script>
+    <script src="~/js/utils/validators.js" asp-append-version="true"></script>
 
-    <!-- 5. Utils -->
-    <script src="~/js/utils/formatters.js"></script>
-    <script src="~/js/utils/validators.js"></script>
+    <!-- 5. Owner Modules ONLY (no admin modules loaded) -->
+    <script src="~/js/modules/owner/ownerDashboard.js" asp-append-version="true"></script>
+    <script src="~/js/modules/owner/myPois.js" asp-append-version="true"></script>
+    <script src="~/js/modules/owner/createPoi.js" asp-append-version="true"></script>
+    <script src="~/js/modules/owner/poiStatus.js" asp-append-version="true"></script>
 
-    <!-- 6. Owner Modules ONLY (no admin modules loaded) -->
-    <script src="~/js/modules/owner/ownerDashboard.js"></script>
-    <script src="~/js/modules/owner/myPois.js"></script>
-    <script src="~/js/modules/owner/createPoi.js"></script>
-    <script src="~/js/modules/owner/poiStatus.js"></script>
-
-    <!-- 7. Owner App Bootstrap -->
-    <script src="~/js/appOwner.js"></script>
+    <!-- 6. Owner App Bootstrap -->
+    <script src="~/js/appOwner.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

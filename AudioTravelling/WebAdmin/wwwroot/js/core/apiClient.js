@@ -14,8 +14,8 @@
     var AT = window.AudioTravelling = window.AudioTravelling || {};
     AT.Core = AT.Core || {};
 
-    // TODO: Replace with real API base URL from config
-    var BASE_URL = 'http://localhost:5264/api';
+    // Replace with real API base URL from config
+    var BASE_URL = 'http://localhost:5184/api';
 
     function getAuthHeaders() {
         var session = AT.Core.Storage.getSession();
@@ -52,18 +52,24 @@
         },
 
         post: function (url, data) {
+            var isFormData = data instanceof FormData;
+            var headers = getAuthHeaders();
+            if (isFormData) delete headers['Content-Type'];
             return fetch(BASE_URL + url, {
                 method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify(data)
+                headers: headers,
+                body: isFormData ? data : JSON.stringify(data)
             }).then(handleResponse);
         },
 
         put: function (url, data) {
+            var isFormData = data instanceof FormData;
+            var headers = getAuthHeaders();
+            if (isFormData) delete headers['Content-Type'];
             return fetch(BASE_URL + url, {
                 method: 'PUT',
-                headers: getAuthHeaders(),
-                body: JSON.stringify(data)
+                headers: headers,
+                body: isFormData ? data : JSON.stringify(data)
             }).then(handleResponse);
         },
 

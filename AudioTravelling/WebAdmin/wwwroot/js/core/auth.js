@@ -14,11 +14,7 @@
     var Storage = AT.Core.Storage;
     var UI = AT.Core.UI;
 
-    /**
-     * API base URL
-     * Vì API của bạn đang chạy ở port 5000
-     */
-    var API_BASE_URL = 'http://localhost:5264/api';
+    var API_BASE_URL = 'http://localhost:5184/api';
 
     /**
      * Dev offline mode
@@ -142,7 +138,7 @@
              *   token: "..."
              * }
              */
-            var role = data.roleName;
+            var role = data.roleName || data.role;
 
             if (!role) {
                 return {
@@ -160,9 +156,11 @@
 
             var session = {
                 userId: data.userId,
+                fullName: data.fullName || data.name || data.email,
                 name: data.fullName || data.name || data.email,
                 email: data.email,
                 role: role,
+                roleId: data.roleId,
                 loggedIn: true,
                 token: data.token
             };

@@ -16,26 +16,32 @@
     function renderPackageList() {
         var tbody = document.getElementById('package-table-body');
         if (!tbody) return;
-        
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-dim);">Đang tải dữ liệu...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-dim);">Đang tải dữ liệu...</td></tr>';
 
-        AT.Services.Package.getPackages().then(function (packages) {
+        AT.Services.Package.getAll().then(function (packages) {
+            console.log('[PackageManagement] Loaded packages:', packages);
             if (!packages || packages.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-dim);">Chưa có gói đăng ký nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-dim);">Chưa có gói đăng ký nào</td></tr>';
                 return;
             }
             tbody.innerHTML = packages.map(function (pkg) {
+                var pkgId = pkg.packageId || pkg.id || '';
+                var name = pkg.name || '';
+                var radius = pkg.radius || pkg.radiusMeters || 0;
+                var priority = pkg.priority || 0;
+                var price = pkg.price || 0;
+                var formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+                var description = pkg.description || '';
                 return '<tr style="border-bottom:1px solid var(--border);">' +
-                    '<td style="padding:10px;font-weight:600;font-size:13px;">' + pkg.id + '</td>' +
-                    '<td style="padding:10px;">' + (pkg.name || '') + '</td>' +
-                    '<td style="padding:10px;text-align:center;">' + (pkg.radiusMeters || 0) + '</td>' +
-                    '<td style="padding:10px;text-align:center;">' + (pkg.priority || 0) + '</td>' +
-                    '<td style="padding:10px;text-align:right;">' + (pkg.price || 0) + '</td>' +
-                    '<td style="padding:10px;">' + (pkg.description || '') + '</td>' +
+                    '<td style="padding:12px 10px;font-weight:600;font-size:13px;">' + pkgId + '</td>' +
+                    '<td style="padding:12px 10px;">' + name + '</td>' +
+                    '<td style="padding:12px 10px;text-align:center;">' + radius + ' m</td>' +
+                    '<td style="padding:12px 10px;text-align:center;">' + priority + '</td>' +
+                    '<td style="padding:12px 10px;text-align:right;font-weight:500;color:var(--text-primary);">' + formattedPrice + '</td>' +
                     '<td style="padding:10px;text-align:center;">' +
-                    '<button class="btn-ghost btn-edit-package" data-id="' + pkg.id + '" style="font-size:12px;padding:6px;margin-right:5px;" title="Sửa">' +
+                    '<button class="btn-ghost btn-edit-package" data-id="' + pkgId + '" style="font-size:12px;padding:6px;margin-right:5px;" title="Sửa">' +
                     '<i class="fa-solid fa-pen"></i></button>' +
-                    '<button class="btn-ghost btn-delete-package" data-id="' + pkg.id + '" style="font-size:12px;padding:6px;color:red;" title="Xóa">' +
+                    '<button class="btn-ghost btn-delete-package" data-id="' + pkgId + '" style="font-size:12px;padding:6px;color:red;" title="Xóa">' +
                     '<i class="fa-solid fa-trash"></i></button>' +
                     '</td></tr>';
             }).join('');
@@ -44,7 +50,7 @@
             tbody.querySelectorAll('.btn-edit-package').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = btn.getAttribute('data-id');
-                    var pkg = packages.find(function(p) { return p.id == id; });
+                    var pkg = packages.find(function(p) { return (p.packageId || p.id) == id; });
                     if (pkg) {
                         openModal(pkg);
                     }
@@ -55,7 +61,7 @@
                 btn.addEventListener('click', function () {
                     var id = btn.getAttribute('data-id');
                     if (confirm('Bạn có chắc chắn muốn xóa gói này?')) {
-                        AT.Services.Package.deletePackage(id).then(function () {
+                        AT.Services.Package.delete(id).then(function () {
                             UI.showToast('Xóa gói thành công', 'success');
                             renderPackageList();
                         }).catch(function(err) {
@@ -65,7 +71,8 @@
                 });
             });
         }).catch(function(err) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:red;">Lỗi tải dữ liệu</td></tr>';
+            console.error('[PackageManagement] Error:', err);
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:red;">Lỗi tải dữ liệu</td></tr>';
             UI.showToast('Không thể tải danh sách gói', 'error');
         });
     }
@@ -76,13 +83,12 @@
         
         form.reset();
         if (pkg) {
-            currentEditingId = pkg.id;
+            currentEditingId = pkg.packageId || pkg.id;
             document.getElementById('modal-package-title').innerText = 'Sửa gói đăng ký';
             document.getElementById('pkg-name').value = pkg.name || '';
-            document.getElementById('pkg-radius').value = pkg.radiusMeters || 0;
+            document.getElementById('pkg-radius').value = pkg.radius || pkg.radiusMeters || 0;
             document.getElementById('pkg-priority').value = pkg.priority || 0;
             document.getElementById('pkg-price').value = pkg.price || 0;
-            document.getElementById('pkg-description').value = pkg.description || '';
         } else {
             currentEditingId = null;
             document.getElementById('modal-package-title').innerText = 'Tạo gói mới';
@@ -110,14 +116,12 @@
                 var radiusInput = document.getElementById('pkg-radius');
                 var priorityInput = document.getElementById('pkg-priority');
                 var priceInput = document.getElementById('pkg-price');
-                var descInput = document.getElementById('pkg-description');
 
                 var data = {
                     name: nameInput ? nameInput.value.trim() : '',
-                    radiusMeters: radiusInput ? parseInt(radiusInput.value, 10) : 0,
+                    radius: radiusInput ? parseInt(radiusInput.value, 10) : 0,
                     priority: priorityInput ? parseInt(priorityInput.value, 10) : 0,
-                    price: priceInput ? parseFloat(priceInput.value) : 0,
-                    description: descInput ? descInput.value.trim() : ''
+                    price: priceInput ? parseFloat(priceInput.value) : 0
                 };
 
                 // Validate
@@ -125,7 +129,7 @@
                     UI.showToast('Tên gói không được rỗng', 'error');
                     return;
                 }
-                if (isNaN(data.radiusMeters) || data.radiusMeters <= 0) {
+                if (isNaN(data.radius) || data.radius <= 0) {
                     UI.showToast('Bán kính phải là số nguyên dương', 'error');
                     return;
                 }
@@ -142,8 +146,8 @@
                 btnSave.innerText = 'Đang lưu...';
 
                 var req = currentEditingId 
-                    ? AT.Services.Package.updatePackage(currentEditingId, data)
-                    : AT.Services.Package.createPackage(data);
+                    ? AT.Services.Package.update(currentEditingId, data)
+                    : AT.Services.Package.create(data);
 
                 req.then(function () {
                     UI.showToast(currentEditingId ? 'Cập nhật gói thành công' : 'Tạo gói thành công', 'success');

@@ -1,3 +1,8 @@
+/**
+ * ═══════════════════════════════════════════════════
+ * Audio Travelling — Package Service
+ * ═══════════════════════════════════════════════════
+ */
 (function () {
     'use strict';
 
@@ -5,24 +10,30 @@
     AT.Services = AT.Services || {};
 
     AT.Services.Package = {
-        getPackages: function () {
+        /** Get all packages */
+        getAll: function () {
             return AT.Core.ApiClient.get('/packages');
         },
 
-        getPackageById: function (id) {
-            return AT.Core.ApiClient.get('/packages/' + id);
+        /** Create a new package (Admin) */
+        create: function (packageData) {
+            return AT.Core.ApiClient.post('/admin/packages', packageData);
         },
 
-        createPackage: function (data) {
-            return AT.Core.ApiClient.post('/packages', data);
+        /** Update an existing package (Admin) */
+        update: function (packageId, packageData) {
+            return AT.Core.ApiClient.put('/admin/packages/' + packageId, packageData);
         },
 
-        updatePackage: function (id, data) {
-            return AT.Core.ApiClient.put('/packages/' + id, data);
-        },
-
-        deletePackage: function (id) {
-            return AT.Core.ApiClient.del ? AT.Core.ApiClient.del('/packages/' + id) : AT.Core.ApiClient.delete('/packages/' + id);
+        /** Delete a package (Admin) */
+        delete: function (packageId) {
+            return AT.Core.ApiClient.del('/admin/packages/' + packageId);
         }
     };
+
+    // Aliases for backward compatibility with packageManagement.js
+    AT.Services.Package.getPackages = AT.Services.Package.getAll;
+    AT.Services.Package.createPackage = AT.Services.Package.create;
+    AT.Services.Package.updatePackage = AT.Services.Package.update;
+    AT.Services.Package.deletePackage = AT.Services.Package.delete;
 })();

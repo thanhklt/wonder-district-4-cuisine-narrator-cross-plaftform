@@ -1,6 +1,5 @@
 /**
  * Audio Travelling — Heatmap Service
- * TODO: Replace mock calls with real API endpoints.
  */
 (function () {
     'use strict';
@@ -9,8 +8,13 @@
 
     AT.Services.Heatmap = {
         getData: function () {
-            // TODO: return AT.Core.ApiClient.get('/admin/heatmap');
-            return Promise.resolve(AT.Mocks.HeatmapData.slice());
+            return AT.Core.ApiClient.get('/admin/stats/heatmap?period=today').then(function (data) {
+                // API returns empty array when no heatmap data
+                return data || [];
+            }).catch(function (err) {
+                console.warn('[Heatmap] getData error:', err);
+                return [];
+            });
         }
     };
 })();

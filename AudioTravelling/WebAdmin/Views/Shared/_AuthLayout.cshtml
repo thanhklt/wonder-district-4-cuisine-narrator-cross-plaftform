@@ -99,17 +99,17 @@
          ═══════════════════════════════════════ -->
 
     <!-- 1. Config -->
-    <script src="~/js/config/roles.js"></script>
-    <script src="~/js/config/routes.js"></script>
+    <script src="~/js/config/roles.js" asp-append-version="true"></script>
+    <script src="~/js/config/routes.js" asp-append-version="true"></script>
 
     <!-- 2. Core (minimal for auth) -->
-    <script src="~/js/core/storage.js"></script>
-    <script src="~/js/core/apiClient.js"></script>
-    <script src="~/js/core/ui.js"></script>
-    <script src="~/js/core/auth.js"></script>
+    <script src="~/js/core/storage.js" asp-append-version="true"></script>
+    <script src="~/js/core/apiClient.js" asp-append-version="true"></script>
+    <script src="~/js/core/ui.js" asp-append-version="true"></script>
+    <script src="~/js/core/auth.js" asp-append-version="true"></script>
 
     <!-- 3. Auth Bootstrap -->
-    <script src="~/js/appAuth.js"></script>
+    <script src="~/js/appAuth.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
