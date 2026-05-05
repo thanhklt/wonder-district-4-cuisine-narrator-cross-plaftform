@@ -25,7 +25,5 @@ namespace WebAdmin.Controllers
         [HttpGet("pois/status")]
         public IActionResult PoiStatus() => View();
 
-        [HttpGet("profile")]
-        public IActionResult Profile() => View();
     }
 }
