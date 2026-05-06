@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Api.Models;
+using Api.Models.Entities;
 
 namespace Api.Repositories
 {
@@ -102,24 +103,24 @@ namespace Api.Repositories
             return id;
         }
 
-        public async Task<User?> LoginUser(User user)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
             await using var conn = new SqlConnection(_connectionString);
 
             var sql = @"
                 SELECT *
                 FROM Users
-                WHERE Email = @Email
-                  AND PasswordHash = @PasswordHash;
+                WHERE Email = @Email;
             ";
 
             var result = await conn.QuerySingleOrDefaultAsync<User>(sql, new
             {
-                Email = user.Email,
-                PasswordHash = user.PasswordHash
+                Email = email
             });
 
             return result;
         }
+
+
     }
 }

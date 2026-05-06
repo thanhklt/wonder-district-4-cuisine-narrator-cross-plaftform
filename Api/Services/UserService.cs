@@ -1,4 +1,5 @@
 using Api.Models;
+using Api.Models.Entities;
 using Api.Repositories;
 
 namespace Api.Services

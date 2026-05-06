@@ -1,7 +1,7 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Api.Models;
-
+using Api.Models.Entities;
 namespace Api.Repositories
 {
     public class PoiRepository

@@ -3,11 +3,14 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.EntityFrameworkCore;
 using Api.Repositories;
 using Api.Services;
+using Microsoft.AspNetCore.Identity;
+using Api.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Tu dong map PascalCase sang camelCase
 builder.Services
@@ -51,6 +54,10 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServer")));
+
 // DI
 builder.Services.AddScoped<PoiRepository>();
 builder.Services.AddScoped<PoiService>();
@@ -59,6 +66,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<LocalizeService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // Them Cors cua WebAdmin
 builder.Services.AddCors(options =>

@@ -25,15 +25,13 @@
                 var pois = results[1] || [];
                 return {
                     activeUsers: stats.activeUsers || 0,
-                    totalScansToday: stats.totalScans || 0,
-                    totalPOIs: pois.length,
-                    pendingPOIs: pois.filter(function (p) {
-                        return (p.status || '').toLowerCase() === 'pending';
-                    }).length
+                    rejectedPOIs: pois.filter(function (p) { return (p.status || '').toLowerCase() === 'rejected'; }).length,
+                    approvedPOIs: pois.filter(function (p) { return (p.status || '').toLowerCase() === 'approved'; }).length,
+                    pendingPOIs: pois.filter(function (p) { return (p.status || '').toLowerCase() === 'pending'; }).length
                 };
             }).catch(function (err) {
                 console.warn('[AccessStats] getDashboardStats error:', err);
-                return { activeUsers: 0, totalScansToday: 0, totalPOIs: 0, pendingPOIs: 0 };
+                return { activeUsers: 0, rejectedPOIs: 0, approvedPOIs: 0, pendingPOIs: 0 };
             });
         },
 

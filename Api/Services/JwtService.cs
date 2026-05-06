@@ -1,4 +1,5 @@
 using Api.Models;
+using Api.Models.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -26,10 +27,13 @@ namespace Api.Services
                 throw new Exception("Jwt:Key is missing in appsettings.json");
             }
 
+            var roleName = user.RoleID == 1 ? "Admin" : (user.RoleID == 2 ? "Owner" : "User");
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, roleName),
                 new Claim("fullName", user.FullName),
                 new Claim("roleId", user.RoleID.ToString())
             };
