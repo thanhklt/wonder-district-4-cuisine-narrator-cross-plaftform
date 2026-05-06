@@ -9,14 +9,14 @@
           content="Audio Travelling Portal - Quản lý POI, mã QR và thống kê truy cập hệ thống">
 
     <!-- Design System - Modular CSS -->
-    <link rel="stylesheet" href="~/css/base.css">
-    <link rel="stylesheet" href="~/css/layout.css">
-    <link rel="stylesheet" href="~/css/dashboard.css">
-    <link rel="stylesheet" href="~/css/auth.css">
-    <link rel="stylesheet" href="~/css/misc.css">
-    <link rel="stylesheet" href="~/css/theme-light.css">
-    <link rel="stylesheet" href="~/css/admin.css">
-    <link rel="stylesheet" href="~/css/owner.css">
+    <link rel="stylesheet" href="~/assets/css/common/base.css">
+    <link rel="stylesheet" href="~/assets/css/common/layout.css">
+    <link rel="stylesheet" href="~/assets/css/admin/dashboard.css">
+    <link rel="stylesheet" href="~/assets/css/auth/auth.css">
+    <link rel="stylesheet" href="~/assets/css/common/misc.css">
+    <link rel="stylesheet" href="~/assets/css/common/theme-light.css">
+    <link rel="stylesheet" href="~/assets/css/admin/admin.css">
+    <link rel="stylesheet" href="~/assets/css/owner/owner.css">
 
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -162,48 +162,48 @@
          ═══════════════════════════════════════ -->
 
     <!-- 1. Config -->
-    <script src="~/js/config/roles.js"></script>
-    <script src="~/js/config/routes.js"></script>
+    <script src="~/assets/js/common/config/roles.js"></script>
+    <script src="~/assets/js/common/config/routes.js"></script>
 
     <!-- 2. Core -->
-    <script src="~/js/core/storage.js"></script>
-    <script src="~/js/core/apiClient.js"></script>
-    <script src="~/js/core/ui.js"></script>
-    <script src="~/js/core/auth.js"></script>
-    <script src="~/js/core/roleGuard.js"></script>
-    <script src="~/js/core/router.js"></script>
+    <script src="~/assets/js/common/core/storage.js"></script>
+    <script src="~/assets/js/common/core/apiClient.js"></script>
+    <script src="~/assets/js/common/core/ui.js"></script>
+    <script src="~/assets/js/common/core/auth.js"></script>
+    <script src="~/assets/js/common/core/roleGuard.js"></script>
+    <script src="~/assets/js/common/core/router.js"></script>
 
     <!-- 3. Mocks -->
-    <script src="~/js/mocks/mockData.js"></script>
+    <script src="~/assets/js/common/mocks/mockData.js"></script>
 
     <!-- 4. Services -->
-    <script src="~/js/services/poiService.js"></script>
-    <script src="~/js/services/qrService.js"></script>
-    <script src="~/js/services/accessStatsService.js"></script>
-    <script src="~/js/services/heatmapService.js"></script>
-    <script src="~/js/services/packageService.js"></script>
+    <script src="~/assets/js/common/services/poiService.js"></script>
+    <script src="~/assets/js/common/services/qrService.js"></script>
+    <script src="~/assets/js/common/services/accessStatsService.js"></script>
+    <script src="~/assets/js/common/services/heatmapService.js"></script>
+    <script src="~/assets/js/common/services/packageService.js"></script>
 
 
     <!-- 5. Utils -->
-    <script src="~/js/utils/formatters.js"></script>
-    <script src="~/js/utils/validators.js"></script>
+    <script src="~/assets/js/common/utils/formatters.js"></script>
+    <script src="~/assets/js/common/utils/validators.js"></script>
 
     <!-- 6. Admin Modules -->
-    <script src="~/js/modules/admin/adminDashboard.js"></script>
-    <script src="~/js/modules/admin/qrManagement.js"></script>
-    <script src="~/js/modules/admin/poiApproval.js"></script>
-    <script src="~/js/modules/admin/packageManagement.js"></script>
+    <script src="~/assets/js/admin/adminDashboard.js"></script>
+    <script src="~/assets/js/admin/qrManagement.js"></script>
+    <script src="~/assets/js/admin/poiApproval.js"></script>
+    <script src="~/assets/js/admin/packageManagement.js"></script>
 
-    <script src="~/js/modules/admin/heatmap.js"></script>
+    <script src="~/assets/js/admin/heatmap.js"></script>
 
     <!-- 7. Owner Modules -->
-    <script src="~/js/modules/owner/ownerDashboard.js"></script>
-    <script src="~/js/modules/owner/myPois.js"></script>
-    <script src="~/js/modules/owner/createPoi.js"></script>
-    <script src="~/js/modules/owner/poiStatus.js"></script>
+    <script src="~/assets/js/owner/ownerDashboard.js"></script>
+    <script src="~/assets/js/owner/myPois.js"></script>
+    <script src="~/assets/js/owner/createPoi.js"></script>
+    <script src="~/assets/js/owner/poiStatus.js"></script>
 
     <!-- 8. App Bootstrap (LAST) -->
-    <script src="~/js/app.js"></script>
+    <script src="~/assets/js/common/app.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -9,10 +9,10 @@
           content="Audio Travelling Portal - Đăng nhập hệ thống quản lý">
 
     <!-- Design System - Auth only CSS -->
-    <link rel="stylesheet" href="~/css/base.css">
-    <link rel="stylesheet" href="~/css/auth.css">
-    <link rel="stylesheet" href="~/css/theme-light.css">
-    <link rel="stylesheet" href="~/css/misc.css">
+    <link rel="stylesheet" href="~/assets/css/common/base.css">
+    <link rel="stylesheet" href="~/assets/css/auth/auth.css">
+    <link rel="stylesheet" href="~/assets/css/common/theme-light.css">
+    <link rel="stylesheet" href="~/assets/css/common/misc.css">
 
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -99,17 +99,17 @@
          ═══════════════════════════════════════ -->
 
     <!-- 1. Config -->
-    <script src="~/js/config/roles.js" asp-append-version="true"></script>
-    <script src="~/js/config/routes.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/config/roles.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/config/routes.js" asp-append-version="true"></script>
 
     <!-- 2. Core (minimal for auth) -->
-    <script src="~/js/core/storage.js" asp-append-version="true"></script>
-    <script src="~/js/core/apiClient.js" asp-append-version="true"></script>
-    <script src="~/js/core/ui.js" asp-append-version="true"></script>
-    <script src="~/js/core/auth.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/storage.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/apiClient.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/ui.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/auth.js" asp-append-version="true"></script>
 
     <!-- 3. Auth Bootstrap -->
-    <script src="~/js/appAuth.js" asp-append-version="true"></script>
+    <script src="~/assets/js/auth/appAuth.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

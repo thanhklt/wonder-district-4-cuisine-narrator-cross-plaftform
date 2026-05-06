@@ -9,15 +9,15 @@
           content="Audio Travelling Owner Portal - Quản lý POI của bạn">
 
     <!-- Portal Guard — MUST load first to redirect unauthorized users -->
-    <script src="~/js/core/portalGuard.js" data-portal="owner"></script>
+    <script src="~/assets/js/common/core/portalGuard.js" data-portal="owner"></script>
 
     <!-- Design System - Owner CSS only (no auth.css, no admin.css) -->
-    <link rel="stylesheet" href="~/css/base.css">
-    <link rel="stylesheet" href="~/css/layout.css">
-    <link rel="stylesheet" href="~/css/dashboard.css">
-    <link rel="stylesheet" href="~/css/misc.css">
-    <link rel="stylesheet" href="~/css/theme-light.css">
-    <link rel="stylesheet" href="~/css/owner.css">
+    <link rel="stylesheet" href="~/assets/css/common/base.css">
+    <link rel="stylesheet" href="~/assets/css/common/layout.css">
+    <link rel="stylesheet" href="~/assets/css/admin/dashboard.css">
+    <link rel="stylesheet" href="~/assets/css/common/misc.css">
+    <link rel="stylesheet" href="~/assets/css/common/theme-light.css">
+    <link rel="stylesheet" href="~/assets/css/owner/owner.css">
 
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -99,33 +99,33 @@
          ═══════════════════════════════════════ -->
 
     <!-- 1. Config -->
-    <script src="~/js/config/roles.js" asp-append-version="true"></script>
-    <script src="~/js/config/routes.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/config/roles.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/config/routes.js" asp-append-version="true"></script>
 
     <!-- 2. Core -->
-    <script src="~/js/core/storage.js" asp-append-version="true"></script>
-    <script src="~/js/core/apiClient.js" asp-append-version="true"></script>
-    <script src="~/js/core/ui.js" asp-append-version="true"></script>
-    <script src="~/js/core/auth.js" asp-append-version="true"></script>
-    <script src="~/js/core/roleGuard.js" asp-append-version="true"></script>
-    <script src="~/js/core/router.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/storage.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/apiClient.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/ui.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/auth.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/roleGuard.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/core/router.js" asp-append-version="true"></script>
 
     <!-- 3. Services -->
-    <script src="~/js/services/poiService.js" asp-append-version="true"></script>
-    <script src="~/js/services/packageService.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/services/poiService.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/services/packageService.js" asp-append-version="true"></script>
 
     <!-- 4. Utils -->
-    <script src="~/js/utils/formatters.js" asp-append-version="true"></script>
-    <script src="~/js/utils/validators.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/utils/formatters.js" asp-append-version="true"></script>
+    <script src="~/assets/js/common/utils/validators.js" asp-append-version="true"></script>
 
     <!-- 5. Owner Modules ONLY (no admin modules loaded) -->
-    <script src="~/js/modules/owner/ownerDashboard.js" asp-append-version="true"></script>
-    <script src="~/js/modules/owner/myPois.js" asp-append-version="true"></script>
-    <script src="~/js/modules/owner/createPoi.js" asp-append-version="true"></script>
-    <script src="~/js/modules/owner/poiStatus.js" asp-append-version="true"></script>
+    <script src="~/assets/js/owner/ownerDashboard.js" asp-append-version="true"></script>
+    <script src="~/assets/js/owner/myPois.js" asp-append-version="true"></script>
+    <script src="~/assets/js/owner/createPoi.js" asp-append-version="true"></script>
+    <script src="~/assets/js/owner/poiStatus.js" asp-append-version="true"></script>
 
     <!-- 6. Owner App Bootstrap -->
-    <script src="~/js/appOwner.js" asp-append-version="true"></script>
+    <script src="~/assets/js/owner/appOwner.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
