@@ -1,0 +1,87 @@
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+using Api.Repositories;
+using Api.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Tu dong map PascalCase sang camelCase
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
+// Jwt
+void ConfigureOptions(AuthenticationOptions options)
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}
+
+void BearerOptions(JwtBearerOptions options)
+{
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
+        )
+    };
+}
+
+builder.Services
+    .AddAuthentication(ConfigureOptions)
+    .AddJwtBearer(BearerOptions);
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// DI
+builder.Services.AddScoped<PoiRepository>();
+builder.Services.AddScoped<PoiService>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<LocalizeService>();
+
+// Them Cors cua WebAdmin
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWebAdmin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5074")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// app.UseHttpsRedirection();
+app.UseCors("AllowWebAdmin");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

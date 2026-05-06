@@ -1,0 +1,11 @@
+# Local IDE files
+.vs/
+*.user
+
+# Build output
+bin/
+obj/
+
+# Environment
+.env
+.env.local

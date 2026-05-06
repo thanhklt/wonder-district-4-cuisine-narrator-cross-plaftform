@@ -1,6 +1,12 @@
 # Environment
 .env.local
 .env
+
+# Local IDE / repository backups
+.vs/
+.api-git-backup/
+.git_backup/
+
 # Python
 __pycache__/
 *.pyc
