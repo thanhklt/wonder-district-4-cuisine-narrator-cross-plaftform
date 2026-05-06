@@ -1,0 +1,28 @@
+@{
+    Layout = "_OwnerLayout";
+    ViewData["Title"] = "Trạng thái duyệt POI";
+}
+
+<!-- Owner: POI Status -->
+<div id="view-poi-status" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Trạng thái duyệt POI</h3>
+            <p class="section-subtitle">Theo dõi trạng thái phê duyệt các POI của bạn</p>
+        </div>
+    </div>
+
+    <div id="poi-status-list">
+        <!-- Injected by JS -->
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initPOIStatus) {
+                AudioTravelling.Modules.initPOIStatus();
+            }
+        });
+    </script>
+}

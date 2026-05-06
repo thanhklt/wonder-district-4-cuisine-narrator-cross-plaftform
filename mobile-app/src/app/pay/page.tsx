@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { initiatePayment, ApiError } from "@/lib/api";
+import { initiatePayment } from "@/lib/api";
 
 function PayContent() {
   const searchParams = useSearchParams();
@@ -21,16 +21,8 @@ function PayContent() {
     try {
       const { paymentUrl } = await initiatePayment(code);
       window.location.href = paymentUrl;
-    } catch (e: unknown) {
-      if (e instanceof ApiError) {
-        if (e.status === 400) {
-          setError("QR code không hợp lệ hoặc đã bị vô hiệu hoá.");
-        } else {
-          setError(`Lỗi máy chủ (${e.status}). Kiểm tra API và database.`);
-        }
-      } else {
-        setError("Không thể kết nối máy chủ. Kiểm tra mạng và tunnel.");
-      }
+    } catch {
+      setError("QR code không hợp lệ hoặc đã bị vô hiệu hoá.");
       setLoading(false);
     }
   }

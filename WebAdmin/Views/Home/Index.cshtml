@@ -1,0 +1,21 @@
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+@*
+    ════════════════════════════════════════════════════
+    Login Page — Home/Index
+    
+    This page now only serves as the login entry point.
+    The auth form is rendered by _AuthLayout.cshtml.
+    After login, appAuth.js redirects to:
+      - /admin (for Admin role)
+      - /owner (for Owner role)
+    
+    Legacy note: Previously this page included all Admin 
+    and Owner partials for SPA-style navigation. Those
+    partials are still preserved in their original 
+    directories but no longer loaded here.
+    ════════════════════════════════════════════════════
+*@

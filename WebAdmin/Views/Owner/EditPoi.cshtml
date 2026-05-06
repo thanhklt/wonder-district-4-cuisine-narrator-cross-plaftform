@@ -1,0 +1,140 @@
+@{
+    Layout = "_OwnerLayout";
+    ViewData["Title"] = "Chỉnh sửa POI";
+}
+
+<!-- Owner: Edit POI -->
+<div id="view-edit-poi" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Chỉnh sửa POI</h3>
+            <p class="section-subtitle">Cập nhật thông tin điểm tham quan âm thanh</p>
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px; max-width:800px;">
+        <div class="poi-form-grid">
+            <div>
+                <label class="form-label">Tên POI *</label>
+                <input type="text" id="edit-poi-name" class="form-input" placeholder="VD: Phở Hòa Pasteur">
+            </div>
+            <div>
+                <label class="form-label">Gói đăng ký *</label>
+                <select id="edit-poi-package" class="form-input">
+                    <option value="">-- Đang tải gói... --</option>
+                </select>
+            </div>
+            <div class="full-width">
+                <label class="form-label">Ảnh đại diện</label>
+                <input type="file" id="edit-poi-image" class="form-input" accept="image/*">
+                <p id="edit-poi-current-image" style="font-size:12px;color:var(--text-dim);margin-top:4px;"></p>
+            </div>
+            <div class="full-width">
+                <label class="form-label">Mô tả</label>
+                <textarea id="edit-poi-description" class="form-input" rows="4" placeholder="Mô tả chi tiết về điểm tham quan..."></textarea>
+            </div>
+            <div>
+                <label class="form-label">Vĩ độ (Latitude)</label>
+                <input type="number" step="0.000001" id="edit-poi-lat" class="form-input mono" placeholder="10.7845">
+            </div>
+            <div>
+                <label class="form-label">Kinh độ (Longitude)</label>
+                <input type="number" step="0.000001" id="edit-poi-lng" class="form-input mono" placeholder="106.6912">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+            <a href="/owner/pois" class="btn-ghost" style="text-decoration:none;">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại
+            </a>
+            <button class="btn-primary btn-ripple" id="btn-update-poi">
+                <i class="fa-solid fa-floppy-disk"></i> Cập nhật
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Extract POI ID from URL: /owner/pois/edit/{id}
+            var pathParts = window.location.pathname.split('/');
+            var poiId = pathParts[pathParts.length - 1];
+
+            if (!poiId || isNaN(poiId)) {
+                console.error('[EditPoi] Invalid POI ID in URL');
+                return;
+            }
+
+            var AT = window.AudioTravelling;
+            if (!AT || !AT.Services) return;
+
+            // Load packages
+            AT.Services.Package.getAll().then(function (packages) {
+                var pkgSelect = document.getElementById('edit-poi-package');
+                if (!pkgSelect || !packages) return;
+                var optionsHtml = '<option value="">-- Chọn gói --</option>';
+                packages.forEach(function (pkg) {
+                    optionsHtml += '<option value="' + (pkg.packageId || pkg.id) + '">' + (pkg.name || '') + ' (' + (pkg.radius || 0) + 'm)</option>';
+                });
+                pkgSelect.innerHTML = optionsHtml;
+
+                // Load POI data after packages are loaded
+                return AT.Services.POI.getByOwner();
+            }).then(function (pois) {
+                if (!pois) return;
+                var poi = pois.find(function (p) { return (p.poiId || p.id) == poiId; });
+                if (!poi) return;
+
+                var setVal = function (id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; };
+                setVal('edit-poi-name', poi.poiName || poi.name);
+                setVal('edit-poi-description', poi.descriptionVi || poi.description);
+                var imgStatus = document.getElementById('edit-poi-current-image');
+                if (imgStatus && poi.imageUrl) imgStatus.innerText = 'Đã có ảnh: ' + poi.imageUrl;
+                setVal('edit-poi-lat', poi.latitude || poi.lat);
+                setVal('edit-poi-lng', poi.longitude || poi.lng);
+                setVal('edit-poi-package', poi.packageId || '');
+            });
+
+            // Bind update button
+            var btnUpdate = document.getElementById('btn-update-poi');
+            if (btnUpdate) {
+                btnUpdate.addEventListener('click', function () {
+                    var name = (document.getElementById('edit-poi-name') || {}).value || '';
+                    var packageId = parseInt((document.getElementById('edit-poi-package') || {}).value, 10) || 0;
+                    
+                    var data = new FormData();
+                    data.append('poiName', name);
+                    data.append('descriptionVi', (document.getElementById('edit-poi-description') || {}).value || '');
+                    data.append('latitude', parseFloat((document.getElementById('edit-poi-lat') || {}).value) || 0);
+                    data.append('longitude', parseFloat((document.getElementById('edit-poi-lng') || {}).value) || 0);
+                    data.append('packageId', packageId);
+                    
+                    var imgFile = document.getElementById('edit-poi-image').files[0];
+                    if (imgFile) data.append('imageFile', imgFile);
+
+                    if (!name.trim()) {
+                        AT.Core.UI.showToast('Vui lòng nhập tên POI', 'error');
+                        return;
+                    }
+                    if (!packageId) {
+                        AT.Core.UI.showToast('Vui lòng chọn gói', 'error');
+                        return;
+                    }
+
+                    btnUpdate.disabled = true;
+                    btnUpdate.textContent = 'Đang cập nhật...';
+
+                    AT.Services.POI.update(poiId, data).then(function () {
+                        AT.Core.UI.showToast('Đã cập nhật POI', 'success');
+                        window.location.href = '/owner/pois';
+                    }).catch(function (err) {
+                        AT.Core.UI.showToast('Lỗi khi cập nhật POI', 'error');
+                        btnUpdate.disabled = false;
+                        btnUpdate.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Cập nhật';
+                    });
+                });
+            }
+        });
+    </script>
+}

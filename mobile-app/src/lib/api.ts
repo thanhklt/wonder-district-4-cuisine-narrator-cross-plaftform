@@ -1,6 +1,10 @@
 // Rỗng = relative URL (hoạt động qua nginx và Cloudflare tunnel)
 // Có giá trị = URL tuyệt đối (dev local không qua nginx)
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+// Lấy biến môi trường từ 
+const API_URL = "http://localhost:5264";
+const TRANSLATE_API_URL = "http://localhost:5184";
+const SESSION_TOKEN_KEY = "session_token";
 
 export function getSessionToken(): string | null {
   return typeof window !== "undefined" ? localStorage.getItem("session_token") : null;
@@ -45,24 +49,18 @@ export async function fetchBootstrap() {
   return res.json();
 }
 
-export class ApiError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-  }
-}
-
 export async function initiatePayment(code: string) {
   const res = await fetch(`${API_URL}/api/access/pay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),
   });
-  if (!res.ok) throw new ApiError(res.status, await res.text());
+  if (!res.ok) throw new Error("Payment init failed");
   return res.json() as Promise<{ paymentUrl: string; txnRef: string }>;
 }
 
 export async function translateText(text: string, targetLang: string): Promise<string> {
-  const deepTranslateUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+  const deepTranslateUrl = TRANSLATE_API_URL // Port của DeepTranslate trên local
   const res = await fetch(`${deepTranslateUrl}/api/localize/translate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

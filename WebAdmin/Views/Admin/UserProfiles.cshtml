@@ -1,0 +1,76 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Hồ sơ người dùng";
+}
+
+<!-- Admin: User Profiles -->
+<div id="view-user-profiles" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Hồ sơ người dùng</h3>
+            <p class="section-subtitle">Xem và quản lý hồ sơ của tất cả người dùng trong hệ thống</p>
+        </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <select id="filter-profile-role" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
+            <option value="">Tất cả vai trò</option>
+            <option value="Admin">Admin</option>
+            <option value="Owner">Owner</option>
+        </select>
+        <div style="position:relative;flex:1;max-width:320px;">
+            <i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;"></i>
+            <input type="text" id="search-profile" class="form-input" placeholder="Tìm theo tên hoặc email..."
+                   style="width:100%;padding:8px 10px 8px 34px;font-size:13px;">
+        </div>
+    </div>
+
+    <!-- Profiles Table -->
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Số điện thoại</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="profiles-table-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Profile Detail Modal -->
+<div id="modal-profile-detail" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:520px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;">
+                <i class="fa-solid fa-id-card text-accent" style="margin-right:8px;"></i>Chi tiết hồ sơ
+            </h3>
+            <button class="btn-ghost" id="btn-close-profile-detail" style="font-size:14px;padding:6px 10px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="profile-detail-content">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initUserProfiles) {
+                AudioTravelling.Modules.initUserProfiles();
+            }
+        });
+    </script>
+}

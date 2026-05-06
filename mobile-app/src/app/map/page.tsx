@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSessionToken, clearSessionToken, verifySession } from "@/lib/api";
@@ -15,6 +15,7 @@ export default function MapPage() {
       return;
     }
 
+    // Verify ngầm, không block map render
     verifySession().then((result) => {
       if (result.status === "invalid") {
         clearSessionToken();
@@ -23,10 +24,7 @@ export default function MapPage() {
     });
 
     if ("wakeLock" in navigator) {
-      const wakeLockNavigator = navigator as Navigator & {
-        wakeLock?: { request(type: "screen"): Promise<unknown> };
-      };
-      wakeLockNavigator.wakeLock?.request("screen").catch(() => {});
+      (navigator as any).wakeLock.request("screen").catch(() => {});
     }
   }, [router]);
 

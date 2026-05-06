@@ -1,0 +1,75 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý QR";
+}
+
+<!-- Admin: QR Management -->
+<div id="view-qr-management" class="view-section active">
+    <div class="section-header">
+        <div>
+            <h3 class="section-title">Quản lý mã QR</h3>
+            <p class="section-subtitle">Tạo, quản lý và theo dõi mã QR cho hệ thống</p>
+        </div>
+        <button class="btn-primary btn-ripple" id="btn-create-qr">
+            <i class="fa-solid fa-plus"></i> Tạo QR mới
+        </button>
+    </div>
+
+    <div class="glass-card" style="padding:24px;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã QR</th>
+                    <th>Trạng thái</th>
+                    <th style="text-align:center;">Lượt quét</th>
+                    <th style="text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="qr-table-body">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Create QR Modal -->
+    <div id="modal-create-qr" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:20px;">
+                <i class="fa-solid fa-qrcode text-accent" style="margin-right:8px;"></i>Tạo mã QR mới
+            </h3>
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="btn-ghost" id="btn-cancel-create-qr">Hủy</button>
+                <button class="btn-primary btn-ripple" id="btn-save-new-qr">
+                    <i class="fa-solid fa-check"></i> Tạo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View QR Detail Modal -->
+    <div id="modal-view-qr" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width:420px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="font-size:18px;font-weight:700;margin:0;">
+                    <i class="fa-solid fa-qrcode text-accent" style="margin-right:8px;"></i>Mã QR
+                </h3>
+                <button class="btn-ghost" id="btn-close-view-qr" style="font-size:14px;padding:6px 10px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="qr-detail-content">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initQRManagement) {
+                AudioTravelling.Modules.initQRManagement();
+            }
+        });
+    </script>
+}

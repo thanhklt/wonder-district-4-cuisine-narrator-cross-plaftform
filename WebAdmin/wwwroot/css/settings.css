@@ -1,0 +1,98 @@
+/* ══════════════════════════════════
+   ADMIN SETTINGS
+   ══════════════════════════════════ */
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--forest-600);
+    transition: border-color var(--transition-normal);
+}
+
+.profile-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    cursor: default;
+    pointer-events: none;
+}
+
+.profile-avatar-overlay.editable {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.profile-avatar-wrapper:hover .profile-avatar-overlay.editable {
+    opacity: 1;
+}
+
+.social-login-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.social-login-badge.connected {
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--emerald);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Tier Configuration Cards */
+.tier-config-card {
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-glass);
+    background: rgba(0, 0, 0, 0.15);
+    margin-bottom: 12px;
+    transition: all var(--transition-normal);
+}
+
+.tier-config-card:hover {
+    border-color: rgba(34, 197, 94, 0.25);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.tier-config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.tier-config-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tier-config-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}

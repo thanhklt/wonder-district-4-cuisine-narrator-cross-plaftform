@@ -1,0 +1,66 @@
+@{
+    Layout = "_OwnerLayout";
+    ViewData["Title"] = "Tổng quan";
+}
+
+<!-- Owner Dashboard -->
+<div id="view-dashboard-owner" class="view-section active">
+
+    <!-- Stats Row -->
+    <div class="grid-4 mb-6">
+        <div class="glass-card owner-stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-map-pin"></i></div>
+            <p class="stat-label">Tổng POI</p>
+            <p class="stat-value" id="stat-owner-total">0</p>
+        </div>
+        <div class="glass-card owner-stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            <p class="stat-label">Đã duyệt</p>
+            <p class="stat-value" id="stat-owner-approved">0</p>
+        </div>
+        <div class="glass-card owner-stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
+            <p class="stat-label">Đang chờ duyệt</p>
+            <p class="stat-value" id="stat-owner-pending">0</p>
+        </div>
+        <div class="glass-card owner-stat-card">
+            <div class="stat-icon red"><i class="fa-solid fa-circle-xmark"></i></div>
+            <p class="stat-label">Bị từ chối</p>
+            <p class="stat-value" id="stat-owner-rejected">0</p>
+        </div>
+    </div>
+
+    <!-- Recent POIs -->
+    <div class="glass-card" style="padding:24px;">
+        <div class="flex-between mb-4">
+            <h3 style="font-size:16px; font-weight:700;">
+                <i class="fa-solid fa-map-pin text-accent" style="margin-right:8px;"></i>POI gần đây
+            </h3>
+            <a href="/owner/pois/create" class="btn-primary btn-ripple" style="font-size:13px; text-decoration:none;">
+                <i class="fa-solid fa-plus"></i> Tạo POI mới
+            </a>
+        </div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="padding:16px 24px;">Tên POI</th>
+                    <th style="padding:16px 24px;">Trạng thái</th>
+                    <th style="padding:16px 24px;">Cập nhật</th>
+                </tr>
+            </thead>
+            <tbody id="owner-pois-preview">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initOwnerDashboard) {
+                AudioTravelling.Modules.initOwnerDashboard();
+            }
+        });
+    </script>
+}
