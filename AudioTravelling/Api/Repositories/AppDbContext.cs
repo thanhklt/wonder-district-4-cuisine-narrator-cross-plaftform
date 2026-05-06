@@ -1,7 +1,7 @@
-using Api.Persistence.Entities;
+using Api.Repositories.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Persistence
+namespace Api.Repositories
 {
     public class AppDbContext : DbContext
     {

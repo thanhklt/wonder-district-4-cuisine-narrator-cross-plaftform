@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Api.Persistence.Entities
+namespace Api.Repositories.Entities
 {
     [Table("Users")]
     public class User

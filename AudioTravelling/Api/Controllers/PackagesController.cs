@@ -1,5 +1,6 @@
-using Api.Persistence;
-using Api.Persistence.Entities;
+using Api.Models;
+using Api.Repositories;
+using Api.Repositories.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Api.Controllers
 {
     [Route("api/packages")]
     [ApiController]
-    [Authorize] // Can be called by Owner or Admin
+    [Authorize]
     public class PackagesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,13 +24,9 @@ namespace Api.Controllers
         {
             var packages = await _context.Packages.Select(p => new PackageDto
             {
-                PackageId = p.PackageId,
-                Name = p.Name,
-                Radius = p.Radius,
-                Priority = p.Priority,
-                Price = p.Price
+                PackageId = p.PackageId, Name = p.Name, Radius = p.Radius,
+                Priority = p.Priority, Price = p.Price
             }).ToListAsync();
-
             return Ok(packages);
         }
     }
@@ -51,13 +48,9 @@ namespace Api.Controllers
         {
             var packages = await _context.Packages.Select(p => new PackageDto
             {
-                PackageId = p.PackageId,
-                Name = p.Name,
-                Radius = p.Radius,
-                Priority = p.Priority,
-                Price = p.Price
+                PackageId = p.PackageId, Name = p.Name, Radius = p.Radius,
+                Priority = p.Priority, Price = p.Price
             }).ToListAsync();
-
             return Ok(packages);
         }
 
@@ -66,31 +59,15 @@ namespace Api.Controllers
         {
             var p = await _context.Packages.FindAsync(id);
             if (p == null) return NotFound();
-
-            return Ok(new PackageDto
-            {
-                PackageId = p.PackageId,
-                Name = p.Name,
-                Radius = p.Radius,
-                Priority = p.Priority,
-                Price = p.Price
-            });
+            return Ok(new PackageDto { PackageId = p.PackageId, Name = p.Name, Radius = p.Radius, Priority = p.Priority, Price = p.Price });
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PackageDto request)
         {
-            var package = new Package
-            {
-                Name = request.Name,
-                Radius = request.Radius,
-                Priority = request.Priority,
-                Price = request.Price
-            };
-
+            var package = new Package { Name = request.Name, Radius = request.Radius, Priority = request.Priority, Price = request.Price };
             _context.Packages.Add(package);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Created successfully", packageId = package.PackageId });
         }
 
@@ -99,12 +76,8 @@ namespace Api.Controllers
         {
             var package = await _context.Packages.FindAsync(id);
             if (package == null) return NotFound();
-
-            package.Name = request.Name;
-            package.Radius = request.Radius;
-            package.Priority = request.Priority;
-            package.Price = request.Price;
-
+            package.Name = request.Name; package.Radius = request.Radius;
+            package.Priority = request.Priority; package.Price = request.Price;
             await _context.SaveChangesAsync();
             return Ok(new { message = "Updated successfully" });
         }
@@ -114,22 +87,9 @@ namespace Api.Controllers
         {
             var package = await _context.Packages.FindAsync(id);
             if (package == null) return NotFound();
-
             _context.Packages.Remove(package);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Deleted successfully" });
         }
-    }
-
-    public class PackageDto
-    {
-        public int PackageId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Radius { get; set; }
-        public int Priority { get; set; }
-        public decimal Price { get; set; }
-        public string? Description { get; set; }
-        public bool IsActive { get; set; } = true;
     }
 }

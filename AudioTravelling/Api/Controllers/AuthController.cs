@@ -1,5 +1,6 @@
-using Api.Persistence;
-using Api.Persistence.Entities;
+using Api.Models;
+using Api.Repositories;
+using Api.Repositories.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -82,21 +83,5 @@ namespace Api.Controllers
                 RoleId = user.RoleID
             });
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
-    public class LoginResponse
-    {
-        public string Token { get; set; } = string.Empty;
-        public int UserId { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public int RoleId { get; set; }
     }
 }

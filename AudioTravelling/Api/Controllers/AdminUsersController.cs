@@ -1,4 +1,5 @@
-using Api.Persistence;
+using Api.Models;
+using Api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,35 +24,20 @@ namespace Api.Controllers
             var query = _context.Users.Include(u => u.Role).AsQueryable();
 
             if (!string.IsNullOrEmpty(role))
-            {
                 query = query.Where(u => u.Role.RoleName == role);
-            }
 
             if (status.HasValue)
-            {
                 query = query.Where(u => u.UserStatus == status.Value);
-            }
 
             if (!string.IsNullOrEmpty(search))
-            {
-                query = query.Where(u => u.FullName.Contains(search) || 
-                                         u.Email.Contains(search) || 
-                                         u.PhoneNumber.Contains(search));
-            }
+                query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search) || u.PhoneNumber.Contains(search));
 
             var users = await query.Select(u => new UserDto
             {
-                UserId = u.UserID,
-                FullName = u.FullName,
-                Email = u.Email,
-                PhoneNumber = u.PhoneNumber,
-                RoleId = u.RoleID,
-                Role = u.Role.RoleName,
-                UserStatus = u.UserStatus,
-                Status = u.UserStatus == 1 ? "Active" : "Inactive",
-                CreatedDate = u.CreatedDate,
-                IsLocked = u.UserStatus == 0,
-                LastLoginAt = null // TODO
+                UserId = u.UserID, FullName = u.FullName, Email = u.Email,
+                PhoneNumber = u.PhoneNumber, RoleId = u.RoleID, Role = u.Role.RoleName,
+                UserStatus = u.UserStatus, Status = u.UserStatus == 1 ? "Active" : "Inactive",
+                CreatedDate = u.CreatedDate, IsLocked = u.UserStatus == 0, LastLoginAt = null
             }).ToListAsync();
 
             return Ok(users);
@@ -65,33 +51,11 @@ namespace Api.Controllers
 
             return Ok(new UserDto
             {
-                UserId = user.UserID,
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                RoleId = user.RoleID,
-                Role = user.Role.RoleName,
-                UserStatus = user.UserStatus,
-                Status = user.UserStatus == 1 ? "Active" : "Inactive",
-                CreatedDate = user.CreatedDate,
-                IsLocked = user.UserStatus == 0,
-                LastLoginAt = null
+                UserId = user.UserID, FullName = user.FullName, Email = user.Email,
+                PhoneNumber = user.PhoneNumber, RoleId = user.RoleID, Role = user.Role.RoleName,
+                UserStatus = user.UserStatus, Status = user.UserStatus == 1 ? "Active" : "Inactive",
+                CreatedDate = user.CreatedDate, IsLocked = user.UserStatus == 0, LastLoginAt = null
             });
         }
-    }
-
-    public class UserDto
-    {
-        public int UserId { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public int RoleId { get; set; }
-        public string Role { get; set; } = string.Empty;
-        public int UserStatus { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; }
-        public bool IsLocked { get; set; }
-        public DateTime? LastLoginAt { get; set; }
     }
 }

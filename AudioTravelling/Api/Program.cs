@@ -1,5 +1,5 @@
-using Api.Persistence;
-using Api.Persistence.Entities;
+using Api.Repositories;
+using Api.Repositories.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

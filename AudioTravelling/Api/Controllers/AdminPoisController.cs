@@ -1,5 +1,6 @@
-using Api.Persistence;
-using Api.Persistence.Entities;
+using Api.Models;
+using Api.Repositories;
+using Api.Repositories.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -187,10 +188,5 @@ namespace Api.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Rejected successfully" });
         }
-    }
-
-    public class RejectPoiRequest
-    {
-        public string Note { get; set; } = string.Empty;
     }
 }

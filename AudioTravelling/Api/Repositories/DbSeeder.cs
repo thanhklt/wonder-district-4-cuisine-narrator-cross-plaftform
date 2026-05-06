@@ -1,7 +1,7 @@
-using Api.Persistence.Entities;
+using Api.Repositories.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Api.Persistence
+namespace Api.Repositories
 {
     public static class DbSeeder
     {
