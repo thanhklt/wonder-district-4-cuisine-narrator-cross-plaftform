@@ -22,10 +22,7 @@
             AT.Services.POI.getByOwner().then(function (pois) {
                 var poi = (pois || []).find(function (p) { return (p.poiId || p.id) == editId; });
                 if (poi) {
-                    setField('poi-name', poi.poiName || poi.name);
-                    setField('poi-description', poi.descriptionVi || poi.description);
-                    setField('poi-image', poi.imageUrl || '');
-                    setField('poi-lat', poi.latitude || poi.lat);
+                    
                     setField('poi-lng', poi.longitude || poi.lng);
                     // Set package dropdown
                     var pkgSelect = document.getElementById('poi-package');

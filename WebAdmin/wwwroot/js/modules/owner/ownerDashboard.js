@@ -15,13 +15,12 @@
             console.log('[OwnerDashboard] Loaded POIs:', pois);
             pois = pois || [];
             var total = pois.length;
-            var approvedRaw = pois.filter(function (p) { return String(p.status || '').toLowerCase() === 'approved'; }).length;
+            var approved = pois.filter(function (p) { return String(p.status || '').toLowerCase() === 'approved'; }).length;
             var pending = pois.filter(function (p) { return String(p.status || '').toLowerCase() === 'pending'; }).length;
             var rejected = pois.filter(function (p) { return String(p.status || '').toLowerCase() === 'rejected'; }).length;
 
             var el = function (id) { return document.getElementById(id); };
             if (el('stat-owner-total')) el('stat-owner-total').textContent = total;
-            var approved = approvedRaw * 2;
             if (el('stat-owner-approved')) el('stat-owner-approved').textContent = approved;
             if (el('stat-owner-pending')) el('stat-owner-pending').textContent = pending;
             if (el('stat-owner-rejected')) el('stat-owner-rejected').textContent = rejected;

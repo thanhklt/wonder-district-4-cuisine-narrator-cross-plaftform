@@ -21,7 +21,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("sessions")]
-        public async Task<IActionResult> GetSessions([FromQuery] string period = "today")
+        public async Task<IActionResult> GetSessions([FromQuery] string period = "today", [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {
             var now = DateTime.UtcNow;
             var startDate = now.Date;
@@ -30,10 +30,15 @@ namespace Api.Controllers
             else if (period == "month") startDate = now.AddMonths(-1).Date;
             else if (period == "all") startDate = DateTime.MinValue;
 
-            var sessions = await _context.AccessSessions
+            // If explicit dates are provided, they override the period
+            if (fromDate.HasValue) startDate = fromDate.Value.ToUniversalTime();
+            var endDate = toDate.HasValue ? toDate.Value.ToUniversalTime().AddDays(1).AddTicks(-1) : DateTime.MaxValue;
+
+            var sessionsQuery = _context.AccessSessions
                 .Include(s => s.QrCode)
-                .Where(s => s.IssuedAt >= startDate)
-                .ToListAsync();
+                .Where(s => s.IssuedAt >= startDate && s.IssuedAt <= endDate);
+
+            var sessions = await sessionsQuery.ToListAsync();
 
             var activeUsers = sessions.Count(s => !s.IsRevoked && s.ExpiredAt > now);
             var uniqueUsers = sessions.Select(s => s.DeviceID).Distinct().Count();
@@ -80,6 +85,38 @@ namespace Api.Controllers
                 activeCount = activeCount,
                 lastUpdatedAt = now
             });
+        }
+
+        [HttpPost("test-session")]
+        public async Task<IActionResult> CreateTestSession()
+        {
+            // Find a random active QR code or create one
+            var qr = await _context.QrCodes.FirstOrDefaultAsync(q => q.IsActive);
+            if (qr == null)
+            {
+                qr = new QrCode
+                {
+                    QrCodeValue = "QR-TEST-" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper(),
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow
+                };
+                _context.QrCodes.Add(qr);
+                await _context.SaveChangesAsync();
+            }
+
+            var session = new AccessSession
+            {
+                QrCodeID = qr.QrCodeID,
+                DeviceID = "test-device-" + Guid.NewGuid().ToString("N").Substring(0, 4),
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddMinutes(30),
+                IsRevoked = false
+            };
+
+            _context.AccessSessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Test session created successfully", session });
         }
     }
 }
