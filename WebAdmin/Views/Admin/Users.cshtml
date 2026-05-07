@@ -10,6 +10,9 @@
             <h3 class="section-title">Quản lý người dùng</h3>
             <p class="section-subtitle">Quản lý tài khoản, vai trò và trạng thái người dùng trong hệ thống</p>
         </div>
+        <button class="btn-primary btn-ripple" id="btn-create-user">
+            <i class="fa-solid fa-plus"></i> Tạo tài khoản
+        </button>
     </div>
 
     <!-- Filter Controls -->
@@ -54,6 +57,57 @@
     <!-- Action Legend -->
     <div style="margin-top:12px;font-size:12px;color:var(--text-dim);display:flex;gap:16px;flex-wrap:wrap;">
         <span><i class="fa-solid fa-eye"></i> Xem chi tiết</span>
+        <span><i class="fa-solid fa-pen"></i> Sửa</span>
+        <span><i class="fa-solid fa-toggle-on"></i> Khóa/Mở</span>
+        <span><i class="fa-solid fa-trash"></i> Xóa</span>
+    </div>
+</div>
+
+<!-- Edit/Create User Modal -->
+<div id="modal-edit-user" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:500px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;" id="user-modal-title">
+                <i class="fa-solid fa-user-plus text-accent" style="margin-right:8px;"></i>Tạo/Sửa Tài Khoản
+            </h3>
+            <button class="btn-ghost" id="btn-close-edit-user" style="font-size:14px;padding:6px 10px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="form-edit-user">
+            <input type="hidden" id="edit-user-id" />
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Họ tên</label>
+                    <input type="text" id="edit-user-fullname" class="form-input" required />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Email</label>
+                    <input type="email" id="edit-user-email" class="form-input" required />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Số điện thoại</label>
+                    <input type="text" id="edit-user-phone" class="form-input" />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Mật khẩu (Bỏ trống nếu không đổi)</label>
+                    <input type="password" id="edit-user-password" class="form-input" />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Vai trò</label>
+                    <select id="edit-user-role" class="form-input" required>
+                        <option value="Admin">Admin</option>
+                        <option value="Owner">Owner</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:12px;">
+                    <button type="button" class="btn-ghost" id="btn-cancel-edit-user">Hủy</button>
+                    <button type="submit" class="btn-primary btn-ripple">
+                        <i class="fa-solid fa-save"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 

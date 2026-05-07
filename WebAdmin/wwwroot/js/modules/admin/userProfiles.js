@@ -71,9 +71,12 @@
                 '<td style="padding:12px 10px;font-size:13px;">' + (p.phoneNumber || '—') + '</td>' +
                 '<td style="padding:12px 10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
                 '<td style="padding:12px 10px;font-size:13px;">' + Fmt.date(p.createdDate) + '</td>' +
-                '<td style="padding:12px 10px;text-align:center;">' +
-                    '<button class="btn-ghost btn-view-profile" data-profile-id="' + p.userId + '" style="font-size:12px;padding:6px 12px;" title="Xem chi tiết">' +
-                        '<i class="fa-solid fa-eye"></i> Xem' +
+                '<td style="padding:12px 10px;text-align:center;display:flex;gap:4px;justify-content:center;">' +
+                    '<button class="btn-ghost btn-view-profile" data-profile-id="' + p.userId + '" style="font-size:11px;padding:5px 8px;" title="Xem chi tiết">' +
+                        '<i class="fa-solid fa-eye"></i>' +
+                    '</button>' +
+                    '<button class="btn-ghost btn-edit-profile" data-profile-id="' + p.userId + '" style="font-size:11px;padding:5px 8px;" title="Sửa hồ sơ">' +
+                        '<i class="fa-solid fa-pen"></i>' +
                     '</button>' +
                 '</td>' +
                 '</tr>';
@@ -87,12 +90,30 @@
             });
         });
 
+        // Bind edit buttons
+        tbody.querySelectorAll('.btn-edit-profile').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                openEditProfileModal(btn.getAttribute('data-profile-id'));
+            });
+        });
+
         // Bind row clicks
         tbody.querySelectorAll('.profile-row').forEach(function (row) {
             row.addEventListener('click', function () {
                 showProfileDetail(row.getAttribute('data-profile-id'));
             });
         });
+    }
+
+    function openEditProfileModal(profileId) {
+        var p = _allProfiles.find(function(user) { return user.userId == profileId || user.id == profileId; });
+        if (p) {
+            document.getElementById('edit-profile-id').value = p.userId;
+            document.getElementById('edit-profile-fullname').value = p.fullName || '';
+            document.getElementById('edit-profile-phone').value = p.phoneNumber || '';
+            UI.showModal('modal-edit-profile');
+        }
     }
 
     function showProfileDetail(profileId) {
@@ -151,6 +172,38 @@
 
         var searchInput = document.getElementById('search-profile');
         if (searchInput) searchInput.addEventListener('input', filterProfiles);
+
+        var btnCloseEdit = document.getElementById('btn-close-edit-profile');
+        if (btnCloseEdit) btnCloseEdit.addEventListener('click', function () { UI.hideModal('modal-edit-profile'); });
+
+        var btnCancelEdit = document.getElementById('btn-cancel-edit-profile');
+        if (btnCancelEdit) btnCancelEdit.addEventListener('click', function () { UI.hideModal('modal-edit-profile'); });
+
+        var formEdit = document.getElementById('form-edit-profile');
+        if (formEdit) {
+            formEdit.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var id = document.getElementById('edit-profile-id').value;
+                if (!id) return;
+                
+                var data = {
+                    FullName: document.getElementById('edit-profile-fullname').value,
+                    PhoneNumber: document.getElementById('edit-profile-phone').value
+                };
+
+                AT.Core.Auth.authFetch('/admin/profiles/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).then(function () {
+                    UI.showToast('Cập nhật hồ sơ thành công', 'success');
+                    UI.hideModal('modal-edit-profile');
+                    loadProfiles();
+                }).catch(function (err) {
+                    UI.showToast('Lỗi: ' + err.message, 'error');
+                });
+            });
+        }
 
         var btnCloseModal = document.getElementById('btn-close-profile-detail');
         if (btnCloseModal) {

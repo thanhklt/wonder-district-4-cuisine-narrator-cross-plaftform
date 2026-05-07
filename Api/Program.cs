@@ -85,6 +85,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
 app.UseCors("AllowWebAdmin");
 
 app.UseAuthentication();

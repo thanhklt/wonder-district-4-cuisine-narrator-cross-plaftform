@@ -31,6 +31,7 @@ namespace Api.Models
         public double Longitude { get; set; }
         public int PackageId { get; set; }
         public IFormFile? ImageFile { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class UpdatePoiRequest : CreatePoiRequest

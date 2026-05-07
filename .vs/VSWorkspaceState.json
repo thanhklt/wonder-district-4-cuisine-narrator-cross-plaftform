@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\WebAdmin\\wwwroot"
+    "\\Api",
+    "\\Api\\Services"
   ],
-  "SelectedNode": "\\WebAdmin",
+  "SelectedNode": "\\Api\\Services\\AuthService.cs",
   "PreviewInSolutionExplorer": false
 }

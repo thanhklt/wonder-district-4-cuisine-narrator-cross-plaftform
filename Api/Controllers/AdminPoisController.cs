@@ -14,10 +14,12 @@ namespace Api.Controllers
     public class AdminPoisController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public AdminPoisController(AppDbContext context)
+        public AdminPoisController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         private int GetUserId()
@@ -40,30 +42,11 @@ namespace Api.Controllers
             var pois = await _context.Pois
                 .Include(p => p.Package)
                 .Include(p => p.Owner)
+                .Include(p => p.Images)
                 .Where(p => p.Status == "Pending")
                 .ToListAsync();
 
-            var result = pois.Select(p => new PoiDto
-                {
-                    PoiId = p.PoiID,
-                    PoiName = p.PoiName,
-                    DescriptionVi = p.DescriptionVi,
-                    Latitude = p.Latitude,
-                    Longitude = p.Longitude,
-                    Radius = p.Package.Radius,
-                    Priority = p.Package.Priority,
-                    Status = p.Status.ToLower(),
-                    StatusText = p.Status,
-                    IsActive = p.IsActive,
-                    PackageId = p.PackageId,
-                    PackageName = p.Package.Name,
-                    OwnerId = p.OwnerID,
-                    OwnerName = p.Owner.FullName,
-                    OwnerEmail = p.Owner.Email,
-                    CreatedDate = p.CreatedDate,
-                    UpdatedDate = p.UpdatedDate,
-                    Images = new List<string>()
-                }).ToList();
+            var result = pois.Select(p => MapToDto(p)).ToList();
 
             return Ok(result);
         }
@@ -74,6 +57,7 @@ namespace Api.Controllers
             var query = _context.Pois
                 .Include(p => p.Package)
                 .Include(p => p.Owner)
+                .Include(p => p.Images)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(status))
@@ -83,27 +67,7 @@ namespace Api.Controllers
 
             var poisList = await query.ToListAsync();
 
-            var pois = poisList.Select(p => new PoiDto
-                {
-                    PoiId = p.PoiID,
-                    PoiName = p.PoiName,
-                    DescriptionVi = p.DescriptionVi,
-                    Latitude = p.Latitude,
-                    Longitude = p.Longitude,
-                    Radius = p.Package.Radius,
-                    Priority = p.Package.Priority,
-                    Status = p.Status.ToLower(),
-                    StatusText = p.Status,
-                    IsActive = p.IsActive,
-                    PackageId = p.PackageId,
-                    PackageName = p.Package.Name,
-                    OwnerId = p.OwnerID,
-                    OwnerName = p.Owner.FullName,
-                    OwnerEmail = p.Owner.Email,
-                    CreatedDate = p.CreatedDate,
-                    UpdatedDate = p.UpdatedDate,
-                    Images = new List<string>()
-                }).ToList();
+            var pois = poisList.Select(p => MapToDto(p)).ToList();
 
             return Ok(pois);
         }
@@ -114,31 +78,12 @@ namespace Api.Controllers
             var p = await _context.Pois
                 .Include(poi => poi.Package)
                 .Include(poi => poi.Owner)
+                .Include(poi => poi.Images)
                 .FirstOrDefaultAsync(poi => poi.PoiID == id);
 
             if (p == null) return NotFound();
 
-            return Ok(new PoiDto
-            {
-                PoiId = p.PoiID,
-                PoiName = p.PoiName,
-                DescriptionVi = p.DescriptionVi,
-                Latitude = p.Latitude,
-                Longitude = p.Longitude,
-                Radius = p.Package.Radius,
-                Priority = p.Package.Priority,
-                Status = p.Status.ToLower(),
-                StatusText = p.Status,
-                IsActive = p.IsActive,
-                PackageId = p.PackageId,
-                PackageName = p.Package.Name,
-                OwnerId = p.OwnerID,
-                OwnerName = p.Owner.FullName,
-                OwnerEmail = p.Owner.Email,
-                CreatedDate = p.CreatedDate,
-                UpdatedDate = p.UpdatedDate,
-                Images = new List<string>()
-            });
+            return Ok(MapToDto(p));
         }
 
         [HttpPatch("{id}/approve")]
@@ -188,5 +133,183 @@ namespace Api.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Rejected successfully" });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromForm] AdminCreatePoiRequest request)
+        {
+            var adminId = GetUserId();
+            var package = await _context.Packages.FindAsync(request.PackageId);
+            if (package == null) return BadRequest("Invalid PackageId");
+
+            var poi = new Poi
+            {
+                PoiName = request.PoiName ?? string.Empty, 
+                DescriptionVi = request.DescriptionVi ?? string.Empty,
+                Latitude = request.Latitude, Longitude = request.Longitude,
+                PackageId = request.PackageId, OwnerID = request.OwnerId ?? adminId,
+                Status = "Approved", IsActive = true,
+                CreatedDate = DateTime.UtcNow, UpdatedDate = DateTime.UtcNow
+            };
+
+            _context.Pois.Add(poi);
+            await _context.SaveChangesAsync();
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images", "pois");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(request.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await request.ImageFile.CopyToAsync(stream);
+
+                _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = "/images/pois/" + fileName, IsCover = true, DisplayOrder = 1 });
+                await _context.SaveChangesAsync();
+            }
+            else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            {
+                _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = request.ImageUrl, IsCover = true, DisplayOrder = 1 });
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { message = "Created successfully", poiId = poi.PoiID });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] AdminUpdatePoiRequest request)
+        {
+            var poi = await _context.Pois.Include(p => p.Images).FirstOrDefaultAsync(p => p.PoiID == id);
+            if (poi == null) return NotFound();
+
+            var package = await _context.Packages.FindAsync(request.PackageId);
+            if (package == null) return BadRequest("Invalid PackageId");
+
+            poi.PoiName = request.PoiName ?? string.Empty; 
+            poi.DescriptionVi = request.DescriptionVi ?? string.Empty;
+            poi.Latitude = request.Latitude; poi.Longitude = request.Longitude;
+            poi.PackageId = request.PackageId;
+            if (request.OwnerId.HasValue) poi.OwnerID = request.OwnerId.Value;
+            
+            poi.UpdatedDate = DateTime.UtcNow;
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images", "pois");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(request.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await request.ImageFile.CopyToAsync(stream);
+
+                var oldImage = poi.Images.FirstOrDefault();
+                if (oldImage != null) oldImage.ImageUrl = "/images/pois/" + fileName;
+                else poi.Images.Add(new PoiImage { ImageUrl = "/images/pois/" + fileName, IsCover = true, DisplayOrder = 1 });
+            }
+            else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            {
+                var oldImage = poi.Images.FirstOrDefault();
+                if (oldImage != null) oldImage.ImageUrl = request.ImageUrl;
+                else poi.Images.Add(new PoiImage { ImageUrl = request.ImageUrl, IsCover = true, DisplayOrder = 1 });
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Updated successfully" });
+        }
+
+        [HttpPatch("{id}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var poi = await _context.Pois.FindAsync(id);
+            if (poi == null) return NotFound();
+
+            poi.IsActive = !poi.IsActive;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Toggled successfully", isActive = poi.IsActive });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var poi = await _context.Pois.FindAsync(id);
+            if (poi == null) return NotFound("Không tìm thấy POI.");
+
+            poi.IsActive = false;
+            poi.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "POI đã được xóa mềm.", poiId = id });
+        }
+        private string? BuildImageUrl(string? imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return null;
+
+            if (imageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                imageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty + imageUrl; // keep original online URL
+            }
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            if (!imageUrl.StartsWith("/"))
+                imageUrl = "/" + imageUrl;
+
+            return $"{baseUrl}{imageUrl}";
+        }
+
+        private PoiDto MapToDto(Poi p)
+        {
+            var coverImageUrl = p.Images != null && p.Images.Any() ? (p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl) : null;
+            
+            return new PoiDto
+            {
+                PoiId = p.PoiID,
+                PoiName = p.PoiName,
+                DescriptionVi = p.DescriptionVi,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
+                Radius = p.Package?.Radius ?? 0,
+                Priority = p.Package?.Priority ?? 0,
+                Status = p.Status.ToLower(),
+                StatusText = p.Status,
+                IsActive = p.IsActive,
+                PackageId = p.PackageId,
+                PackageName = p.Package?.Name ?? "",
+                OwnerId = p.OwnerID,
+                OwnerName = p.Owner?.FullName ?? "",
+                OwnerEmail = p.Owner?.Email ?? "",
+                CreatedDate = p.CreatedDate,
+                UpdatedDate = p.UpdatedDate,
+                ImageUrl = BuildImageUrl(coverImageUrl),
+                Images = p.Images != null ? p.Images.Select(i => BuildImageUrl(i.ImageUrl)).Where(url => url != null).ToList()! : new List<string>()
+            };
+        }
+    }
+
+    public class AdminCreatePoiRequest
+    {
+        public string PoiName { get; set; } = string.Empty;
+        public string DescriptionVi { get; set; } = string.Empty;
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public int PackageId { get; set; }
+        public int? OwnerId { get; set; }
+        public IFormFile? ImageFile { get; set; }
+        public string? ImageUrl { get; set; }
+    }
+
+    public class AdminUpdatePoiRequest
+    {
+        public string PoiName { get; set; } = string.Empty;
+        public string DescriptionVi { get; set; } = string.Empty;
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public int PackageId { get; set; }
+        public int? OwnerId { get; set; }
+        public IFormFile? ImageFile { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

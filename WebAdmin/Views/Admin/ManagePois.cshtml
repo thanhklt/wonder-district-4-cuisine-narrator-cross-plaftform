@@ -10,29 +10,123 @@
             <h3 class="section-title">Quản lý POI</h3>
             <p class="section-subtitle">Xem và quản lý tất cả POI trong hệ thống</p>
         </div>
+        <button class="btn-primary btn-ripple" id="btn-create-poi">
+            <i class="fa-solid fa-plus"></i> Tạo POI mới
+        </button>
     </div>
 
-    <div class="glass-card" style="padding:24px;">
-        <table class="admin-table">
+    <!-- Filter Controls -->
+    <div class="filter-controls" style="margin-bottom: 20px; display: flex; gap: 16px;">
+        <select id="filter-poi-status" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Approved">Approved</option>
+            <option value="Pending">Pending</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+        <select id="filter-poi-active" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
+            <option value="">Tất cả hoạt động</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Đã tắt / Xoá mềm</option>
+        </select>
+        <div style="position:relative;flex:1;max-width:320px;">
+            <i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;"></i>
+            <input type="text" id="search-poi" class="form-input" placeholder="Tìm theo tên POI hoặc Owner..."
+                   style="width:100%;padding:8px 10px 8px 34px;font-size:13px;">
+        </div>
+    </div>
+
+    <div class="glass-card" style="padding:24px; overflow-x: auto;">
+        <table class="admin-table" style="min-width: 1200px;">
             <thead>
                 <tr>
-                    <th>Mã POI</th>
+                    <th>ID</th>
                     <th>Tên POI</th>
-                    <th>Chủ sở hữu</th>
-                    <th>Trạng thái</th>
+                    <th>Mô tả</th>
+                    <th>Owner</th>
+                    <th>Package</th>
+                    <th>Status</th>
+                    <th>Active</th>
+                    <th>Lat/Lng</th>
+                    <th>Radius/Priority</th>
+                    <th>Ngày tạo</th>
                     <th>Cập nhật</th>
                     <th style="text-align:center;">Hành động</th>
                 </tr>
             </thead>
             <tbody id="manage-pois-body">
-                <!-- TODO: Inject by JS — implement managePois module -->
-                <tr>
-                    <td colspan="6" style="text-align:center; padding:40px; color:var(--text-dim);">
-                        <i class="fa-solid fa-inbox" style="font-size:32px; margin-bottom:12px; display:block;"></i>
-                        Tính năng đang được phát triển
-                    </td>
-                </tr>
+                <!-- Injected by JS -->
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Edit/Create POI Modal -->
+<div id="modal-edit-poi" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:600px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;" id="poi-modal-title">
+                <i class="fa-solid fa-map-location-dot text-accent" style="margin-right:8px;"></i>Tạo/Sửa POI
+            </h3>
+            <button class="btn-ghost" id="btn-close-edit-poi" style="font-size:14px;padding:6px 10px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="form-edit-poi">
+            <input type="hidden" id="edit-poi-id" />
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Tên POI</label>
+                    <input type="text" id="edit-poi-name" class="form-input" required />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Mô tả</label>
+                    <textarea id="edit-poi-desc" class="form-input" rows="3" required></textarea>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Vĩ độ</label>
+                        <input type="number" step="any" id="edit-poi-lat" class="form-input" required />
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Kinh độ</label>
+                        <input type="number" step="any" id="edit-poi-lng" class="form-input" required />
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Gói (Package ID)</label>
+                        <input type="number" id="edit-poi-package" class="form-input" required />
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Owner ID</label>
+                        <input type="number" id="edit-poi-owner" class="form-input" />
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Hình ảnh tải lên (Bỏ trống nếu không đổi)</label>
+                    <input type="file" id="edit-poi-image" class="form-input" accept="image/*" />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Hoặc nhập URL hình ảnh online</label>
+                    <input type="url" id="edit-poi-image-url" class="form-input" placeholder="https://images.unsplash.com/..." />
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:12px;">
+                    <button type="button" class="btn-ghost" id="btn-cancel-edit-poi">Hủy</button>
+                    <button type="submit" class="btn-primary btn-ripple">
+                        <i class="fa-solid fa-save"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initManagePois) {
+                AudioTravelling.Modules.initManagePois();
+            }
+        });
+    </script>
+}

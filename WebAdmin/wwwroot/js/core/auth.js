@@ -16,6 +16,37 @@
 
     var API_BASE_URL = 'http://localhost:5184/api';
 
+    AT.Core.Config = AT.Core.Config || {};
+    AT.Core.Config.API_URL = API_BASE_URL;
+
+    function getAuthHeaders() {
+        var session = Storage.getSession();
+        var headers = {};
+        if (session && session.token) {
+            headers['Authorization'] = 'Bearer ' + session.token;
+        }
+        return headers;
+    }
+
+    function handleAuthResponse(response) {
+        if (response.status === 401) {
+            AT.Core.Auth.logout();
+            throw new Error('Unauthorized');
+        }
+        if (response.status === 403) {
+            if (AT.Core.RoleGuard) AT.Core.RoleGuard.showForbiddenPage();
+            throw new Error('Forbidden');
+        }
+        if (!response.ok) {
+            return response.text().then(function (text) {
+                var message = text || ('API Error: ' + response.status);
+                throw new Error(message);
+            });
+        }
+        if (response.status === 204) return null;
+        return response.json();
+    }
+
     /**
      * Dev offline mode
      * false = dùng API thật
@@ -182,6 +213,29 @@
     }
 
     AT.Core.Auth = {
+        /** Get saved JWT token */
+        getToken: function () {
+            var session = Storage.getSession();
+            return session && session.token ? session.token : null;
+        },
+
+        authFetch: function (url, options) {
+            options = options || {};
+            var headers = options.headers || {};
+            var token = this.getToken();
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            // Keep Content-Type unset for FormData payloads so browser sets multipart boundary
+            if (options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+            }
+
+            options.headers = headers;
+            return fetch(API_BASE_URL + url, options).then(handleAuthResponse);
+        },
+
         /** Initialise auth — check existing session, bind login/logout forms */
         init: function () {
             this._bindLoginForm();
