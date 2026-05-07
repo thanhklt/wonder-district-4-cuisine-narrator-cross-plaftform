@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(python -c ' *)",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.xml' -Pattern '\\(T:Mapsui.MapInfoEventArgs|T:Mapsui.BaseEventArgs|P:Mapsui.MapInfoEventArgs\\)' -Context 0,5\")",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.xml' -Pattern 'member name=\\\\\"[PT]:Mapsui\\\\.MapInfoEventArgs' -Context 2\")",
+      "Bash(powershell -Command \"\\(Select-String -Path 'C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.xml' -Pattern 'MapInfo' | Select-Object -First 5\\).ToString\\(\\)\")",
+      "Bash(Select-String -Path \"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.xml\" -Pattern \"MapInfoEventArgs\")",
+      "Bash(Select-Object -First 30)",
+      "Bash(find \"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\" -name \"*.cs\" 2>/dev/null | head -20)",
+      "Read(//c/Users/marcn/.nuget/packages/mapsui/5.0.2/**)",
+      "PowerShell(Add-Type -Path \"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"; [Mapsui.MapInfoEventArgs].GetProperties\\(\\) | Select-Object Name, PropertyType)",
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"\\); $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); $idx = $text.IndexOf\\(\"MapInfoEventArgs\"\\); $text.Substring\\([Math]::Max\\(0,$idx-20\\), 400\\))",
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"\\); $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); $matches = [regex]::Matches\\($text, \"get_\\\\w+\"\\); $matches | Select-Object -ExpandProperty Value -Unique | Where-Object { $_ -match \"MapInfo|Feature|Screen|World|Gesture|Handled\" } | Sort-Object)"
     ]
   }
 }

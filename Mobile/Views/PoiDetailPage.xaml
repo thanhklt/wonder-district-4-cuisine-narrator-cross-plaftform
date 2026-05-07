@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Mobile.Views.PoiDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Mobile.ViewModels"
+             x:DataType="vm:PoiDetailViewModel"
+             BackgroundColor="#1A1A2E"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*">
+                <ImageButton Grid.Column="0"
+                             Source="back_arrow.png"
+                             Command="{Binding GoBackCommand}"
+                             HeightRequest="40" WidthRequest="40"
+                             BackgroundColor="Transparent" />
+                <Label Grid.Column="1"
+                       Text="{Binding LocalizedName}"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="White" VerticalOptions="Center"
+                       Margin="12,0,0,0" />
+            </Grid>
+
+            <!-- Ảnh bìa -->
+            <Frame CornerRadius="12" Padding="0" IsClippedToBounds="True"
+                   IsVisible="{Binding Poi.CoverImageUrl, Converter={StaticResource StringToBoolConverter}}">
+                <Image Source="{Binding Poi.CoverImageUrl}"
+                       Aspect="AspectFill" HeightRequest="200" />
+            </Frame>
+
+            <!-- Mô tả -->
+            <Frame BackgroundColor="#2A2A4E" BorderColor="Transparent"
+                   CornerRadius="12" Padding="16">
+                <Label Text="{Binding LocalizedDescription}"
+                       TextColor="#CCCCEE" FontSize="15" LineHeight="1.5" />
+            </Frame>
+
+            <!-- Nút phát audio -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0"
+                        Text="Phát audio"
+                        Command="{Binding PlayAudioCommand}"
+                        IsVisible="{Binding IsAudioPlaying, Converter={StaticResource InverseBoolConverter}}"
+                        BackgroundColor="#4A90E2" TextColor="White"
+                        CornerRadius="8" HeightRequest="48" />
+
+                <Button Grid.Column="0"
+                        Text="Dừng audio"
+                        Command="{Binding StopAudioCommand}"
+                        IsVisible="{Binding IsAudioPlaying}"
+                        BackgroundColor="#FF6B6B" TextColor="White"
+                        CornerRadius="8" HeightRequest="48" />
+
+                <ActivityIndicator Grid.Column="1"
+                                   IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#4A90E2"
+                                   VerticalOptions="Center" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

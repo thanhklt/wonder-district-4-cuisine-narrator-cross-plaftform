@@ -67,13 +67,15 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<LocalizeService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<LocalizationPipeline>();
 
-// Them Cors cua WebAdmin
+// Cors — cho phep moi origin (bao gom mobile emulator)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowWebAdmin", policy =>
     {
-        policy.WithOrigins("http://localhost:5074")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -81,8 +83,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Tao thu muc audio neu chua co
+var webRoot = app.Environment.WebRootPath
+    ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+Directory.CreateDirectory(Path.Combine(webRoot, "audio"));
+
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseStaticFiles();
 
 // app.UseHttpsRedirection();
 app.UseCors("AllowWebAdmin");

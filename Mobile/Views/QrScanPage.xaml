@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Mobile.Views.QrScanPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Mobile.ViewModels"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             x:DataType="vm:QrScanViewModel"
+             BackgroundColor="#1A1A2E"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- QR Scanner -->
+        <zxing:CameraBarcodeReaderView x:Name="BarcodeReader"
+            IsVisible="{Binding IsScannerVisible}"
+            BarcodesDetected="OnBarcodesDetected" />
+
+        <!-- Overlay hướng dẫn + nút dev -->
+        <VerticalStackLayout IsVisible="{Binding IsScannerVisible}"
+                             VerticalOptions="End" Margin="24,0,24,48" Spacing="12">
+            <Frame BackgroundColor="#CC000000" BorderColor="Transparent" CornerRadius="12" Padding="16">
+                <Label Text="Quét mã QR tại phố ẩm thực Vĩnh Khánh để tiến hành thanh toán"
+                       TextColor="White" HorizontalTextAlignment="Center" FontSize="14" />
+            </Frame>
+
+            <!-- Nút giả lập thanh toán (dev only) -->
+            <Button Text="[Dev] Bỏ qua thanh toán"
+                    Command="{Binding SimulatePaymentCommand}"
+                    BackgroundColor="#CC2D2D2D"
+                    TextColor="#AAAAAA"
+                    FontSize="12"
+                    CornerRadius="8"
+                    Padding="16,10"
+                    BorderColor="#555"
+                    BorderWidth="1" />
+        </VerticalStackLayout>
+
+        <!-- Trạng thái xử lý -->
+        <VerticalStackLayout IsVisible="{Binding IsBusy}"
+                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="White" />
+            <Label Text="{Binding StatusMessage}" TextColor="White"
+                   HorizontalTextAlignment="Center" FontSize="14" />
+        </VerticalStackLayout>
+
+        <!-- Lỗi + retry -->
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="16"
+                             IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}">
+            <Label Text="{Binding StatusMessage}" TextColor="#FF6B6B"
+                   HorizontalTextAlignment="Center" FontSize="14" Margin="24,0" />
+            <Button Text="Quét lại" Command="{Binding RetryScanCommand}"
+                    BackgroundColor="#4A90E2" TextColor="White"
+                    CornerRadius="8" Padding="24,12" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

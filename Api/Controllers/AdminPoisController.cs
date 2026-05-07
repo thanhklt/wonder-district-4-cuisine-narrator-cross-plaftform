@@ -1,6 +1,7 @@
 using Api.Models;
 using Api.Models.Entities;
 using Api.Repositories;
+using Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,12 @@ namespace Api.Controllers
     public class AdminPoisController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public AdminPoisController(AppDbContext context)
+        public AdminPoisController(AppDbContext context, IServiceScopeFactory scopeFactory)
         {
             _context = context;
+            _scopeFactory = scopeFactory;
         }
 
         private int GetUserId()
@@ -162,6 +165,17 @@ namespace Api.Controllers
             _context.PoiApprovalLogs.Add(log);
 
             await _context.SaveChangesAsync();
+
+            // Chay localization + TTS pipeline trong background
+            var capturedId = id;
+            var capturedFactory = _scopeFactory;
+            _ = Task.Run(async () =>
+            {
+                await using var scope = capturedFactory.CreateAsyncScope();
+                var pipeline = scope.ServiceProvider.GetRequiredService<LocalizationPipeline>();
+                await pipeline.LocalizePoiAsync(capturedId);
+            });
+
             return Ok(new { message = "Approved successfully" });
         }
 

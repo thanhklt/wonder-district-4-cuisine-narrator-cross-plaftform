@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Mobile.Views.SplashPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Mobile.ViewModels"
+             x:DataType="vm:SplashViewModel"
+             BackgroundColor="#1A1A2E"
+             Shell.NavBarIsVisible="False">
+
+    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="24">
+
+        <Label Text="AudioTravelling"
+               FontSize="32" FontAttributes="Bold"
+               TextColor="White" HorizontalOptions="Center" />
+
+        <Label Text="Thuyết minh tự động tại phố ẩm thực Vĩnh Khánh"
+               FontSize="14" TextColor="#AAAACC"
+               HorizontalOptions="Center" HorizontalTextAlignment="Center"
+               Margin="24,0" />
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="White" Margin="0,16,0,0" />
+
+        <Label Text="{Binding StatusMessage}"
+               TextColor="#AAAACC" FontSize="13"
+               HorizontalOptions="Center" />
+
+    </VerticalStackLayout>
+</ContentPage>

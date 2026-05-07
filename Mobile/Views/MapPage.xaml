@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Mobile.Views.MapPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Mobile.ViewModels"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+             x:DataType="vm:MapViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+
+        <!-- Bản đồ (full screen) -->
+        <mapsui:MapControl x:Name="MapControl" />
+
+        <!-- Thanh trạng thái audio (góc dưới, trên popup) -->
+        <Border VerticalOptions="End"
+                HorizontalOptions="Fill"
+                BackgroundColor="#CC1A1A2E"
+                StrokeThickness="0"
+                Margin="0,0,0,0"
+                IsVisible="{Binding IsAudioPlaying}"
+                Padding="16,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="{Binding LastTriggeredPoiName, StringFormat='♪  {0}'}"
+                       TextColor="White" FontSize="13" FontAttributes="Bold"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Dừng"
+                        Command="{Binding StopAudioCommand}"
+                        BackgroundColor="#FF6B6B" TextColor="White"
+                        CornerRadius="8" Padding="14,6"
+                        FontSize="12" />
+            </Grid>
+        </Border>
+
+        <!-- Dimmed overlay khi popup mo -->
+        <BoxView BackgroundColor="#60000000"
+                 IsVisible="{Binding IsPoiPopupVisible}"
+                 x:Name="DimOverlay">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ClosePoiPopupCommand}" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- POI Bottom Sheet Popup -->
+        <Border x:Name="PoiPopup"
+                VerticalOptions="End"
+                BackgroundColor="White"
+                IsVisible="{Binding IsPoiPopupVisible}"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24,24,0,0" />
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  Padding="0,0,0,32">
+
+                <!-- Drag handle -->
+                <BoxView Grid.Row="0"
+                         WidthRequest="44" HeightRequest="4"
+                         CornerRadius="2"
+                         BackgroundColor="#E0E0E0"
+                         HorizontalOptions="Center"
+                         Margin="0,12,0,0" />
+
+                <!-- Header: tên POI + nút đóng -->
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,Auto"
+                      Padding="20,16,16,8">
+                    <Label Grid.Column="0"
+                           Text="{Binding PopupPoiName}"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="#111111"
+                           VerticalOptions="Center"
+                           LineBreakMode="TailTruncation" />
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding ClosePoiPopupCommand}"
+                            BackgroundColor="#F5F5F5"
+                            TextColor="#666666"
+                            CornerRadius="18"
+                            WidthRequest="36" HeightRequest="36"
+                            FontSize="14"
+                            Padding="0" />
+                </Grid>
+
+                <!-- Ảnh bìa (nếu có) -->
+                <Border Grid.Row="2"
+                        IsVisible="{Binding HasPopupImage}"
+                        Margin="20,0,20,12"
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Image Source="{Binding PopupCoverImageUrl}"
+                           Aspect="AspectFill"
+                           HeightRequest="160" />
+                </Border>
+
+                <!-- Separator -->
+                <BoxView Grid.Row="2"
+                         IsVisible="{Binding HasPopupImage, Converter={StaticResource InverseBoolConverter}}"
+                         HeightRequest="1" BackgroundColor="#F0F0F0"
+                         Margin="20,0,20,12" />
+
+                <!-- Mô tả -->
+                <ScrollView Grid.Row="3"
+                            MaximumHeightRequest="160"
+                            Margin="20,0,20,16">
+                    <Label Text="{Binding PopupDescription}"
+                           TextColor="#444444"
+                           FontSize="14"
+                           LineHeight="1.6" />
+                </ScrollView>
+
+                <!-- Nút phát audio -->
+                <Grid Grid.Row="4"
+                      ColumnDefinitions="*,Auto"
+                      Padding="20,0,20,0"
+                      ColumnSpacing="12">
+
+                    <!-- Phát -->
+                    <Button Grid.Column="0"
+                            Text="▶  Phát audio"
+                            Command="{Binding PlayPopupPoiCommand}"
+                            IsVisible="{Binding IsAudioPlaying, Converter={StaticResource InverseBoolConverter}}"
+                            BackgroundColor="#4A90E2"
+                            TextColor="White"
+                            CornerRadius="12"
+                            HeightRequest="48"
+                            FontSize="15"
+                            FontAttributes="Bold" />
+
+                    <!-- Đang phát -->
+                    <Button Grid.Column="0"
+                            Text="■  Đang phát..."
+                            Command="{Binding StopAudioCommand}"
+                            IsVisible="{Binding IsAudioPlaying}"
+                            BackgroundColor="#FF6B6B"
+                            TextColor="White"
+                            CornerRadius="12"
+                            HeightRequest="48"
+                            FontSize="15"
+                            FontAttributes="Bold" />
+
+                    <ActivityIndicator Grid.Column="1"
+                                       IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="#4A90E2"
+                                       WidthRequest="36" HeightRequest="36"
+                                       VerticalOptions="Center" />
+                </Grid>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</ContentPage>

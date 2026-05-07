@@ -479,3 +479,7 @@ Khi nhiều POI trùng vùng, hệ thống dùng **Priority Queue**:
 | GET | `/api/stats/sessions?period=` | Thống kê theo kỳ |
 | GET | `/api/stats/heatmap?period=` | Heatmap truy cập |
 | WS | `/hubs/admin` | SignalR — push `OnlineCount` mỗi 30s |
+
+netsh advfirewall firewall add rule name="AudioTravelling API 5184" dir=in action=allow protocol=TCP localport=5184
+
+adb reverse tcp:5184 tcp:5184
