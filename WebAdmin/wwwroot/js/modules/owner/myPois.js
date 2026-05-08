@@ -31,12 +31,18 @@
                 var statusText = p.statusText || p.status || status;
                 var updatedDate = p.updatedDate || p.updatedAt || p.createdDate || '';
                 var canSubmit = status === 'rejected' || status === 'pending';
-                var canDelete = true;
+                var canDelete = false; // Owner cannot delete POI
+
+                var imageUrl = p.imageUrl ?? p.ImageUrl ??
+                               (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : null) ??
+                               (Array.isArray(p.Images) && p.Images.length > 0 ? p.Images[0] : null) ??
+                               '/images/placeholder-poi.png';
+
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:16px 24px;font-weight:600;font-size:13px;">' + poiId + '</td>' +
                     '<td style="padding:16px 24px;font-size:13px;font-weight:500;">' +
                         '<div style="display:flex;align-items:center;gap:12px;">' +
-                            '<img src="' + (p.imageUrl || 'https://via.placeholder.com/40') + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="">' +
+                            '<img src="' + imageUrl + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="" onerror="this.onerror=null;this.src=\'/images/placeholder-poi.png\';">' +
                             poiName +
                         '</div>' +
                     '</td>' +
@@ -47,8 +53,6 @@
                     '<i class="fa-solid fa-pen"></i></button>' +
                     (canSubmit ? '<button class="btn-primary btn-submit-poi" data-poi-id="' + poiId + '" style="font-size:11px;padding:5px 10px;margin-right:4px;" title="Gửi duyệt">' +
                     '<i class="fa-solid fa-paper-plane"></i></button>' : '') +
-                    (canDelete ? '<button class="btn-danger-ghost btn-delete-poi" data-poi-id="' + poiId + '" style="font-size:11px;padding:5px 10px;" title="Xóa">' +
-                    '<i class="fa-solid fa-trash"></i></button>' : '') +
                     '</td></tr>';
             }).join('');
 
@@ -71,18 +75,6 @@
                 });
             });
 
-            // Bind delete
-            tbody.querySelectorAll('.btn-delete-poi').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var poiId = btn.getAttribute('data-poi-id');
-                    if (confirm('Bạn có chắc muốn xóa POI ' + poiId + '?')) {
-                        AT.Services.POI.delete(poiId).then(function () {
-                            UI.showToast('Đã xóa POI ' + poiId, 'success');
-                            renderMyPOIs();
-                        });
-                    }
-                });
-            });
         }).catch(function (err) {
             console.error('[MyPOIs] Error:', err);
         });

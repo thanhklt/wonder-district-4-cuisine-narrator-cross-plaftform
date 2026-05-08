@@ -10,8 +10,10 @@ namespace Api.Models
         public string Role { get; set; } = string.Empty;
         public int UserStatus { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string StatusText { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public bool IsLocked { get; set; }
+        public bool IsActive { get; set; }
         public DateTime? LastLoginAt { get; set; }
     }
 }

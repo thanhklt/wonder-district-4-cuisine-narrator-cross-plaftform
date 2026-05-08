@@ -83,6 +83,19 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Seed DB neu chua co du lieu
+try
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var hasher  = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+    DbSeeder.Seed(context, hasher);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[DbSeeder] Bỏ qua seed do lỗi kết nối DB: {ex.Message}");
+}
+
 // Tao thu muc audio neu chua co
 var webRoot = app.Environment.WebRootPath
     ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
@@ -93,6 +106,8 @@ app.UseSwaggerUI();
 app.UseStaticFiles();
 
 // app.UseHttpsRedirection();
+app.UseRouting();
+
 app.UseCors("AllowWebAdmin");
 
 app.UseAuthentication();

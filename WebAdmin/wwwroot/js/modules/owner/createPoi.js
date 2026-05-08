@@ -69,7 +69,7 @@
     }
 
     function clearForm() {
-        ['poi-name', 'poi-description', 'poi-image', 'poi-lat', 'poi-lng'].forEach(function (id) {
+        ['poi-name', 'poi-description', 'poi-image', 'poi-image-url', 'poi-lat', 'poi-lng'].forEach(function (id) {
             setField(id, '');
         });
         var pkgSelect = document.getElementById('poi-package');
@@ -90,6 +90,11 @@
         var imgFile = document.getElementById('poi-image');
         if (imgFile && imgFile.files && imgFile.files[0]) {
             formData.append('imageFile', imgFile.files[0]);
+        }
+
+        var imgUrl = (document.getElementById('poi-image-url') || {}).value || '';
+        if (imgUrl) {
+            formData.append('imageUrl', imgUrl);
         }
         
         return formData;

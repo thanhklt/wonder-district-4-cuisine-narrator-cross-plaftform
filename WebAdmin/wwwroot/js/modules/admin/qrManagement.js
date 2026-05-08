@@ -33,7 +33,7 @@
                 var createdDate = qr.createdDate || qr.createdAt || '';
                 var statusClass = status === 'active' ? 'status-approved' : 'status-rejected';
                 var statusText = status === 'active' ? 'Hoạt động' : 'Đã tắt';
-                var toggleText = status === 'active' ? 'Tắt' : 'Bật';
+                var toggleText = status === 'active' ? 'Tắt' : 'Bật lại';
                 var toggleIcon = status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off';
                 return '<tr style="border-bottom:1px solid var(--border);" class="qr-row" data-qr-id="' + qrId + '">' +
                     '<td style="padding:10px;font-weight:600;font-size:13px;cursor:pointer;" class="qr-id-cell" data-qr-id="' + qrId + '">' +

@@ -76,5 +76,24 @@ namespace Api.Controllers
                 UpdatedAt = null
             });
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProfileRequest request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.FullName = request.FullName ?? user.FullName;
+            user.PhoneNumber = request.PhoneNumber ?? user.PhoneNumber;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Profile updated successfully" });
+        }
+    }
+
+    public class UpdateProfileRequest
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 }

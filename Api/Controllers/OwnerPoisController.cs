@@ -31,11 +31,31 @@ namespace Api.Controllers
             return userId;
         }
 
+        private string? BuildImageUrl(string? imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return null;
+
+            if (imageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                imageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return imageUrl;
+            }
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            if (!imageUrl.StartsWith("/"))
+                imageUrl = "/" + imageUrl;
+
+            return $"{baseUrl}{imageUrl}";
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var ownerId = GetUserId();
-            var pois = await _context.Pois.Include(p => p.Package).Where(p => p.OwnerID == ownerId).ToListAsync();
+            var pois = await _context.Pois.Include(p => p.Package).Include(p => p.Images).Where(p => p.OwnerID == ownerId).ToListAsync();
 
             var result = pois.Select(p => new PoiDto
             {
@@ -44,8 +64,8 @@ namespace Api.Controllers
                 Priority = p.Package.Priority, Status = p.Status.ToLower(), StatusText = p.Status,
                 IsActive = p.IsActive, PackageId = p.PackageId, PackageName = p.Package.Name,
                 OwnerId = p.OwnerID, CreatedDate = p.CreatedDate, UpdatedDate = p.UpdatedDate,
-                Images = p.Images.Select(i => i.ImageUrl).ToList(),
-                ImageUrl = p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl
+                Images = p.Images.Select(i => BuildImageUrl(i.ImageUrl)).Where(url => url != null).ToList()!,
+                ImageUrl = BuildImageUrl(p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl)
             }).ToList();
 
             return Ok(result);
@@ -66,8 +86,8 @@ namespace Api.Controllers
                 Priority = poi.Package.Priority, Status = poi.Status.ToLower(), StatusText = poi.Status,
                 IsActive = poi.IsActive, PackageId = poi.PackageId, PackageName = poi.Package.Name,
                 OwnerId = poi.OwnerID, CreatedDate = poi.CreatedDate, UpdatedDate = poi.UpdatedDate,
-                Images = poi.Images.Select(i => i.ImageUrl).ToList(),
-                ImageUrl = poi.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? poi.Images.FirstOrDefault()?.ImageUrl
+                Images = poi.Images.Select(i => BuildImageUrl(i.ImageUrl)).Where(url => url != null).ToList()!,
+                ImageUrl = BuildImageUrl(poi.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? poi.Images.FirstOrDefault()?.ImageUrl)
             });
         }
 
@@ -103,6 +123,11 @@ namespace Api.Controllers
                 _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = "/images/pois/" + fileName, IsCover = true, DisplayOrder = 1 });
                 await _context.SaveChangesAsync();
             }
+            else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            {
+                _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = request.ImageUrl, IsCover = true, DisplayOrder = 1 });
+                await _context.SaveChangesAsync();
+            }
 
             return Ok(new { message = "Created successfully", poiId = poi.PoiID });
         }
@@ -136,6 +161,12 @@ namespace Api.Controllers
                 if (oldImage != null) oldImage.ImageUrl = "/images/pois/" + fileName;
                 else poi.Images.Add(new PoiImage { ImageUrl = "/images/pois/" + fileName, IsCover = true, DisplayOrder = 1 });
             }
+            else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            {
+                var oldImage = poi.Images.FirstOrDefault();
+                if (oldImage != null) oldImage.ImageUrl = request.ImageUrl;
+                else poi.Images.Add(new PoiImage { ImageUrl = request.ImageUrl, IsCover = true, DisplayOrder = 1 });
+            }
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Updated successfully" });
@@ -144,13 +175,7 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var ownerId = GetUserId();
-            var poi = await _context.Pois.FirstOrDefaultAsync(p => p.PoiID == id && p.OwnerID == ownerId);
-            if (poi == null) return NotFound();
-
-            poi.IsActive = false; poi.UpdatedDate = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Deleted successfully" });
+            return StatusCode(403, new { message = "Owner không có quyền xóa POI. Chỉ Admin được phép xóa POI." });
         }
 
         [HttpPatch("{id}/submit")]

@@ -18,9 +18,16 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var res = await _service.Login(request);
-            if (res == null) return Unauthorized();
-            return Ok(res);
+            try
+            {
+                var res = await _service.Login(request);
+                if (res == null) return Unauthorized(new { message = "Đăng nhập thất bại" });
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
 
         [HttpPost("signup")]

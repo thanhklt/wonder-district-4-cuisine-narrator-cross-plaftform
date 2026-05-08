@@ -25,9 +25,13 @@
                 </select>
             </div>
             <div class="full-width">
-                <label class="form-label">Ảnh đại diện</label>
+                <label class="form-label">Ảnh đại diện (Tải lên mới)</label>
                 <input type="file" id="edit-poi-image" class="form-input" accept="image/*">
                 <p id="edit-poi-current-image" style="font-size:12px;color:var(--text-dim);margin-top:4px;"></p>
+            </div>
+            <div class="full-width">
+                <label class="form-label">Hoặc nhập URL ảnh online</label>
+                <input type="url" id="edit-poi-image-url" class="form-input" placeholder="https://images.unsplash.com/...">
             </div>
             <div class="full-width">
                 <label class="form-label">Mô tả</label>
@@ -112,6 +116,9 @@
                     
                     var imgFile = document.getElementById('edit-poi-image').files[0];
                     if (imgFile) data.append('imageFile', imgFile);
+
+                    var imgUrl = (document.getElementById('edit-poi-image-url') || {}).value || '';
+                    if (imgUrl) data.append('imageUrl', imgUrl);
 
                     if (!name.trim()) {
                         AT.Core.UI.showToast('Vui lòng nhập tên POI', 'error');

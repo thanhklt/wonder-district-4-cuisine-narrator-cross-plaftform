@@ -16,6 +16,11 @@
             return AT.Core.ApiClient.get('/admin/pois' + query);
         },
 
+        /** Get POI details by id (admin) */
+        getById: function (poiId) {
+            return AT.Core.ApiClient.get('/admin/pois/' + poiId);
+        },
+
         /** Get POIs by owner (Owner API inherently filters by jwt token) */
         getByOwner: function () {
             return AT.Core.ApiClient.get('/owner/pois');

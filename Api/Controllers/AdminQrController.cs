@@ -30,7 +30,6 @@ namespace Api.Controllers
         {
             var codes = await _context.QrCodes
                 .Include(c => c.Sessions)
-                .Where(c => c.IsActive)
                 .Select(c => new QrDto
                 {
                     QrId = c.QrCodeID,
@@ -117,22 +116,12 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var c = await _context.QrCodes.Include(ac => ac.Sessions).FirstOrDefaultAsync(ac => ac.QrCodeID == id);
-            if (c == null) return NotFound();
+            var c = await _context.QrCodes.FindAsync(id);
+            if (c == null) return NotFound("Không tìm thấy mã QR.");
 
-            if (c.Sessions.Any())
-            {
-                // Soft delete
-                c.IsActive = false;
-            }
-            else
-            {
-                // Hard delete if no sessions
-                _context.QrCodes.Remove(c);
-            }
-            
+            c.IsActive = false;
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Deleted successfully" });
+            return Ok(new { message = "Mã QR đã được xóa mềm." });
         }
 
         [HttpPost("{id}/regenerate")]

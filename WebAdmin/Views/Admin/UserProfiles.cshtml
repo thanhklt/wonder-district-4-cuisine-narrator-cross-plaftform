@@ -65,6 +65,39 @@
     </div>
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="modal-edit-profile" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:500px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:700;margin:0;">
+                <i class="fa-solid fa-pen text-accent" style="margin-right:8px;"></i>Sửa Hồ Sơ
+            </h3>
+            <button class="btn-ghost" id="btn-close-edit-profile" style="font-size:14px;padding:6px 10px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="form-edit-profile">
+            <input type="hidden" id="edit-profile-id" />
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Họ tên</label>
+                    <input type="text" id="edit-profile-fullname" class="form-input" required />
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Số điện thoại</label>
+                    <input type="text" id="edit-profile-phone" class="form-input" />
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:12px;">
+                    <button type="button" class="btn-ghost" id="btn-cancel-edit-profile">Hủy</button>
+                    <button type="submit" class="btn-primary btn-ripple">
+                        <i class="fa-solid fa-save"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
