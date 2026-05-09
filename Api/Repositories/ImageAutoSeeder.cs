@@ -20,6 +20,10 @@ namespace Api.Repositories
                 int have = poi.Images.Count;
                 if (have >= 4) continue;
 
+                // Nếu POI có ảnh do user upload (không phải seed-*),
+                // user tự quản lý ảnh → seeder không thêm tự động
+                if (poi.Images.Any(i => !i.ImageUrl.Contains("seed-"))) continue;
+
                 for (int slot = have; slot < 4; slot++)
                 {
                     // seed deterministic: poiId * 10 + slot → ảnh không đổi giữa các lần restart
