@@ -59,6 +59,21 @@
         /** Reject POI (admin) */
         reject: function (poiId, reason) {
             return AT.Core.ApiClient.patch('/admin/pois/' + poiId + '/reject', { note: reason });
+        },
+
+        /** Add an image to a POI. role = 'owner' | 'admin' */
+        addImage: function (role, poiId, formData) {
+            return AT.Core.ApiClient.post('/' + role + '/pois/' + poiId + '/images', formData);
+        },
+
+        /** Delete an image from a POI. role = 'owner' | 'admin' */
+        deleteImage: function (role, poiId, imageId) {
+            return AT.Core.ApiClient.del('/' + role + '/pois/' + poiId + '/images/' + imageId);
+        },
+
+        /** Set an image as cover for a POI. role = 'owner' | 'admin' */
+        setCoverImage: function (role, poiId, imageId) {
+            return AT.Core.ApiClient.patch('/' + role + '/pois/' + poiId + '/images/' + imageId + '/cover');
         }
     };
 })();

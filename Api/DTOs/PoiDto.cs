@@ -1,5 +1,13 @@
 namespace Api.Models
 {
+    public class PoiImageDto
+    {
+        public int ImageID { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
+        public bool IsCover { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
     public class PoiDto
     {
         public int PoiId { get; set; }
@@ -20,7 +28,7 @@ namespace Api.Models
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string? ImageUrl { get; set; }
-        public List<string> Images { get; set; } = new List<string>();
+        public List<PoiImageDto> Images { get; set; } = new List<PoiImageDto>();
     }
 
     public class CreatePoiRequest
@@ -32,6 +40,7 @@ namespace Api.Models
         public int PackageId { get; set; }
         public IFormFile? ImageFile { get; set; }
         public string? ImageUrl { get; set; }
+        public List<IFormFile>? AdditionalImages { get; set; }
     }
 
     public class UpdatePoiRequest : CreatePoiRequest
@@ -41,5 +50,12 @@ namespace Api.Models
     public class RejectPoiRequest
     {
         public string Note { get; set; } = string.Empty;
+    }
+
+    public class AddPoiImageRequest
+    {
+        public IFormFile? ImageFile { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool IsCover { get; set; }
     }
 }

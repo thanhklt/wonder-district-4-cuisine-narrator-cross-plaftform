@@ -101,15 +101,29 @@ public class AudioService
         // 3. TTS proxy fallback: goi API de tao audio on-demand
         if (downloadedPath is null)
         {
-            var stream = await _api.TtsProxyAsync(poiId, langCode);
-            if (stream is not null)
+            var ttsResult = await _api.TtsProxyAsync(poiId, langCode);
+            if (ttsResult is not null)
             {
                 var dir = Path.Combine(FileSystem.AppDataDirectory, "audio", poiId.ToString());
                 Directory.CreateDirectory(dir);
                 var path = Path.Combine(dir, $"{langCode}.mp3");
-                await using var fs = File.Create(path);
-                await stream.CopyToAsync(fs);
+                await File.WriteAllBytesAsync(path, ttsResult.AudioBytes);
                 downloadedPath = path;
+
+                // Luu localization vao SQLite ngay lap tuc de description hien dung ngon ngu
+                if (!string.IsNullOrEmpty(ttsResult.Description))
+                {
+                    await _db.SaveLocalizationAsync(new Mobile.Models.CachedPoiLocalization
+                    {
+                        PoiID        = poiId,
+                        LanguageCode = langCode,
+                        Name         = ttsResult.Name,
+                        Description  = ttsResult.Description,
+                        AudioUrl     = ttsResult.AudioUrl,
+                        UpdatedDate  = DateTime.UtcNow,
+                        CachedAt     = DateTime.UtcNow
+                    });
+                }
             }
         }
 

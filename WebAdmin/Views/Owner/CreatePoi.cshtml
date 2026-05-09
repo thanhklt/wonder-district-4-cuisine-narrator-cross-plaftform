@@ -24,13 +24,36 @@
                     <option value="">-- Đang tải gói... --</option>
                 </select>
             </div>
-            <div class="full-width">
-                <label class="form-label">Ảnh đại diện (Tải lên)</label>
-                <input type="file" id="poi-image" class="form-input" accept="image/*">
-            </div>
-            <div class="full-width">
-                <label class="form-label">Hoặc nhập URL ảnh online</label>
-                <input type="url" id="poi-image-url" class="form-input" placeholder="https://images.unsplash.com/...">
+            <!-- Ảnh: 2 section song song -->
+            <div class="full-width" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <!-- Ảnh bìa -->
+                <div style="background:var(--surface-2,#1e1e2e);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                    <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+                        <i class="fa-solid fa-star" style="color:#f59e0b;font-size:12px;"></i> Ảnh bìa <span style="color:#ef4444;">*</span>
+                    </label>
+                    <input type="file" id="poi-image" class="form-input" accept="image/*"
+                           style="margin-bottom:8px;" onchange="previewCoverImage(this)">
+                    <input type="url" id="poi-image-url" class="form-input"
+                           placeholder="Hoặc nhập URL ảnh bìa..." style="margin-bottom:8px;">
+                    <div id="cover-preview" style="display:none;margin-top:8px;">
+                        <img id="cover-preview-img" style="width:100%;height:120px;object-fit:cover;border-radius:6px;" alt="">
+                    </div>
+                </div>
+                <!-- Ảnh bổ sung -->
+                <div style="background:var(--surface-2,#1e1e2e);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                    <label class="form-label">Ảnh bổ sung (tối đa 3)</label>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="file" id="poi-extra-1" class="form-input" accept="image/*"
+                               onchange="previewExtra(this,'extra-prev-1')">
+                        <img id="extra-prev-1" style="display:none;width:100%;height:60px;object-fit:cover;border-radius:4px;" alt="">
+                        <input type="file" id="poi-extra-2" class="form-input" accept="image/*"
+                               onchange="previewExtra(this,'extra-prev-2')">
+                        <img id="extra-prev-2" style="display:none;width:100%;height:60px;object-fit:cover;border-radius:4px;" alt="">
+                        <input type="file" id="poi-extra-3" class="form-input" accept="image/*"
+                               onchange="previewExtra(this,'extra-prev-3')">
+                        <img id="extra-prev-3" style="display:none;width:100%;height:60px;object-fit:cover;border-radius:4px;" alt="">
+                    </div>
+                </div>
             </div>
             <div class="full-width">
                 <label class="form-label">Mô tả</label>
@@ -62,7 +85,22 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        function previewCoverImage(input) {
+            var prev = document.getElementById('cover-preview');
+            var img = document.getElementById('cover-preview-img');
+            if (input.files && input.files[0]) {
+                img.src = URL.createObjectURL(input.files[0]);
+                prev.style.display = 'block';
+            }
+        }
+        function previewExtra(input, previewId) {
+            var img = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                img.src = URL.createObjectURL(input.files[0]);
+                img.style.display = 'block';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
             if (window.AudioTravelling && AudioTravelling.Modules && AudioTravelling.Modules.initCreatePOI) {
                 AudioTravelling.Modules.initCreatePOI();
             }

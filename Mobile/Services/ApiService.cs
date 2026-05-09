@@ -70,14 +70,43 @@ public class ApiService
         catch { return null; }
     }
 
+    // Lay danh sach anh cua 1 POI (khi online, dung cho carousel PoiDetailPage)
+    public async Task<List<PoiImageRecord>?> GetPoiImagesAsync(int poiId)
+    {
+        try
+        {
+            await AddSessionHeadersAsync();
+            var res = await _http.GetAsync($"/api/access/pois/{poiId}/images");
+            if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<List<PoiImageRecord>>();
+        }
+        catch { return null; }
+    }
+
     // Goi TTS proxy de tao audio on-demand cho ngon ngu chua co san
-    public async Task<Stream?> TtsProxyAsync(int poiId, string langCode)
+    // Tra ve bytes audio + text da dich (de luu SQLite, tranh phai goi lai API)
+    public async Task<TtsProxyResult?> TtsProxyAsync(int poiId, string langCode)
     {
         try
         {
             var res = await _http.PostAsJsonAsync("/api/tts/proxy", new { poiId, langCode });
             if (!res.IsSuccessStatusCode) return null;
-            return await res.Content.ReadAsStreamAsync();
+
+            var bytes = await res.Content.ReadAsByteArrayAsync();
+
+            string GetHeader(string key)
+            {
+                return res.Headers.TryGetValues(key, out var vals)
+                    ? Uri.UnescapeDataString(vals.First())
+                    : string.Empty;
+            }
+
+            return new TtsProxyResult(
+                AudioBytes:  bytes,
+                Description: GetHeader("X-Translated-Description"),
+                Name:        GetHeader("X-Translated-Name"),
+                AudioUrl:    GetHeader("X-Audio-Url")
+            );
         }
         catch { return null; }
     }
@@ -113,3 +142,5 @@ public record PoiDto(int PoiID, string PoiName, string DescriptionVi,
     bool IsActive, string CoverImageUrl, DateTime UpdatedDate);
 public record LocalizationDto(int LocalizationID, int PoiID, string LanguageCode,
     string Name, string Description, string AudioUrl, DateTime UpdatedDate);
+public record PoiImageRecord(int ImageID, string ImageUrl, bool IsCover, int DisplayOrder);
+public record TtsProxyResult(byte[] AudioBytes, string Description, string Name, string AudioUrl);

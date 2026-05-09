@@ -29,9 +29,23 @@
                 var poiName = poi.poiName || poi.name || 'Không có tên';
                 var ownerName = poi.ownerName || poi.owner || '—';
                 var updatedDate = poi.updatedDate || poi.updatedAt || poi.createdDate || '';
+                var images = Array.isArray(poi.images) ? poi.images : [];
+                var imageStrip = images.length > 0
+                    ? images.map(function (img) {
+                        var url = (img && img.imageUrl) ? img.imageUrl : (typeof img === 'string' ? img : '/images/placeholder-poi.png');
+                        var isCover = img && img.isCover;
+                        return '<div style="position:relative;display:inline-block;">' +
+                            '<img src="' + url + '" style="width:60px;height:45px;object-fit:cover;border-radius:4px;border:' + (isCover ? '2px solid #f59e0b' : '1px solid var(--border)') + ';" onerror="this.src=\'/images/placeholder-poi.png\'">' +
+                            (isCover ? '<span style="position:absolute;bottom:2px;left:2px;background:#f59e0b;color:#000;font-size:8px;font-weight:700;padding:1px 3px;border-radius:2px;">Bìa</span>' : '') +
+                            '</div>';
+                    }).join('')
+                    : '<span style="color:var(--text-dim);font-size:12px;"><i class="fa-solid fa-camera" style="opacity:.4;font-size:20px;"></i></span>';
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:10px;font-weight:600;font-size:13px;">' + poiId + '</td>' +
                     '<td style="padding:10px;font-size:13px;font-weight:500;">' + poiName + '</td>' +
+                    '<td style="padding:10px;">' +
+                    '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">' + imageStrip + '</div>' +
+                    '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + ownerName + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + Fmt.dateTime(updatedDate) + '</td>' +
                     '<td style="padding:10px;text-align:center;">' +

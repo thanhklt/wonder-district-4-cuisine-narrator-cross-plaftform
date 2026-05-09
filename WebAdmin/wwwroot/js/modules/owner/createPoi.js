@@ -80,23 +80,26 @@
         var formData = new FormData();
         var name = (document.getElementById('poi-name') || {}).value || '';
         var packageId = parseInt((document.getElementById('poi-package') || {}).value, 10) || 0;
-        
+
         formData.append('poiName', name);
         formData.append('descriptionVi', (document.getElementById('poi-description') || {}).value || '');
         formData.append('latitude', parseFloat((document.getElementById('poi-lat') || {}).value) || 0);
         formData.append('longitude', parseFloat((document.getElementById('poi-lng') || {}).value) || 0);
         formData.append('packageId', packageId);
-        
+
         var imgFile = document.getElementById('poi-image');
-        if (imgFile && imgFile.files && imgFile.files[0]) {
+        if (imgFile && imgFile.files && imgFile.files[0])
             formData.append('imageFile', imgFile.files[0]);
-        }
 
         var imgUrl = (document.getElementById('poi-image-url') || {}).value || '';
-        if (imgUrl) {
-            formData.append('imageUrl', imgUrl);
-        }
-        
+        if (imgUrl) formData.append('imageUrl', imgUrl);
+
+        ['poi-extra-1', 'poi-extra-2', 'poi-extra-3'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.files && el.files[0])
+                formData.append('AdditionalImages', el.files[0]);
+        });
+
         return formData;
     }
 
@@ -116,6 +119,14 @@
                 if (!data.get('packageId') || data.get('packageId') === '0') {
                     UI.showToast('Vui lòng chọn gói', 'error');
                     return;
+                }
+                var editId = AT.Modules._editPoiId;
+                if (!editId) {
+                    var hasImage = data.get('imageFile') || (data.get('imageUrl') || '').trim();
+                    if (!hasImage) {
+                        UI.showToast('Vui lòng chọn ảnh bìa cho POI', 'error');
+                        return;
+                    }
                 }
                 var editId = AT.Modules._editPoiId;
                 if (editId) {
@@ -152,6 +163,13 @@
                     return;
                 }
                 var editId = AT.Modules._editPoiId;
+                if (!editId) {
+                    var hasImage = data.get('imageFile') || (data.get('imageUrl') || '').trim();
+                    if (!hasImage) {
+                        UI.showToast('Vui lòng chọn ảnh bìa cho POI', 'error');
+                        return;
+                    }
+                }
                 var savePromise = editId
                     ? AT.Services.POI.update(editId, data)
                     : AT.Services.POI.create(data);

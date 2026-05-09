@@ -23,3 +23,34 @@ App launch
                     └── VNPay thanh toán → deep link audiotravelling://session?token=X
                           └── MainActivity.OnNewIntent → extract token → lưu SQLite
                                 └── Bootstrap API → MapPage
+
+Splash → vào Map ngay (từ cache) → Map hiện nhanh
+MapPage.OnAppearing:
+  ├── Load POIs từ SQLite cache → hiện lên map NGAY
+  └── Background task:
+      ├── Kiểm tra connectivity
+      ├── Nếu online → gọi bootstrap API
+      ├── Upsert POIs mới vào SQLite
+      └── RefreshLayers() → map tự cập nhật markers
+Cách này:
+
+POI mới xuất hiện sau vài giây ở background mà không block UI
+Offline vẫn hoạt động bình thường
+Map hiện ngay lập tức từ cache (không chờ)
+
+Splash:
+  ├── verify session → if valid → GoToAsync("//map") NGAY (không sync)
+  └── if error      → GoToAsync("//map") hoặc "//qrscan"
+
+MapPage.OnAppearing():
+  ├── (1) LoadPoisCommand → SQLite cache → render map NGAY
+  ├── (2) _ = SyncAndRefreshAsync()  ← fire-and-forget
+  │         ├── check Connectivity.NetworkAccess == Internet
+  │         ├── offline → return (bỏ qua)
+  │         ├── _vm.SyncFromApiAsync()
+  │         │     ├── _api.BootstrapAsync()
+  │         │     ├── _db.UpsertPoisAsync(pois)
+  │         │     ├── _db.UpsertLocalizationsAsync(locs)
+  │         │     └── returns true/false
+  │         └── if synced → RefreshLayersAsync() → map cập nhật markers
+  └── (3) StartLocationPolling()

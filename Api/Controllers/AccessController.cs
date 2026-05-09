@@ -1,3 +1,4 @@
+using Api.Models;
 using Api.Models.Entities;
 using Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -122,8 +123,19 @@ namespace Api.Controllers
             var pois = await _context.Pois
                 .Include(p => p.Package)
                 .Include(p => p.Localizations)
+                .Include(p => p.Images)
                 .Where(p => p.Status == "Approved" && p.IsActive)
                 .ToListAsync();
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            string BuildAbsoluteUrl(string? url)
+            {
+                if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+                if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                    url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return url;
+                return baseUrl + (url.StartsWith("/") ? url : "/" + url);
+            }
 
             return Ok(new
             {
@@ -137,7 +149,9 @@ namespace Api.Controllers
                     Radius = p.Package.Radius,
                     Priority = p.Package.Priority,
                     p.IsActive,
-                    CoverImageUrl = string.Empty,
+                    CoverImageUrl = BuildAbsoluteUrl(
+                        p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl
+                        ?? p.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault()?.ImageUrl),
                     p.UpdatedDate
                 }),
                 localizations = pois
@@ -153,6 +167,42 @@ namespace Api.Controllers
                         l.UpdatedDate
                     })
             });
+        }
+
+        // GET /api/access/pois/{id}/images
+        // Mobile online: lay tat ca anh cua 1 POI (de hien thi carousel)
+        [HttpGet("pois/{id}/images")]
+        public async Task<IActionResult> GetPoiImages(int id)
+        {
+            if (!int.TryParse(Request.Headers["X-Session-Id"], out var sessionId))
+                return Unauthorized();
+
+            var deviceId = Request.Headers["X-Device-Id"].ToString();
+            var session = await _context.AccessSessions.FindAsync(sessionId);
+            if (session is null || session.DeviceID != deviceId || session.IsRevoked || session.ExpiredAt <= DateTime.UtcNow)
+                return Unauthorized();
+
+            var images = await _context.PoiImages
+                .Where(i => i.PoiID == id)
+                .OrderBy(i => i.DisplayOrder)
+                .ToListAsync();
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string BuildAbsoluteUrl(string? url)
+            {
+                if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+                if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                    url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return url;
+                return baseUrl + (url.StartsWith("/") ? url : "/" + url);
+            }
+
+            return Ok(images.Select(i => new PoiImageDto
+            {
+                ImageID = i.ImageID,
+                ImageUrl = BuildAbsoluteUrl(i.ImageUrl),
+                IsCover = i.IsCover,
+                DisplayOrder = i.DisplayOrder
+            }));
         }
 
         // POST /api/access/dev-bypass

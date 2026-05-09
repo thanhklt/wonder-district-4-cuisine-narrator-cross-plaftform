@@ -125,6 +125,7 @@ namespace Api.Controllers
             }
 
             // Luu file audio vao storage
+            var savedAudioUrl = string.Empty;
             try
             {
                 var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
@@ -133,14 +134,14 @@ namespace Api.Controllers
                 var filePath = Path.Combine(dir, $"{req.LangCode}.mp3");
                 await System.IO.File.WriteAllBytesAsync(filePath, audioBytes);
 
-                var audioUrl = $"/audio/{req.PoiId}/{req.LangCode}.mp3";
+                savedAudioUrl = $"/audio/{req.PoiId}/{req.LangCode}.mp3";
 
                 // Upsert PoiLocalization
                 if (existing is not null)
                 {
                     existing.Name        = translatedName;
                     existing.Description = translatedText;
-                    existing.AudioUrl    = audioUrl;
+                    existing.AudioUrl    = savedAudioUrl;
                     existing.UpdatedDate = DateTime.UtcNow;
                 }
                 else
@@ -151,7 +152,7 @@ namespace Api.Controllers
                         LanguageCode = req.LangCode,
                         Name         = translatedName,
                         Description  = translatedText,
-                        AudioUrl     = audioUrl,
+                        AudioUrl     = savedAudioUrl,
                         CreatedDate  = DateTime.UtcNow,
                         UpdatedDate  = DateTime.UtcNow
                     });
@@ -162,6 +163,13 @@ namespace Api.Controllers
             {
                 // Loi luu file/DB khong anh huong den viec tra audio cho client
             }
+
+            // Tra text da dich trong header de mobile luu vao SQLite ngay lap tuc
+            Response.Headers["X-Translated-Name"]        = Uri.EscapeDataString(translatedName);
+            Response.Headers["X-Translated-Description"] = Uri.EscapeDataString(translatedText);
+            Response.Headers["X-Audio-Url"]              = savedAudioUrl;
+            Response.Headers["Access-Control-Expose-Headers"] =
+                "X-Translated-Name, X-Translated-Description, X-Audio-Url";
 
             return File(audioBytes, "audio/mpeg");
         }

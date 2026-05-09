@@ -24,12 +24,31 @@
                        Margin="12,0,0,0" />
             </Grid>
 
-            <!-- Ảnh bìa -->
-            <Frame CornerRadius="12" Padding="0" IsClippedToBounds="True"
-                   IsVisible="{Binding Poi.CoverImageUrl, Converter={StaticResource StringToBoolConverter}}">
-                <Image Source="{Binding Poi.CoverImageUrl}"
-                       Aspect="AspectFill" HeightRequest="200" />
-            </Frame>
+            <!-- Gallery ảnh (carousel khi online, ảnh bìa đơn khi offline) -->
+            <VerticalStackLayout Spacing="8"
+                                 IsVisible="{Binding Poi.CoverImageUrl, Converter={StaticResource StringToBoolConverter}}">
+                <CarouselView x:Name="imageCarousel"
+                              ItemsSource="{Binding ImageUrls}"
+                              HeightRequest="220"
+                              IndicatorView="imgIndicator"
+                              Loop="False">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Frame CornerRadius="12" Padding="0"
+                                   IsClippedToBounds="True" Margin="0">
+                                <Image Source="{Binding .}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="220" />
+                            </Frame>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                </CarouselView>
+                <IndicatorView x:Name="imgIndicator"
+                               IsVisible="{Binding HasMultipleImages}"
+                               IndicatorColor="#555577"
+                               SelectedIndicatorColor="White"
+                               HorizontalOptions="Center" />
+            </VerticalStackLayout>
 
             <!-- Mô tả -->
             <Frame BackgroundColor="#2A2A4E" BorderColor="Transparent"

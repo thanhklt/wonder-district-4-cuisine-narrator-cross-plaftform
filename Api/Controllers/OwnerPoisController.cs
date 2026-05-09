@@ -51,6 +51,17 @@ namespace Api.Controllers
             return $"{baseUrl}{imageUrl}";
         }
 
+        private string SaveImageFile(IFormFile file)
+        {
+            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images", "pois");
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            using var stream = new FileStream(filePath, FileMode.Create);
+            file.CopyTo(stream);
+            return "/images/pois/" + fileName;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -64,7 +75,11 @@ namespace Api.Controllers
                 Priority = p.Package.Priority, Status = p.Status.ToLower(), StatusText = p.Status,
                 IsActive = p.IsActive, PackageId = p.PackageId, PackageName = p.Package.Name,
                 OwnerId = p.OwnerID, CreatedDate = p.CreatedDate, UpdatedDate = p.UpdatedDate,
-                Images = p.Images.Select(i => BuildImageUrl(i.ImageUrl)).Where(url => url != null).ToList()!,
+                Images = p.Images.OrderBy(i => i.DisplayOrder).Select(i => new PoiImageDto
+                {
+                    ImageID = i.ImageID, IsCover = i.IsCover, DisplayOrder = i.DisplayOrder,
+                    ImageUrl = BuildImageUrl(i.ImageUrl) ?? string.Empty
+                }).ToList(),
                 ImageUrl = BuildImageUrl(p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl)
             }).ToList();
 
@@ -86,7 +101,11 @@ namespace Api.Controllers
                 Priority = poi.Package.Priority, Status = poi.Status.ToLower(), StatusText = poi.Status,
                 IsActive = poi.IsActive, PackageId = poi.PackageId, PackageName = poi.Package.Name,
                 OwnerId = poi.OwnerID, CreatedDate = poi.CreatedDate, UpdatedDate = poi.UpdatedDate,
-                Images = poi.Images.Select(i => BuildImageUrl(i.ImageUrl)).Where(url => url != null).ToList()!,
+                Images = poi.Images.OrderBy(i => i.DisplayOrder).Select(i => new PoiImageDto
+                {
+                    ImageID = i.ImageID, IsCover = i.IsCover, DisplayOrder = i.DisplayOrder,
+                    ImageUrl = BuildImageUrl(i.ImageUrl) ?? string.Empty
+                }).ToList(),
                 ImageUrl = BuildImageUrl(poi.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? poi.Images.FirstOrDefault()?.ImageUrl)
             });
         }
@@ -97,6 +116,11 @@ namespace Api.Controllers
             var ownerId = GetUserId();
             var package = await _context.Packages.FindAsync(request.PackageId);
             if (package == null) return BadRequest("Invalid PackageId");
+
+            var hasCoverImage = (request.ImageFile != null && request.ImageFile.Length > 0)
+                                || !string.IsNullOrWhiteSpace(request.ImageUrl);
+            if (!hasCoverImage)
+                return BadRequest(new { message = "Ảnh bìa là bắt buộc khi tạo POI." });
 
             var poi = new Poi
             {
@@ -112,23 +136,20 @@ namespace Api.Controllers
             await _context.SaveChangesAsync();
 
             if (request.ImageFile != null && request.ImageFile.Length > 0)
-            {
-                var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images", "pois");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(request.ImageFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await request.ImageFile.CopyToAsync(stream);
-
-                _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = "/images/pois/" + fileName, IsCover = true, DisplayOrder = 1 });
-                await _context.SaveChangesAsync();
-            }
+                _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = SaveImageFile(request.ImageFile), IsCover = true, DisplayOrder = 1 });
             else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
-            {
                 _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = request.ImageUrl, IsCover = true, DisplayOrder = 1 });
-                await _context.SaveChangesAsync();
+
+            var addOrder = 2;
+            foreach (var extra in request.AdditionalImages ?? [])
+            {
+                if (extra.Length > 0 && addOrder <= 4)
+                {
+                    _context.PoiImages.Add(new PoiImage { PoiID = poi.PoiID, ImageUrl = SaveImageFile(extra), IsCover = false, DisplayOrder = addOrder++ });
+                }
             }
 
+            await _context.SaveChangesAsync();
             return Ok(new { message = "Created successfully", poiId = poi.PoiID });
         }
 
@@ -188,6 +209,75 @@ namespace Api.Controllers
             poi.Status = "Pending"; poi.IsActive = false; poi.UpdatedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return Ok(new { message = "Submitted successfully" });
+        }
+
+        [HttpPost("{id}/images")]
+        public async Task<IActionResult> AddImage(int id, [FromForm] AddPoiImageRequest request)
+        {
+            var ownerId = GetUserId();
+            var poi = await _context.Pois.Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.PoiID == id && p.OwnerID == ownerId);
+            if (poi == null) return NotFound();
+
+            if (!request.IsCover && poi.Images.Count(i => !i.IsCover) >= 3)
+                return BadRequest(new { message = "Tối đa 3 ảnh phụ cho mỗi POI." });
+
+            string? imageUrl = null;
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+                imageUrl = SaveImageFile(request.ImageFile);
+            else if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+                imageUrl = request.ImageUrl;
+
+            if (imageUrl == null) return BadRequest(new { message = "Cần cung cấp file ảnh hoặc URL." });
+
+            if (request.IsCover)
+                foreach (var img in poi.Images) img.IsCover = false;
+
+            var nextOrder = poi.Images.Any() ? poi.Images.Max(i => i.DisplayOrder) + 1 : 1;
+            _context.PoiImages.Add(new PoiImage { PoiID = id, ImageUrl = imageUrl, IsCover = request.IsCover, DisplayOrder = nextOrder });
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Thêm ảnh thành công." });
+        }
+
+        [HttpDelete("{id}/images/{imageId}")]
+        public async Task<IActionResult> DeleteImage(int id, int imageId)
+        {
+            var ownerId = GetUserId();
+            var poi = await _context.Pois.Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.PoiID == id && p.OwnerID == ownerId);
+            if (poi == null) return NotFound();
+
+            var image = poi.Images.FirstOrDefault(i => i.ImageID == imageId);
+            if (image == null) return NotFound();
+
+            var wasCover = image.IsCover;
+            _context.PoiImages.Remove(image);
+            await _context.SaveChangesAsync();
+
+            if (wasCover)
+            {
+                var next = await _context.PoiImages.Where(i => i.PoiID == id).OrderBy(i => i.DisplayOrder).FirstOrDefaultAsync();
+                if (next != null) { next.IsCover = true; await _context.SaveChangesAsync(); }
+            }
+
+            return Ok(new { message = "Đã xóa ảnh." });
+        }
+
+        [HttpPatch("{id}/images/{imageId}/cover")]
+        public async Task<IActionResult> SetCover(int id, int imageId)
+        {
+            var ownerId = GetUserId();
+            var poi = await _context.Pois.Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.PoiID == id && p.OwnerID == ownerId);
+            if (poi == null) return NotFound();
+
+            var target = poi.Images.FirstOrDefault(i => i.ImageID == imageId);
+            if (target == null) return NotFound();
+
+            foreach (var img in poi.Images) img.IsCover = false;
+            target.IsCover = true;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Đã đặt ảnh bìa." });
         }
     }
 }

@@ -83,17 +83,33 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed DB neu chua co du lieu
-try
+// Startup tasks: seed missing POI images + ensure QR code exists
 {
     using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var hasher  = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
-    DbSeeder.Seed(context, hasher);
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"[DbSeeder] Bỏ qua seed do lỗi kết nối DB: {ex.Message}");
+    var ctx  = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var env  = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    var http = scope.ServiceProvider
+                    .GetRequiredService<IHttpClientFactory>()
+                    .CreateClient();
+
+    // 0. Di chuyển POI có tọa độ ngoài Quận 4 về đường Vĩnh Khánh
+    await FixOutOfBoundsPoisAsync(ctx);
+
+    // 1. Download & attach images to POIs that have < 4 images
+    await ImageAutoSeeder.SeedMissingImagesAsync(ctx, env, http);
+
+    // 2. Ensure at least 1 active QR code exists (mobile dev-bypass requires it)
+    if (!ctx.QrCodes.Any(q => q.IsActive))
+    {
+        ctx.QrCodes.Add(new QrCode
+        {
+            QrCodeValue = "QR-DEMO-001",
+            IsActive    = true,
+            CreatedDate = DateTime.UtcNow
+        });
+        await ctx.SaveChangesAsync();
+        Console.WriteLine("[Startup] Created QR-DEMO-001 for development.");
+    }
 }
 
 // Tao thu muc audio neu chua co
@@ -116,3 +132,43 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// ── Local helpers ─────────────────────────────────────────────────────────────
+
+static async Task FixOutOfBoundsPoisAsync(Api.Repositories.AppDbContext ctx)
+{
+    // Ranh giới xấp xỉ của Quận 4, TP.HCM
+    const double MinLat = 10.748, MaxLat = 10.775;
+    const double MinLon = 106.690, MaxLon = 106.715;
+
+    // Các vị trí dọc đường Vĩnh Khánh để gán lại cho POI lạc
+    var fallbackPositions = new (double Lat, double Lon)[]
+    {
+        (10.7564, 106.7006),
+        (10.7577, 106.7029),
+        (10.7545, 106.6994),
+        (10.7558, 106.7040),
+        (10.7570, 106.6980),
+    };
+
+    var outOfBounds = ctx.Pois.Where(p =>
+        p.Latitude  < MinLat || p.Latitude  > MaxLat ||
+        p.Longitude < MinLon || p.Longitude > MaxLon)
+        .ToList();
+
+    if (outOfBounds.Count == 0) return;
+
+    for (int i = 0; i < outOfBounds.Count; i++)
+    {
+        var poi = outOfBounds[i];
+        var pos = fallbackPositions[i % fallbackPositions.Length];
+        Console.WriteLine(
+            $"[Startup] POI #{poi.PoiID} '{poi.PoiName}': " +
+            $"({poi.Latitude:F4}, {poi.Longitude:F4}) → ({pos.Lat}, {pos.Lon})");
+        poi.Latitude    = pos.Lat;
+        poi.Longitude   = pos.Lon;
+        poi.UpdatedDate = DateTime.UtcNow;
+    }
+
+    await ctx.SaveChangesAsync();
+}
