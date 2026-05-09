@@ -40,13 +40,19 @@ public partial class SplashViewModel : BaseViewModel
         }
         catch
         {
-            var session = await _session.GetValidSessionAsync();
-            if (session is not null)
+            // Offline hoặc lỗi network — kiểm tra cache local rồi điều hướng
+            try
             {
-                await Shell.Current.GoToAsync("//map");
-                return;
+                var session = await _session.GetValidSessionAsync();
+                if (session is not null)
+                {
+                    await Shell.Current.GoToAsync("//map");
+                    return;
+                }
             }
-            await Shell.Current.GoToAsync("//qrscan");
+            catch { }
+
+            try { await Shell.Current.GoToAsync("//qrscan"); } catch { }
         }
         finally
         {

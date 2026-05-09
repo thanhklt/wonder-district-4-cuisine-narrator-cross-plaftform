@@ -29,6 +29,23 @@
             <p class="stat-value" id="stat-pending-pois">0</p>
         </div>
     </div>
+
+    <!-- Line chart: lượt quét QR 7 ngày gần nhất -->
+    <div class="glass-card" style="padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <h3 style="font-size:16px; font-weight:700; margin:0;">Lượt quét QR theo ngày</h3>
+                <p style="font-size:13px; color:var(--text-dim); margin:4px 0 0;">Số phiên truy cập được tạo trong 7 ngày gần nhất</p>
+            </div>
+            <span id="chart-total-badge"
+                  style="background:var(--accent,#4A90E2);color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600;">
+                0 lượt
+            </span>
+        </div>
+        <div style="position:relative; height:260px;">
+            <canvas id="daily-scans-chart"></canvas>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

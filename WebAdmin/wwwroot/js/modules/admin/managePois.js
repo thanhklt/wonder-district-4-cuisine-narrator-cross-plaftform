@@ -9,11 +9,31 @@
     var UI = AT.Core.UI;
 
     var _poiCache = [];
+    var _packagesCache = [];
 
     AT.Modules.initManagePois = function () {
         loadAdminPois();
+        loadPackagesForDropdown();
         bindEvents();
     };
+
+    function loadPackagesForDropdown() {
+        AT.Services.Package.getAll().then(function (packages) {
+            _packagesCache = packages || [];
+            var select = document.getElementById('edit-poi-package');
+            if (!select) return;
+            var html = '<option value="">-- Chọn gói --</option>';
+            _packagesCache.forEach(function (pkg) {
+                var id   = pkg.packageId || pkg.id || pkg.PackageId;
+                var name = pkg.name || pkg.Name || '';
+                var radius = pkg.radius || pkg.Radius || 0;
+                html += '<option value="' + id + '">' + name + ' (' + radius + 'm)</option>';
+            });
+            select.innerHTML = html;
+        }).catch(function (err) {
+            console.warn('[ManagePois] Failed to load packages:', err);
+        });
+    }
 
     function loadAdminPois() {
         AT.Services.POI.getAll().then(function (pois) {

@@ -250,14 +250,22 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var poi = await _context.Pois.FindAsync(id);
+            var poi = await _context.Pois
+                .Include(p => p.Images)
+                .Include(p => p.Localizations)
+                .Include(p => p.ApprovalLogs)
+                .FirstOrDefaultAsync(p => p.PoiID == id);
+
             if (poi == null) return NotFound("Không tìm thấy POI.");
 
-            poi.IsActive = false;
-            poi.UpdatedDate = DateTime.UtcNow;
+            // Xóa các record con trước để tránh FK constraint
+            _context.PoiImages.RemoveRange(poi.Images);
+            _context.PoiLocalizations.RemoveRange(poi.Localizations);
+            _context.PoiApprovalLogs.RemoveRange(poi.ApprovalLogs);
+            _context.Pois.Remove(poi);
 
             await _context.SaveChangesAsync();
-            return Ok(new { message = "POI đã được xóa mềm.", poiId = id });
+            return Ok(new { message = "Đã xóa POI.", poiId = id });
         }
         private string? BuildImageUrl(string? imageUrl)
         {

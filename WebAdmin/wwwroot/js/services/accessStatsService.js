@@ -67,6 +67,52 @@
             });
         },
 
+        /** Get sessions table with filters (from, to: YYYY-MM-DD; status: active|expired|all) */
+        getSessionsList: function (from, to, status) {
+            return AT.Core.ApiClient.get('/admin/stats/sessions?period=all')
+                .then(function (data) {
+                    var sessions = (data && data.recentSessions) || [];
+                    var now = new Date();
+
+                    // Lọc theo ngày issuedAt
+                    if (from) {
+                        var fromDate = new Date(from);
+                        sessions = sessions.filter(function (s) {
+                            return new Date(s.issuedAt) >= fromDate;
+                        });
+                    }
+                    if (to) {
+                        var toDate = new Date(to);
+                        toDate.setHours(23, 59, 59, 999);
+                        sessions = sessions.filter(function (s) {
+                            return new Date(s.issuedAt) <= toDate;
+                        });
+                    }
+
+                    // Map + tính trạng thái + lọc theo status
+                    var result = [];
+                    sessions.forEach(function (s) {
+                        var isExpired = new Date(s.expiredAt) <= now || !!s.isRevoked;
+                        if (status === 'active'  &&  isExpired) return;
+                        if (status === 'expired' && !isExpired) return;
+                        result.push({
+                            sessionId:   s.sessionId,
+                            deviceId:    s.deviceId,
+                            qrCodeName:  s.code || '—',
+                            issuedAt:    s.issuedAt,
+                            expiredAt:   s.expiredAt,
+                            isExpired:   isExpired
+                        });
+                    });
+                    return result;
+                });
+        },
+
+        /** Lượt quét QR theo ngày (N ngày gần nhất) */
+        getDailyScans: function (days) {
+            return AT.Core.ApiClient.get('/admin/stats/daily-scans?days=' + (days || 7));
+        },
+
         /** Get heatmap data */
         getHeatmapData: function (period) {
             return AT.Core.ApiClient.get('/admin/stats/heatmap?period=' + (period || 'today'));

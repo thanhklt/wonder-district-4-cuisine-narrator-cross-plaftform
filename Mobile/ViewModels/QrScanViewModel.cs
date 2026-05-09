@@ -105,6 +105,11 @@ public partial class QrScanViewModel : BaseViewModel
                     UpdatedDate = l.UpdatedDate, CachedAt = DateTime.UtcNow
                 });
                 await _db.UpsertLocalizationsAsync(locs);
+
+                // Preload localization theo ngôn ngữ điện thoại (background, không block)
+                var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                var poiIds = data.Pois.Select(p => p.PoiID).ToList();
+                _ = LocalizationPreloader.PreloadAsync(poiIds, lang, _db, _api);
             }
 
             await Shell.Current.GoToAsync("//map");

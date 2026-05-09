@@ -51,27 +51,26 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
         SelectedPoi = poi;
         PopupPoiName = poi.PoiName;
 
-        // Hiện ảnh bìa ngay lập tức (offline-safe)
+        // Hiện ảnh bìa ngay lập tức (offline-safe) — giữ cùng 1 instance collection
         var coverUrl = poi.CoverImageUrl ?? string.Empty;
         PopupCoverImageUrl = coverUrl;
-        HasPopupImage = !string.IsNullOrEmpty(coverUrl);
-        PopupImageUrls = string.IsNullOrEmpty(coverUrl)
-            ? []
-            : new ObservableCollection<string>([coverUrl]);
+        PopupImageUrls.Clear();
+        if (!string.IsNullOrEmpty(coverUrl)) PopupImageUrls.Add(coverUrl);
+        HasPopupImage = PopupImageUrls.Count > 0;
         PopupHasMultipleImages = false;
 
         var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var loc = await _db.GetLocalizationAsync(poi.PoiID, lang);
 
-        PopupPoiName = poi.PoiName;                                   // luôn tiếng Việt
-        PopupDescription = loc?.Description ?? poi.DescriptionVi;     // ngôn ngữ điện thoại → vi
+        PopupPoiName = poi.PoiName;
+        PopupDescription = loc?.Description ?? poi.DescriptionVi;
         IsPoiPopupVisible = true;
 
-        // Load full gallery in background (nếu online)
-        _ = LoadPopupImagesAsync(poi.PoiID);
+        // Load full gallery — ưu tiên API, không block UI
+        _ = LoadPopupImagesAsync(poi.PoiID, coverUrl);
     }
 
-    private async Task LoadPopupImagesAsync(int poiId)
+    private async Task LoadPopupImagesAsync(int poiId, string coverUrl)
     {
         var imgs = await _api.GetPoiImagesAsync(poiId);
         if (imgs is not { Count: > 0 }) return;
@@ -82,11 +81,13 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
                        .ToList();
         if (urls.Count == 0) return;
 
+        // Cập nhật cùng 1 ObservableCollection instance — CarouselView nhận CollectionChanged
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            PopupImageUrls = new ObservableCollection<string>(urls);
-            HasPopupImage = true;
-            PopupHasMultipleImages = urls.Count > 1;
+            PopupImageUrls.Clear();
+            foreach (var url in urls) PopupImageUrls.Add(url);
+            HasPopupImage = PopupImageUrls.Count > 0;
+            PopupHasMultipleImages = PopupImageUrls.Count > 1;
         });
     }
 
@@ -154,6 +155,12 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
             // Cap nhat Pois collection de map tu dong refresh
             var list = await _db.GetActivePoisAsync();
             Pois = new System.Collections.ObjectModel.ObservableCollection<Models.CachedPoi>(list);
+
+            // Preload localization theo ngôn ngữ điện thoại (background, không block)
+            var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var poiIds = list.Select(p => p.PoiID).ToList();
+            _ = LocalizationPreloader.PreloadAsync(poiIds, lang, _db, _api);
+
             return true;
         }
         catch { return false; }

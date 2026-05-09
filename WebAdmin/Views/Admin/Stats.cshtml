@@ -3,37 +3,49 @@
     ViewData["Title"] = "Thống kê truy cập";
 }
 
-<!-- Admin: Access History -->
+<!-- Admin: Access Sessions -->
 <div id="view-access-history" class="view-section active">
     <div class="section-header">
         <div>
-            <h3 class="section-title">Lịch sử truy cập</h3>
-            <p class="section-subtitle">Xem lịch sử truy cập của người dùng qua mã QR</p>
+            <h3 class="section-title">Quản lý phiên truy cập</h3>
+            <p class="section-subtitle">Danh sách các phiên truy cập hệ thống qua mã QR</p>
         </div>
         <span style="font-size:13px; color:var(--text-dim);" id="history-count">0 bản ghi</span>
     </div>
 
     <!-- Filters -->
-    <div class="filter-controls">
-        <label class="form-label" style="margin:0;">Từ</label>
-        <input type="date" id="filter-history-from" class="form-input" style="width:160px; padding:8px 10px;">
-        <label class="form-label" style="margin:0;">Đến</label>
-        <input type="date" id="filter-history-to" class="form-input" style="width:160px; padding:8px 10px;">
-        <button class="btn-primary" id="btn-filter-history" style="font-size:13px;">
+    <div class="filter-controls" style="gap:12px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <label class="form-label" style="margin:0; white-space:nowrap;">Từ ngày</label>
+            <input type="date" id="filter-history-from" class="form-input" style="width:155px; padding:8px 10px;">
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <label class="form-label" style="margin:0; white-space:nowrap;">Đến ngày</label>
+            <input type="date" id="filter-history-to" class="form-input" style="width:155px; padding:8px 10px;">
+        </div>
+        <select id="filter-history-status" class="form-input" style="width:160px; padding:8px 10px;">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="expired">Hết hạn</option>
+        </select>
+        <button class="btn-primary" id="btn-filter-history" style="font-size:13px; padding:8px 18px;">
             <i class="fa-solid fa-filter"></i> Lọc
+        </button>
+        <button class="btn-ghost" id="btn-reset-history" style="font-size:13px; padding:8px 14px;">
+            <i class="fa-solid fa-rotate-left"></i> Đặt lại
         </button>
     </div>
 
-    <div class="glass-card" style="padding:24px;">
-        <table class="admin-table">
+    <div class="glass-card" style="padding:24px; overflow-x:auto;">
+        <table class="admin-table" style="min-width:800px;">
             <thead>
                 <tr>
-                    <th>Thời gian</th>
-                    <th>QR đã quét</th>
-                    <th>POI truy cập</th>
-                    <th>Khu vực</th>
-                    <th>Thiết bị</th>
-                    <th>Thời lượng</th>
+                    <th>Session ID</th>
+                    <th>Device ID</th>
+                    <th>Mã QR</th>
+                    <th>Ngày quét</th>
+                    <th>Hết hạn</th>
+                    <th style="text-align:center;">Trạng thái</th>
                 </tr>
             </thead>
             <tbody id="access-history-body">
@@ -43,55 +55,12 @@
     </div>
 </div>
 
-<!-- Admin: Realtime Access -->
-<div id="view-realtime-access" class="view-section active" style="margin-top:32px;">
-    <div class="section-header">
-        <div>
-            <h3 class="section-title">Truy cập thời gian thực</h3>
-            <p class="section-subtitle">Theo dõi các phiên truy cập đang hoạt động trên hệ thống</p>
-        </div>
-        <div class="glass-card" style="padding:12px 20px; display:inline-flex; align-items:center; gap:8px;">
-            <div style="width:10px; height:10px; border-radius:50%; background:#22c55e; animation: pulse 2s infinite;"></div>
-            <span style="font-size:14px; font-weight:600;" id="realtime-session-count">0</span>
-            <span style="font-size:13px; color:var(--text-dim);">phiên đang hoạt động</span>
-        </div>
-    </div>
-
-    <div class="glass-card" style="padding:24px;">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Session ID</th>
-                    <th>QR đã quét</th>
-                    <th>POI đang xem</th>
-                    <th>Thời gian bắt đầu</th>
-                    <th>Hoạt động cuối</th>
-                    <th>Trạng thái</th>
-                </tr>
-            </thead>
-            <tbody id="realtime-sessions-body">
-                <!-- Injected by JS -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<style>
-    @@keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(1.2); }
-    }
-</style>
-
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (window.AudioTravelling && AudioTravelling.Modules) {
                 if (AudioTravelling.Modules.initAccessHistory) {
                     AudioTravelling.Modules.initAccessHistory();
-                }
-                if (AudioTravelling.Modules.initRealtimeAccess) {
-                    AudioTravelling.Modules.initRealtimeAccess();
                 }
             }
         });

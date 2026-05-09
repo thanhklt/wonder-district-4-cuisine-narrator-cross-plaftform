@@ -54,3 +54,24 @@ MapPage.OnAppearing():
   │         │     └── returns true/false
   │         └── if synced → RefreshLayersAsync() → map cập nhật markers
   └── (3) StartLocationPolling()
+
+  Mở app → SplashPage → session SQLite còn hạn
+  → GoToAsync("//map") [không cần QR]
+  → MapPage.OnAppearing()
+      → SyncAndRefreshAsync() [nếu có WiFi]
+          → BootstrapAsync() → cập nhật POI + localizations
+          → LocalizationPreloader.PreloadAsync(poiIds, "ja")
+                Mỗi POI:
+                  ├── Audio file đã có? → skip
+                  ├── Có AudioUrl? → tải file về → lưu CachedPoiAudio
+                  └── Chưa có gì? → TTS proxy → lưu localization + lưu audio file
+Trường hợp 2 — Admin xóa session, user quét lại QR
+
+Mở app → SplashPage → session invalid → GoToAsync("//qrscan")
+  → Dev-bypass → Bootstrap → preload ngôn ngữ điện thoại
+  → GoToAsync("//map") → MapPage → sync lại (idempotent, skip đã có)
+Kết quả khi vào geofence zone
+
+GeofenceService trigger → AudioService.PlayAsync(poi, "ja")
+  → ResolveAudioPathAsync("ja")
+      → CachedPoiAudio tồn tại + file trên disk? → phát ngay ✓ (không tải gì thêm)
