@@ -483,3 +483,4 @@ Khi nhiều POI trùng vùng, hệ thống dùng **Priority Queue**:
 netsh advfirewall firewall add rule name="AudioTravelling API 5184" dir=in action=allow protocol=TCP localport=5184
 
 adb reverse tcp:5184 tcp:5184
+adb devices | Select-String "device$" | ForEach-Object { adb -s ($_ -split "\s+")[0] reverse tcp:5184 tcp:5184 }
