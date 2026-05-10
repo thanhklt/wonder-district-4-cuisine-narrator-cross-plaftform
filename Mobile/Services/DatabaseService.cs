@@ -73,6 +73,12 @@ public class DatabaseService
             await _db!.InsertOrReplaceAsync(poi);
     }
 
+    public async Task DeactivateAllPoisAsync()
+    {
+        await InitAsync();
+        await _db!.ExecuteAsync("UPDATE CachedPois SET IsActive = 0");
+    }
+
     // ── Localizations ─────────────────────────────────────────
     public async Task<CachedPoiLocalization?> GetLocalizationAsync(int poiId, string langCode)
     {

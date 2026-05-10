@@ -133,6 +133,8 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
             var data = await _api.BootstrapAsync();
             if (data is null) return false;
 
+            await _db.DeactivateAllPoisAsync();
+
             var pois = data.Pois.Select(p => new Models.CachedPoi
             {
                 PoiID = p.PoiID, PoiName = p.PoiName, DescriptionVi = p.DescriptionVi,
