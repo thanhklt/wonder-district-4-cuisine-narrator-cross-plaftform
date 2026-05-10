@@ -113,3 +113,24 @@
     color: var(--text-dim);
     margin-bottom: 24px;
 }
+
+/* ── Sidebar nav-link disabled ── */
+.nav-link-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-badge-soon {
+    font-size: 10px;
+    font-weight: 500;
+    background: rgba(34, 197, 94, 0.08);
+    color: var(--text-dim);
+    padding: 2px 7px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    margin-left: auto;
+}

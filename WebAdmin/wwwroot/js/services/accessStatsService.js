@@ -82,6 +82,11 @@
         /** Get heatmap data */
         getHeatmapData: function (period) {
             return AT.Core.ApiClient.get('/admin/stats/heatmap?period=' + (period || 'today'));
+        },
+
+        /** Get daily scan counts for the last N days */
+        getDailyScans: function (days) {
+            return AT.Core.ApiClient.get('/admin/stats/daily-scans?days=' + (days || 7));
         }
     };
 })();
