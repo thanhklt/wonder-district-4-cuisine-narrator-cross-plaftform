@@ -24,9 +24,9 @@
             <option value="Rejected">Rejected</option>
         </select>
         <select id="filter-poi-active" class="form-input" style="width:160px;padding:8px 10px;font-size:13px;">
-            <option value="">Tất cả hoạt động</option>
+            <option value="" selected>Tất cả</option>
             <option value="active">Đang hoạt động</option>
-            <option value="inactive">Đã tắt / Xoá mềm</option>
+            <option value="inactive">Đã tắt</option>
         </select>
         <div style="position:relative;flex:1;max-width:320px;">
             <i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;"></i>
@@ -94,19 +94,28 @@
                 </div>
                 <div style="display:flex; gap:12px;">
                     <div style="flex:1;">
-                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Gói (Package ID)</label>
-                        <input type="number" id="edit-poi-package" class="form-input" required />
+                        <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Gói đăng ký</label>
+                        <select id="edit-poi-package" class="form-input" required>
+                            <option value="">-- Chọn gói --</option>
+                        </select>
                     </div>
                     <div style="flex:1;">
                         <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Owner ID</label>
                         <input type="number" id="edit-poi-owner" class="form-input" />
                     </div>
                 </div>
-                <div>
-                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Hình ảnh tải lên (Bỏ trống nếu không đổi)</label>
+                <!-- Gallery ảnh (chỉ hiện khi edit POI đã tồn tại) -->
+                <div id="admin-image-section" style="display:none;">
+                    <label style="font-size:13px;font-weight:600;margin-bottom:8px;display:block;">Ảnh POI</label>
+                    <div id="admin-image-gallery" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px;"></div>
+                    <input type="file" id="edit-poi-image-add" accept="image/*" style="display:none">
+                </div>
+                <!-- Ảnh cho form tạo mới -->
+                <div id="admin-create-image-section">
+                    <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Hình ảnh tải lên</label>
                     <input type="file" id="edit-poi-image" class="form-input" accept="image/*" />
                 </div>
-                <div>
+                <div id="admin-create-url-section">
                     <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block;">Hoặc nhập URL hình ảnh online</label>
                     <input type="url" id="edit-poi-image-url" class="form-input" placeholder="https://images.unsplash.com/..." />
                 </div>

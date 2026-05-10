@@ -8,6 +8,7 @@ public class AudioService
     private readonly DatabaseService _db;
     private readonly ApiService _api;
     private IAudioPlayer? _player;
+    private Stream? _audioStream;   // giữ stream sống trong suốt quá trình phát
     private int? _currentPoiId;
     private readonly IAudioManager _audioManager;
 
@@ -45,7 +46,10 @@ public class AudioService
 
         try
         {
-            _player = _audioManager.CreatePlayer(localPath);
+            // CreatePlayer(string) chỉ tìm trong bundled assets.
+            // Với file trên disk phải dùng CreatePlayer(Stream).
+            _audioStream = File.OpenRead(localPath);
+            _player = _audioManager.CreatePlayer(_audioStream);
             _currentPoiId = poi.PoiID;
 
             _player.PlaybackEnded += async (_, _) =>
@@ -60,8 +64,11 @@ public class AudioService
             };
             _player.Play();
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[AudioService] Play failed: {ex.Message}");
+            _audioStream?.Dispose();
+            _audioStream = null;
             await _db.LogPlaybackAsync(new AudioPlaybackHistory
             {
                 PoiID = poi.PoiID, LanguageCode = actualLang, TriggerSource = triggerSource,
@@ -77,6 +84,8 @@ public class AudioService
         _player.Stop();
         _player.Dispose();
         _player = null;
+        _audioStream?.Dispose();
+        _audioStream = null;
         _currentPoiId = null;
     }
 
@@ -101,15 +110,29 @@ public class AudioService
         // 3. TTS proxy fallback: goi API de tao audio on-demand
         if (downloadedPath is null)
         {
-            var stream = await _api.TtsProxyAsync(poiId, langCode);
-            if (stream is not null)
+            var ttsResult = await _api.TtsProxyAsync(poiId, langCode);
+            if (ttsResult is not null)
             {
                 var dir = Path.Combine(FileSystem.AppDataDirectory, "audio", poiId.ToString());
                 Directory.CreateDirectory(dir);
                 var path = Path.Combine(dir, $"{langCode}.mp3");
-                await using var fs = File.Create(path);
-                await stream.CopyToAsync(fs);
+                await File.WriteAllBytesAsync(path, ttsResult.AudioBytes);
                 downloadedPath = path;
+
+                // Luu localization vao SQLite ngay lap tuc de description hien dung ngon ngu
+                if (!string.IsNullOrEmpty(ttsResult.Description))
+                {
+                    await _db.SaveLocalizationAsync(new Mobile.Models.CachedPoiLocalization
+                    {
+                        PoiID        = poiId,
+                        LanguageCode = langCode,
+                        Name         = ttsResult.Name,
+                        Description  = ttsResult.Description,
+                        AudioUrl     = ttsResult.AudioUrl,
+                        UpdatedDate  = DateTime.UtcNow,
+                        CachedAt     = DateTime.UtcNow
+                    });
+                }
             }
         }
 

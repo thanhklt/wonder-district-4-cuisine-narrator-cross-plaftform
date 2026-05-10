@@ -54,6 +54,9 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
         // Tat log overlay (static property)
         Mapsui.Widgets.InfoWidgets.LoggingWidget.ShowLoggingInMap = Mapsui.Widgets.ActiveMode.No;
 
+        // Khoa xoay ban do — nguoi dung khong the xoay map bang cam ung
+        map.Navigator.RotationLock = true;
+
         _radiusLayer = new MemoryLayer { Name = "Radii", Style = null };
         _poiLayer    = new MemoryLayer { Name = "POIs",  Style = null };
         _userLayer   = new MemoryLayer { Name = "User",  Style = null };
@@ -79,7 +82,7 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
         {
             await _vm.LoadPoisCommand.ExecuteAsync(null);
 
-            System.Diagnostics.Debug.WriteLine($"[MapPage] Loaded {_vm.Pois.Count} POIs");
+            System.Diagnostics.Debug.WriteLine($"[MapPage] Loaded {_vm.Pois.Count} POIs from cache");
 
             await RefreshLayersAsync();
         }
@@ -87,6 +90,9 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
         {
             System.Diagnostics.Debug.WriteLine($"[MapPage.OnAppearing] {ex}");
         }
+
+        // Background sync: kiem tra connectivity -> goi API -> refresh map
+        _ = SyncAndRefreshAsync();
 
         StartLocationPolling();
 
@@ -103,6 +109,73 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
         WeakReferenceMessenger.Default.Unregister<LocationUpdatedMessage>(this);
         _locationTimer?.Stop();
         _locationTimer = null;
+    }
+
+    // Kiem tra ket noi -> goi bootstrap API -> cap nhat map neu co du lieu moi
+    private async Task SyncAndRefreshAsync()
+    {
+        try
+        {
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet) return;
+            var synced = await _vm.SyncFromApiAsync();
+            if (synced)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MapPage] Synced {_vm.Pois.Count} POIs from API");
+                await RefreshLayersAsync();
+                FitMapToPois();
+            }
+        }
+        catch { }
+    }
+
+    // Dieu chinh map de hien thi tat ca POI trong vung nhin thay
+    private void FitMapToPois()
+    {
+        // Chi lay POI co toa do hop le theo WGS84 (lat -90..90, lon -180..180)
+        var pois = _vm.Pois
+            .Where(p => p.Latitude  >= -90  && p.Latitude  <= 90 &&
+                        p.Longitude >= -180 && p.Longitude <= 180)
+            .ToList();
+        if (pois.Count == 0) return;
+
+        // Tinh bounding box cua tat ca POI
+        var minLat = pois.Min(p => p.Latitude);
+        var maxLat = pois.Max(p => p.Latitude);
+        var minLon = pois.Min(p => p.Longitude);
+        var maxLon = pois.Max(p => p.Longitude);
+
+        // Them padding 20% de POI khong sat canh
+        var latPad = Math.Max((maxLat - minLat) * 0.3, 0.002);
+        var lonPad = Math.Max((maxLon - minLon) * 0.3, 0.002);
+
+        var centerLat = (minLat + maxLat) / 2;
+        var centerLon = (minLon + maxLon) / 2;
+        var (cx, cy) = SphericalMercator.FromLonLat(centerLon, centerLat);
+
+        var (x0, y0) = SphericalMercator.FromLonLat(minLon - lonPad, minLat - latPad);
+        var (x1, y1) = SphericalMercator.FromLonLat(maxLon + lonPad, maxLat + latPad);
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                var map = MapControl.Map;
+                if (map == null) return;
+
+                // Chon zoom phu hop: neu chi 1 POI -> zoom 17, nhieu POI -> fit bounds
+                if (pois.Count == 1)
+                {
+                    map.Navigator.CenterOnAndZoomTo(new MPoint(cx, cy),
+                        map.Navigator.Resolutions[17]);
+                }
+                else
+                {
+                    var bounds = new Mapsui.MRect(x0, y0, x1, y1);
+                    map.Navigator.ZoomToBox(bounds);
+                }
+            }
+            catch { }
+        });
     }
 
     // ── POI + Radius layers ──────────────────────────────────────────────────
@@ -129,6 +202,11 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
 
         foreach (var poi in pois)
         {
+            // Bo qua POI co toa do ngoai pham vi WGS84 hop le
+            if (poi.Latitude < -90 || poi.Latitude > 90 ||
+                poi.Longitude < -180 || poi.Longitude > 180)
+                continue;
+
             var (x, y) = SphericalMercator.FromLonLat(poi.Longitude, poi.Latitude);
 
             // POI marker: cam (#f97316), SymbolStyle dam bao render duoc
@@ -235,6 +313,18 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
 
         try
         {
+            // Phuong phap 1: Mapsui feature detection - truyen layer POI de Mapsui check
+            var mapInfo = _poiLayer is not null
+                ? e.GetMapInfo?.Invoke(new Mapsui.Layers.ILayer[] { _poiLayer })
+                : null;
+            if (mapInfo?.Feature is PointFeature feature && feature["poi"] is CachedPoi tappedPoi)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                    _ = _vm.ShowPoiPopupCommand.ExecuteAsync(tappedPoi));
+                return;
+            }
+
+            // Phuong phap 2: Tim POI gan nhat qua toa do (fallback)
             var world = e.WorldPosition;
             if (world is null) return;
             var wx = world.X; var wy = world.Y;
@@ -244,7 +334,7 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
                 try
                 {
                     var (lon, lat) = SphericalMercator.ToLonLat(wx, wy);
-                    const double tol = 0.0005;
+                    const double tol = 0.001; // tang len 0.001° (~110m) de de tap hon
                     var nearest = _vm.Pois
                         .Where(p => Math.Abs(p.Latitude - lat) < tol
                                  && Math.Abs(p.Longitude - lon) < tol)

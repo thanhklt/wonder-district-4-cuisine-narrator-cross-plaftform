@@ -24,14 +24,14 @@
                     <option value="">-- Đang tải gói... --</option>
                 </select>
             </div>
+            <!-- Gallery ảnh -->
             <div class="full-width">
-                <label class="form-label">Ảnh đại diện (Tải lên mới)</label>
-                <input type="file" id="edit-poi-image" class="form-input" accept="image/*">
-                <p id="edit-poi-current-image" style="font-size:12px;color:var(--text-dim);margin-top:4px;"></p>
-            </div>
-            <div class="full-width">
-                <label class="form-label">Hoặc nhập URL ảnh online</label>
-                <input type="url" id="edit-poi-image-url" class="form-input" placeholder="https://images.unsplash.com/...">
+                <label class="form-label">Quản lý ảnh POI</label>
+                <div id="edit-image-gallery" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;"></div>
+                <!-- Input ẩn để thêm ảnh mới -->
+                <input type="file" id="edit-poi-image" accept="image/*" style="display:none">
+                <input type="file" id="edit-poi-image-hidden" accept="image/*" style="display:none">
+                <p id="edit-poi-current-image" style="font-size:12px;color:var(--text-dim);margin-top:4px;display:none;"></p>
             </div>
             <div class="full-width">
                 <label class="form-label">Mô tả</label>
@@ -60,83 +60,143 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Extract POI ID from URL: /owner/pois/edit/{id}
+        document.addEventListener('DOMContentLoaded', function () {
             var pathParts = window.location.pathname.split('/');
             var poiId = pathParts[pathParts.length - 1];
-
-            if (!poiId || isNaN(poiId)) {
-                console.error('[EditPoi] Invalid POI ID in URL');
-                return;
-            }
+            if (!poiId || isNaN(poiId)) { console.error('[EditPoi] Invalid POI ID'); return; }
 
             var AT = window.AudioTravelling;
             if (!AT || !AT.Services) return;
+            var UI = AT.Core.UI;
 
-            // Load packages
+            var _currentImages = [];
+
+            // ── Gallery render ────────────────────────────────────────────────
+            function renderGallery(images) {
+                _currentImages = images || [];
+                var gallery = document.getElementById('edit-image-gallery');
+                if (!gallery) return;
+
+                var nonCover = _currentImages.filter(function (i) { return !i.isCover; });
+                var canAdd = _currentImages.length < 4;
+
+                var html = _currentImages.map(function (img) {
+                    var url = img.imageUrl || '/images/placeholder-poi.png';
+                    var coverBadge = img.isCover
+                        ? '<span style="position:absolute;top:4px;left:4px;background:#f59e0b;color:#000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;">Bìa</span>'
+                        : '';
+                    var setCoverBtn = img.isCover ? '' :
+                        '<button onclick="setImageCover(' + img.imageID + ')" title="Đặt làm ảnh bìa" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:3px 7px;font-size:11px;cursor:pointer;"><i class="fa-solid fa-star"></i></button>';
+                    return '<div style="position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;">' +
+                        '<img src="' + url + '" style="width:100%;height:90px;object-fit:cover;display:block;" onerror="this.src=\'/images/placeholder-poi.png\'">' +
+                        coverBadge +
+                        '<div style="display:flex;gap:4px;padding:6px;background:rgba(0,0,0,.5);">' +
+                        setCoverBtn +
+                        '<button onclick="deleteImage(' + img.imageID + ')" title="Xóa ảnh" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:3px 7px;font-size:11px;cursor:pointer;"><i class="fa-solid fa-trash"></i></button>' +
+                        '</div></div>';
+                }).join('');
+
+                if (canAdd) {
+                    html += '<div style="border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;height:130px;cursor:pointer;" onclick="triggerAddImage()">' +
+                        '<div style="text-align:center;color:var(--text-dim);"><i class="fa-solid fa-plus" style="font-size:20px;margin-bottom:4px;"></i><br><span style="font-size:12px;">Thêm ảnh</span></div></div>';
+                }
+
+                gallery.innerHTML = html;
+            }
+
+            // ── Load data ─────────────────────────────────────────────────────
             AT.Services.Package.getAll().then(function (packages) {
                 var pkgSelect = document.getElementById('edit-poi-package');
                 if (!pkgSelect || !packages) return;
-                var optionsHtml = '<option value="">-- Chọn gói --</option>';
+                var optHtml = '<option value="">-- Chọn gói --</option>';
                 packages.forEach(function (pkg) {
-                    optionsHtml += '<option value="' + (pkg.packageId || pkg.id) + '">' + (pkg.name || '') + ' (' + (pkg.radius || 0) + 'm)</option>';
+                    optHtml += '<option value="' + (pkg.packageId || pkg.id) + '">' + (pkg.name || '') + ' (' + (pkg.radius || 0) + 'm)</option>';
                 });
-                pkgSelect.innerHTML = optionsHtml;
-
-                // Load POI data after packages are loaded
+                pkgSelect.innerHTML = optHtml;
                 return AT.Services.POI.getByOwner();
             }).then(function (pois) {
                 if (!pois) return;
                 var poi = pois.find(function (p) { return (p.poiId || p.id) == poiId; });
                 if (!poi) return;
-
                 var setVal = function (id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; };
                 setVal('edit-poi-name', poi.poiName || poi.name);
                 setVal('edit-poi-description', poi.descriptionVi || poi.description);
-                var imgStatus = document.getElementById('edit-poi-current-image');
-                if (imgStatus && poi.imageUrl) imgStatus.innerText = 'Đã có ảnh: ' + poi.imageUrl;
                 setVal('edit-poi-lat', poi.latitude || poi.lat);
                 setVal('edit-poi-lng', poi.longitude || poi.lng);
                 setVal('edit-poi-package', poi.packageId || '');
+                renderGallery(poi.images || []);
             });
 
-            // Bind update button
+            // ── Image actions ─────────────────────────────────────────────────
+            window.triggerAddImage = function () {
+                var input = document.getElementById('edit-poi-image');
+                if (input) input.click();
+            };
+
+            document.getElementById('edit-poi-image').addEventListener('change', function () {
+                var file = this.files[0];
+                if (!file) return;
+                var isCover = _currentImages.length === 0;
+                var fd = new FormData();
+                fd.append('ImageFile', file);
+                fd.append('IsCover', isCover ? 'true' : 'false');
+                AT.Services.POI.addImage('owner', poiId, fd).then(function () {
+                    UI.showToast('Đã thêm ảnh', 'success');
+                    return AT.Services.POI.getByOwner();
+                }).then(function (pois) {
+                    var poi = (pois || []).find(function (p) { return (p.poiId || p.id) == poiId; });
+                    if (poi) renderGallery(poi.images || []);
+                }).catch(function (err) {
+                    var msg = err && err.message ? err.message : 'Lỗi khi thêm ảnh';
+                    UI.showToast(msg, 'error');
+                });
+                this.value = '';
+            });
+
+            window.deleteImage = function (imageId) {
+                if (!confirm('Xóa ảnh này?')) return;
+                AT.Services.POI.deleteImage('owner', poiId, imageId).then(function () {
+                    UI.showToast('Đã xóa ảnh', 'success');
+                    return AT.Services.POI.getByOwner();
+                }).then(function (pois) {
+                    var poi = (pois || []).find(function (p) { return (p.poiId || p.id) == poiId; });
+                    if (poi) renderGallery(poi.images || []);
+                });
+            };
+
+            window.setImageCover = function (imageId) {
+                AT.Services.POI.setCoverImage('owner', poiId, imageId).then(function () {
+                    UI.showToast('Đã đặt ảnh bìa', 'success');
+                    return AT.Services.POI.getByOwner();
+                }).then(function (pois) {
+                    var poi = (pois || []).find(function (p) { return (p.poiId || p.id) == poiId; });
+                    if (poi) renderGallery(poi.images || []);
+                });
+            };
+
+            // ── Update POI info ───────────────────────────────────────────────
             var btnUpdate = document.getElementById('btn-update-poi');
             if (btnUpdate) {
                 btnUpdate.addEventListener('click', function () {
                     var name = (document.getElementById('edit-poi-name') || {}).value || '';
                     var packageId = parseInt((document.getElementById('edit-poi-package') || {}).value, 10) || 0;
-                    
+                    if (!name.trim()) { UI.showToast('Vui lòng nhập tên POI', 'error'); return; }
+                    if (!packageId) { UI.showToast('Vui lòng chọn gói', 'error'); return; }
+
                     var data = new FormData();
                     data.append('poiName', name);
                     data.append('descriptionVi', (document.getElementById('edit-poi-description') || {}).value || '');
                     data.append('latitude', parseFloat((document.getElementById('edit-poi-lat') || {}).value) || 0);
                     data.append('longitude', parseFloat((document.getElementById('edit-poi-lng') || {}).value) || 0);
                     data.append('packageId', packageId);
-                    
-                    var imgFile = document.getElementById('edit-poi-image').files[0];
-                    if (imgFile) data.append('imageFile', imgFile);
-
-                    var imgUrl = (document.getElementById('edit-poi-image-url') || {}).value || '';
-                    if (imgUrl) data.append('imageUrl', imgUrl);
-
-                    if (!name.trim()) {
-                        AT.Core.UI.showToast('Vui lòng nhập tên POI', 'error');
-                        return;
-                    }
-                    if (!packageId) {
-                        AT.Core.UI.showToast('Vui lòng chọn gói', 'error');
-                        return;
-                    }
 
                     btnUpdate.disabled = true;
                     btnUpdate.textContent = 'Đang cập nhật...';
-
                     AT.Services.POI.update(poiId, data).then(function () {
-                        AT.Core.UI.showToast('Đã cập nhật POI', 'success');
+                        UI.showToast('Đã cập nhật POI', 'success');
                         window.location.href = '/owner/pois';
-                    }).catch(function (err) {
-                        AT.Core.UI.showToast('Lỗi khi cập nhật POI', 'error');
+                    }).catch(function () {
+                        UI.showToast('Lỗi khi cập nhật POI', 'error');
                         btnUpdate.disabled = false;
                         btnUpdate.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Cập nhật';
                     });

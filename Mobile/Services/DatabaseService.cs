@@ -89,6 +89,17 @@ public class DatabaseService
             await _db!.InsertOrReplaceAsync(l);
     }
 
+    // Luu 1 localization theo (PoiID, LanguageCode) — dung sau khi TTS proxy tao text moi
+    public async Task SaveLocalizationAsync(CachedPoiLocalization loc)
+    {
+        await InitAsync();
+        // Xoa ban ghi cu (neu co) truoc khi insert moi, vi khoa chinh la LocalizationID
+        await _db!.ExecuteAsync(
+            "DELETE FROM CachedPoiLocalizations WHERE PoiID = ? AND LanguageCode = ?",
+            loc.PoiID, loc.LanguageCode);
+        await _db.InsertAsync(loc);
+    }
+
     // ── Audio cache ───────────────────────────────────────────
     public async Task<CachedPoiAudio?> GetAudioAsync(int poiId, string langCode)
     {

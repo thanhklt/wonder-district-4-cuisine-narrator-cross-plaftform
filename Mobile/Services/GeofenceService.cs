@@ -13,7 +13,7 @@ public class GeofenceService
     private const double BufferMeters = 1.0;
     private const int DebounceSeconds = 3;
     private static readonly TimeSpan ShortCooldown = TimeSpan.FromSeconds(45);
-    private static readonly TimeSpan LongCooldown = TimeSpan.FromMinutes(15);
+    // private static readonly TimeSpan LongCooldown = TimeSpan.FromMinutes(15);
 
     public event Action<CachedPoi>? GeofenceTriggered;
 
@@ -42,13 +42,15 @@ public class GeofenceService
     public void UpdateLocation(Location location) => _lastLocation = location;
 
     private async Task TickAsync()
-    {
+    {   
+        // Nếu chưa có gps hoặc gps xấu thì skip
         if (_lastLocation is null) return;
         if (_lastLocation.Accuracy > AccuracyThreshold) return;
 
         var pois = await _db.GetActivePoisAsync();
         var now = DateTime.UtcNow;
         var candidates = new List<(CachedPoi poi, double dist)>();
+
 
         foreach (var poi in pois)
         {
@@ -63,6 +65,7 @@ public class GeofenceService
             var enterThreshold = poi.Radius - BufferMeters;
             var exitThreshold = poi.Radius + BufferMeters;
 
+            // Nếu ko ở trong zone mà giờ đã vào thì bắt đầu tính thời gian chờ
             if (!state.IsInsideZone && dist <= enterThreshold)
             {
                 state.PendingEnterAt ??= now;
@@ -73,9 +76,9 @@ public class GeofenceService
                     state.LastEnterAt = now;
 
                     var shortOk = state.CooldownUntil is null || now >= state.CooldownUntil;
-                    var longOk = state.LongCooldownUntil is null || now >= state.LongCooldownUntil;
+                    // var longOk = state.LongCooldownUntil is null || now >= state.LongCooldownUntil;
 
-                    if (shortOk && longOk)
+                    if (shortOk)
                         candidates.Add((poi, dist));
                 }
             }
@@ -103,7 +106,7 @@ public class GeofenceService
         var winState = await _db.GetGeofenceStateAsync(winner.PoiID)!;
         winState!.LastTriggeredAt = now;
         winState.CooldownUntil = now + ShortCooldown;
-        winState.LongCooldownUntil = now + LongCooldown;
+        // winState.LongCooldownUntil = now + LongCooldown;
         await _db.SaveGeofenceStateAsync(winState);
 
         GeofenceTriggered?.Invoke(winner);
@@ -112,6 +115,7 @@ public class GeofenceService
         await _audio.PlayAsync(winner, langCode, "geofence");
     }
 
+    // Tính khoảng cách 2 điểm
     private static double Haversine(double lat1, double lon1, double lat2, double lon2)
     {
         const double R = 6371000;

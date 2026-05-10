@@ -85,20 +85,34 @@
                             Padding="0" />
                 </Grid>
 
-                <!-- Ảnh bìa (nếu có) -->
-                <Border Grid.Row="2"
-                        IsVisible="{Binding HasPopupImage}"
-                        Margin="20,0,20,12"
-                        StrokeThickness="0">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12" />
-                    </Border.StrokeShape>
-                    <Image Source="{Binding PopupCoverImageUrl}"
-                           Aspect="AspectFill"
-                           HeightRequest="160" />
-                </Border>
+                <!-- Gallery ảnh (carousel nếu có nhiều, ảnh đơn nếu chỉ 1) -->
+                <VerticalStackLayout Grid.Row="2"
+                                     IsVisible="{Binding HasPopupImage}"
+                                     Margin="20,0,20,12"
+                                     Spacing="6">
+                    <CarouselView ItemsSource="{Binding PopupImageUrls}"
+                                  HeightRequest="200"
+                                  IndicatorView="popupIndicator"
+                                  Loop="False">
+                        <CarouselView.ItemTemplate>
+                            <DataTemplate x:DataType="{x:Null}">
+                                <Frame CornerRadius="12" Padding="0"
+                                       IsClippedToBounds="True" Margin="0">
+                                    <Image Source="{Binding .}"
+                                           Aspect="AspectFill"
+                                           HeightRequest="200" />
+                                </Frame>
+                            </DataTemplate>
+                        </CarouselView.ItemTemplate>
+                    </CarouselView>
+                    <IndicatorView x:Name="popupIndicator"
+                                   IsVisible="{Binding PopupHasMultipleImages}"
+                                   IndicatorColor="#CCCCCC"
+                                   SelectedIndicatorColor="#4A90E2"
+                                   HorizontalOptions="Center" />
+                </VerticalStackLayout>
 
-                <!-- Separator -->
+                <!-- Separator khi không có ảnh -->
                 <BoxView Grid.Row="2"
                          IsVisible="{Binding HasPopupImage, Converter={StaticResource InverseBoolConverter}}"
                          HeightRequest="1" BackgroundColor="#F0F0F0"

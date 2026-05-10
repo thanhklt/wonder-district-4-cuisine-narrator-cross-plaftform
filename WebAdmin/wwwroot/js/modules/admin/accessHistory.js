@@ -42,17 +42,17 @@
                 var qrCode = s.code || s.qrCode || s.qrName || s.qrCodeValue || '-';
                 var deviceId = s.deviceId || s.device || s.deviceCode || s.deviceIdentifier || '-';
                 var scanTime = s.issuedAt || s.timestamp || s.createdDate || s.scanTime || s.scannedAt;
-                
+
                 var formattedTime = '-';
                 if (scanTime) {
                     var d = new Date(scanTime);
                     if (!isNaN(d.getTime())) {
-                        formattedTime = 
-                            String(d.getDate()).padStart(2, '0') + '/' + 
-                            String(d.getMonth() + 1).padStart(2, '0') + '/' + 
-                            d.getFullYear() + ' ' + 
-                            String(d.getHours()).padStart(2, '0') + ':' + 
-                            String(d.getMinutes()).padStart(2, '0') + ':' + 
+                        formattedTime =
+                            String(d.getDate()).padStart(2, '0') + '/' +
+                            String(d.getMonth() + 1).padStart(2, '0') + '/' +
+                            d.getFullYear() + ' ' +
+                            String(d.getHours()).padStart(2, '0') + ':' +
+                            String(d.getMinutes()).padStart(2, '0') + ':' +
                             String(d.getSeconds()).padStart(2, '0');
                     }
                 }

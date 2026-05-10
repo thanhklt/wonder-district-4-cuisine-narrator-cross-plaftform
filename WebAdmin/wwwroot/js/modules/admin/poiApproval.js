@@ -1,3 +1,4 @@
+
 /**
  * Audio Travelling — POI Approval Module (Admin)
  */
@@ -26,6 +27,10 @@
     /** Resolve an image URL — prepend API origin for relative paths */
     function resolveImageUrl(url) {
         if (!url) return null;
+        if (typeof url === 'object' && url.imageUrl) {
+            url = url.imageUrl;
+        }
+        if (typeof url !== 'string') return null;
         if (url.startsWith('http://') || url.startsWith('https://')) return url;
         return getApiOrigin() + (url.startsWith('/') ? '' : '/') + url;
     }

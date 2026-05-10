@@ -33,9 +33,9 @@
                 var canSubmit = status === 'rejected' || status === 'pending';
                 var canDelete = false; // Owner cannot delete POI
 
-                var imageUrl = p.imageUrl ?? p.ImageUrl ??
-                               (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : null) ??
-                               (Array.isArray(p.Images) && p.Images.length > 0 ? p.Images[0] : null) ??
+                var imageUrl = p.imageUrl || p.ImageUrl ||
+                               (Array.isArray(p.images) && p.images.length > 0 ? (p.images[0].imageUrl || p.images[0]) : null) ||
+                               (Array.isArray(p.Images) && p.Images.length > 0 ? (p.Images[0].imageUrl || p.Images[0]) : null) ||
                                '/images/placeholder-poi.png';
 
                 return '<tr style="border-bottom:1px solid var(--border);">' +
