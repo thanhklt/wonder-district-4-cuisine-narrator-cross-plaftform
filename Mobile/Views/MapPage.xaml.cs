@@ -131,7 +131,11 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
     // Dieu chinh map de hien thi tat ca POI trong vung nhin thay
     private void FitMapToPois()
     {
-        var pois = _vm.Pois.ToList();
+        // Chi lay POI co toa do hop le theo WGS84 (lat -90..90, lon -180..180)
+        var pois = _vm.Pois
+            .Where(p => p.Latitude  >= -90  && p.Latitude  <= 90 &&
+                        p.Longitude >= -180 && p.Longitude <= 180)
+            .ToList();
         if (pois.Count == 0) return;
 
         // Tinh bounding box cua tat ca POI
@@ -198,6 +202,11 @@ public partial class MapPage : ContentPage, IRecipient<LocationUpdatedMessage>
 
         foreach (var poi in pois)
         {
+            // Bo qua POI co toa do ngoai pham vi WGS84 hop le
+            if (poi.Latitude < -90 || poi.Latitude > 90 ||
+                poi.Longitude < -180 || poi.Longitude > 180)
+                continue;
+
             var (x, y) = SphericalMercator.FromLonLat(poi.Longitude, poi.Latitude);
 
             // POI marker: cam (#f97316), SymbolStyle dam bao render duoc
