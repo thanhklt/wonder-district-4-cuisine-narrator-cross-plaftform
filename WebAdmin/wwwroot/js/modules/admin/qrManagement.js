@@ -22,7 +22,7 @@
             var tbody = document.getElementById('qr-table-body');
             if (!tbody) return;
             if (!qrs || qrs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-dim);">Chưa có mã QR nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-dim);">Chưa có mã QR nào</td></tr>';
                 return;
             }
             tbody.innerHTML = qrs.map(function (qr) {
@@ -37,20 +37,19 @@
                 var toggleIcon = status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off';
                 return '<tr style="border-bottom:1px solid var(--border);" class="qr-row" data-qr-id="' + qrId + '">' +
                     '<td style="padding:10px;font-weight:600;font-size:13px;cursor:pointer;" class="qr-id-cell" data-qr-id="' + qrId + '">' +
-                        '<i class="fa-solid fa-qrcode" style="margin-right:4px;color:var(--text-dim);"></i>' + (code || qrId) +
+                    '<i class="fa-solid fa-qrcode" style="margin-right:4px;color:var(--text-dim);"></i>' + (code || qrId) +
                     '</td>' +
                     '<td style="padding:10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
                     '<td style="padding:10px;font-size:13px;text-align:center;">' + scanCount + '</td>' +
-                    '<td style="padding:10px;font-size:13px;">' + Fmt.date(createdDate) + '</td>' +
                     '<td style="padding:10px;text-align:center;">' +
-                        '<div style="display:flex;gap:4px;justify-content:center;">' +
-                            '<button class="btn-ghost btn-view-qr" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;" title="Xem mã QR">' +
-                                '<i class="fa-solid fa-eye"></i>' +
-                            '</button>' +
-                            '<button class="btn-ghost btn-toggle-qr" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;" title="' + toggleText + '">' +
-                                '<i class="fa-solid ' + toggleIcon + '"></i> ' + toggleText +
-                            '</button>' +
-                        '</div>' +
+                    '<div style="display:flex;gap:4px;justify-content:center;">' +
+                    '<button class="btn-ghost btn-view-qr" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;" title="Xem mã QR">' +
+                    '<i class="fa-solid fa-eye"></i>' +
+                    '</button>' +
+                    '<button class="btn-ghost btn-toggle-qr" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;" title="' + toggleText + '">' +
+                    '<i class="fa-solid ' + toggleIcon + '"></i> ' + toggleText +
+                    '</button>' +
+                    '</div>' +
                     '</td></tr>';
             }).join('');
 
@@ -113,21 +112,21 @@
 
             container.innerHTML =
                 '<div style="text-align:center;margin-bottom:20px;">' +
-                    '<img src="' + qrImageUrl + '" alt="QR Code ' + code + '" style="width:200px;height:200px;border-radius:8px;border:1px solid var(--border);padding:8px;background:#fff;" id="qr-detail-image">' +
+                '<img src="' + qrImageUrl + '" alt="QR Code ' + code + '" style="width:200px;height:200px;border-radius:8px;border:1px solid var(--border);padding:8px;background:#fff;" id="qr-detail-image">' +
                 '</div>' +
                 '<div style="font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Mã QR</strong>' + code + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Trạng thái</strong><span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Lượt quét</strong>' + scanCount + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(createdDate) + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Mã QR</strong>' + code + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Trạng thái</strong><span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Lượt quét</strong>' + scanCount + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(createdDate) + '</div>' +
                 '</div>' +
                 '<div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">' +
-                    '<a href="' + qrImageUrl + '" download="QR-' + code + '.png" class="btn-primary" style="font-size:12px;padding:8px 16px;text-decoration:none;">' +
-                        '<i class="fa-solid fa-download"></i> Tải QR' +
-                    '</a>' +
-                    '<button class="btn-ghost" id="btn-copy-qr-link" data-link="' + qrLink + '" style="font-size:12px;padding:8px 16px;">' +
-                        '<i class="fa-solid fa-copy"></i> Copy link' +
-                    '</button>' +
+                '<a href="' + qrImageUrl + '" download="QR-' + code + '.png" class="btn-primary" style="font-size:12px;padding:8px 16px;text-decoration:none;">' +
+                '<i class="fa-solid fa-download"></i> Tải QR' +
+                '</a>' +
+                '<button class="btn-ghost" id="btn-copy-qr-link" data-link="' + qrLink + '" style="font-size:12px;padding:8px 16px;">' +
+                '<i class="fa-solid fa-copy"></i> Copy link' +
+                '</button>' +
                 '</div>';
 
             // Bind copy link

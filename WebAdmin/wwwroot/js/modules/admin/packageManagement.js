@@ -50,7 +50,7 @@
             tbody.querySelectorAll('.btn-edit-package').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = btn.getAttribute('data-id');
-                    var pkg = packages.find(function(p) { return (p.packageId || p.id) == id; });
+                    var pkg = packages.find(function (p) { return (p.packageId || p.id) == id; });
                     if (pkg) {
                         openModal(pkg);
                     }
@@ -64,13 +64,13 @@
                         AT.Services.Package.delete(id).then(function () {
                             UI.showToast('Xóa gói thành công', 'success');
                             renderPackageList();
-                        }).catch(function(err) {
+                        }).catch(function (err) {
                             UI.showToast('Lỗi khi xóa gói', 'error');
                         });
                     }
                 });
             });
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.error('[PackageManagement] Error:', err);
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:red;">Lỗi tải dữ liệu</td></tr>';
             UI.showToast('Không thể tải danh sách gói', 'error');
@@ -80,7 +80,7 @@
     function openModal(pkg) {
         var form = document.getElementById('package-form');
         if (!form) return;
-        
+
         form.reset();
         if (pkg) {
             currentEditingId = pkg.packageId || pkg.id;
@@ -93,7 +93,7 @@
             currentEditingId = null;
             document.getElementById('modal-package-title').innerText = 'Tạo gói mới';
         }
-        
+
         UI.showModal('modal-package');
     }
 
@@ -145,7 +145,7 @@
                 btnSave.disabled = true;
                 btnSave.innerText = 'Đang lưu...';
 
-                var req = currentEditingId 
+                var req = currentEditingId
                     ? AT.Services.Package.update(currentEditingId, data)
                     : AT.Services.Package.create(data);
 
@@ -155,7 +155,7 @@
                     renderPackageList();
                 }).catch(function (err) {
                     UI.showToast('Có lỗi xảy ra khi lưu gói', 'error');
-                }).finally(function() {
+                }).finally(function () {
                     btnSave.disabled = false;
                     btnSave.innerText = 'Lưu';
                 });

@@ -21,19 +21,37 @@ namespace Api.Controllers
         }
 
         [HttpGet("sessions")]
-        public async Task<IActionResult> GetSessions([FromQuery] string period = "today")
+        public async Task<IActionResult> GetSessions(
+            [FromQuery] string period = "today",
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
         {
             var now = DateTime.UtcNow;
-            var startDate = now.Date;
 
-            if (period == "week") startDate = now.AddDays(-7).Date;
-            else if (period == "month") startDate = now.AddMonths(-1).Date;
-            else if (period == "all") startDate = DateTime.MinValue;
-
-            var sessions = await _context.AccessSessions
+            var query = _context.AccessSessions
                 .Include(s => s.QrCode)
-                .Where(s => s.IssuedAt >= startDate)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (fromDate.HasValue || toDate.HasValue)
+            {
+                // Explicit date range takes priority over period
+                if (fromDate.HasValue)
+                    query = query.Where(s => s.IssuedAt >= fromDate.Value.Date);
+                if (toDate.HasValue)
+                    query = query.Where(s => s.IssuedAt < toDate.Value.Date.AddDays(1));
+            }
+            else
+            {
+                // Fallback to period-based filtering
+                var startDate = now.Date;
+                if (period == "week") startDate = now.AddDays(-7).Date;
+                else if (period == "month") startDate = now.AddMonths(-1).Date;
+                else if (period == "all") startDate = DateTime.MinValue;
+
+                query = query.Where(s => s.IssuedAt >= startDate);
+            }
+
+            var sessions = await query.ToListAsync();
 
             var activeUsers = sessions.Count(s => !s.IsRevoked && s.ExpiredAt > now);
             var uniqueUsers = sessions.Select(s => s.DeviceID).Distinct().Count();

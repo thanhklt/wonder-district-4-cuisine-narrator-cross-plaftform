@@ -22,18 +22,19 @@
         <button class="btn-primary" id="btn-filter-history" style="font-size:13px;">
             <i class="fa-solid fa-filter"></i> Lọc
         </button>
+        <button class="btn-ghost" id="btn-reset-filter-history" style="font-size:13px;">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
     </div>
 
     <div class="glass-card" style="padding:24px;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>Thời gian</th>
+                    <th>Session ID</th>
                     <th>QR đã quét</th>
-                    <th>POI truy cập</th>
-                    <th>Khu vực</th>
-                    <th>Thiết bị</th>
-                    <th>Thời lượng</th>
+                    <th>Mã thiết bị</th>
+                    <th>Thời gian quét</th>
                 </tr>
             </thead>
             <tbody id="access-history-body">
@@ -63,10 +64,8 @@
                 <tr>
                     <th>Session ID</th>
                     <th>QR đã quét</th>
-                    <th>POI đang xem</th>
-                    <th>Thời gian bắt đầu</th>
-                    <th>Hoạt động cuối</th>
-                    <th>Trạng thái</th>
+                    <th>Mã thiết bị</th>
+                    <th>Thời gian quét</th>
                 </tr>
             </thead>
             <tbody id="realtime-sessions-body">

@@ -47,6 +47,41 @@
             </div>
         </div>
     </div>
+
+    <!-- POI Detail Modal -->
+    <div id="modal-poi-detail" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width:700px; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-size:18px; font-weight:700; margin:0;">
+                    <i class="fa-solid fa-map-pin" style="color:var(--accent); margin-right:8px;"></i>Chi tiết POI
+                </h3>
+                <button class="btn-ghost" id="btn-close-poi-detail" style="font-size:16px; padding:4px 10px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Cover Image -->
+            <div id="poi-detail-cover" style="margin-bottom:16px; text-align:center;"></div>
+
+            <!-- Info Grid -->
+            <div id="poi-detail-info" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; margin-bottom:16px;"></div>
+
+            <!-- Description -->
+            <div id="poi-detail-description-section" style="margin-bottom:16px;">
+                <strong style="color:var(--text-dim); display:block; margin-bottom:4px;">Mô tả (Tiếng Việt)</strong>
+                <p id="poi-detail-description" style="font-size:13px; line-height:1.6; margin:0; padding:12px; background:var(--card-bg); border-radius:8px;"></p>
+            </div>
+
+            <!-- Image Gallery -->
+            <div id="poi-detail-gallery-section" style="margin-bottom:20px;">
+                <strong style="color:var(--text-dim); display:block; margin-bottom:8px;">Hình ảnh</strong>
+                <div id="poi-detail-gallery" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+            </div>
+
+            <!-- Action buttons (visible only for pending POIs) -->
+            <div id="poi-detail-actions" style="display:flex; gap:12px; justify-content:flex-end; border-top:1px solid var(--border); padding-top:16px;"></div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

@@ -105,7 +105,7 @@ namespace Api.Repositories
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            await using var conn = new SqlConnection(_connectionString);
+            await using var conn = new SqlConnection(_connectionString);    
 
             var sql = @"
                 SELECT *

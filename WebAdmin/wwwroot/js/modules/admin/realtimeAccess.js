@@ -24,25 +24,34 @@
             var tbody = document.getElementById('realtime-sessions-body');
             if (!tbody) return;
             if (!sessions || sessions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-dim);">Không có phiên truy cập nào đang hoạt động</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-dim);">Không có phiên truy cập nào đang hoạt động</td></tr>';
                 return;
             }
             tbody.innerHTML = sessions.map(function (s) {
-                var sessionId = s.sessionId || s.id || '—';
-                var qrCode = s.code || s.qrCode || '—';
-                var deviceId = s.deviceId || '—';
-                var issuedAt = s.issuedAt || '';
-                var expiredAt = s.expiredAt || '';
-                var isRevoked = s.isRevoked;
-                var statusText = isRevoked ? 'Kết thúc' : 'Đang hoạt động';
-                var statusClass = isRevoked ? 'status-rejected' : 'status-approved';
+                var sessionId = s.sessionId || s.id || s.sessionID || '-';
+                var qrCode = s.code || s.qrCode || s.qrName || s.qrCodeValue || '-';
+                var deviceId = s.deviceId || s.device || s.deviceCode || s.deviceIdentifier || '-';
+                var scanTime = s.issuedAt || s.timestamp || s.createdDate || s.scanTime || s.scannedAt;
+                
+                var formattedTime = '-';
+                if (scanTime) {
+                    var d = new Date(scanTime);
+                    if (!isNaN(d.getTime())) {
+                        formattedTime = 
+                            String(d.getDate()).padStart(2, '0') + '/' + 
+                            String(d.getMonth() + 1).padStart(2, '0') + '/' + 
+                            d.getFullYear() + ' ' + 
+                            String(d.getHours()).padStart(2, '0') + ':' + 
+                            String(d.getMinutes()).padStart(2, '0') + ':' + 
+                            String(d.getSeconds()).padStart(2, '0');
+                    }
+                }
+
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:10px;font-weight:500;font-size:13px;">' + sessionId + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + qrCode + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + deviceId + '</td>' +
-                    '<td style="padding:10px;font-size:13px;">' + Fmt.dateTime(issuedAt) + '</td>' +
-                    '<td style="padding:10px;font-size:13px;">' + Fmt.dateTime(expiredAt) + '</td>' +
-                    '<td style="padding:10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
+                    '<td style="padding:10px;font-size:13px;">' + formattedTime + '</td>' +
                     '</tr>';
             }).join('');
         }).catch(function (err) {

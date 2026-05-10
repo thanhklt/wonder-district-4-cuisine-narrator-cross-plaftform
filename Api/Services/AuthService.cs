@@ -46,33 +46,40 @@ namespace Api.Services
             return res;
         }
 
+        // Lấy tên role từ role id
+        private string getRole(int roleId)
+        {
+            if (roleId == 1)
+                return "Admin";
+            else if (roleId == 2)
+                return "Owner";
+            else
+                return "User";
+        }
+
         public async Task<LoginResponse> Login(LoginRequest request)
         {
             var user = await _repo.GetUserByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new Exception("Email hoặc mật khẩu không đúng");
+                throw new Exception("Email không tồn tại!");
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
             if (result == PasswordVerificationResult.Failed)
             {
-                throw new Exception("Email hoặc mật khẩu không đúng");
+                throw new Exception("Sai mật khẩu!");
             }
 
             if (user.UserStatus != 1)
             {
-                throw new Exception("Tài khoản đã bị khóa hoặc chưa kích hoạt");
+                throw new Exception("Tài khoản đã bị khóa!");
             }
 
             var token = _jwtService.GenerateToken(user);
 
             // Tạo DTO response
-            string RoleName = "";
-            if (user.RoleID == 1)
-                RoleName = "Admin";
-            else if (user.RoleID == 2)
-                RoleName = "Owner";
+            string RoleName = getRole(user.RoleID);   // Gọi hàm getRole
 
             var res = new LoginResponse
             {

@@ -60,7 +60,7 @@ namespace Api.Controllers
                 UserId = user.UserID, FullName = user.FullName, Email = user.Email,
                 PhoneNumber = user.PhoneNumber, RoleId = user.RoleID, Role = user.Role.RoleName,
                 UserStatus = user.UserStatus, Status = user.UserStatus == 1 ? "Active" : "Inactive",
-                StatusText = user.UserStatus == 1 ? "Đang hoạt động" : "Tạm dừng",
+                StatusText = user.UserStatus == 1 ? "Đang hoạt động" : "Bị khóa",
                 CreatedDate = user.CreatedDate, IsLocked = user.UserStatus == 0, IsActive = user.UserStatus == 1, LastLoginAt = null
             });
         }

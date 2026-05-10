@@ -44,6 +44,11 @@
     }
 
     AT.Core.ApiClient = {
+        /** Get the API origin (e.g. http://localhost:5184) without the /api path */
+        getBaseOrigin: function () {
+            return BASE_URL.replace(/\/api\/?$/, '');
+        },
+
         get: function (url) {
             return fetch(BASE_URL + url, {
                 method: 'GET',

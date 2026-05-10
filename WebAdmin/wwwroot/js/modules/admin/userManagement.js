@@ -71,20 +71,20 @@
                 '<td style="padding:12px 10px;"><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
                 '<td style="padding:12px 10px;font-size:13px;">' + Fmt.date(u.createdDate ?? u.CreatedDate) + '</td>' +
                 '<td style="padding:12px 10px;text-align:center;">' +
-                    '<div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">' +
-                        '<button class="btn-ghost btn-view-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Xem chi tiết">' +
-                            '<i class="fa-solid fa-eye"></i>' +
-                        '</button>' +
-                        '<button class="btn-ghost btn-edit-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Sửa">' +
-                            '<i class="fa-solid fa-pen"></i>' +
-                        '</button>' +
-                        '<button class="btn-ghost btn-toggle-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Khóa/Mở">' +
-                            '<i class="fa-solid fa-toggle-on"></i>' +
-                        '</button>' +
-                        '<button class="btn-danger-ghost btn-delete-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Xóa">' +
-                            '<i class="fa-solid fa-trash"></i>' +
-                        '</button>' +
-                    '</div>' +
+                '<div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">' +
+                '<button class="btn-ghost btn-view-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Xem chi tiết">' +
+                '<i class="fa-solid fa-eye"></i>' +
+                '</button>' +
+                '<button class="btn-ghost btn-edit-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Sửa">' +
+                '<i class="fa-solid fa-pen"></i>' +
+                '</button>' +
+                '<button class="btn-ghost btn-toggle-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Khóa/Mở">' +
+                '<i class="fa-solid fa-toggle-on"></i>' +
+                '</button>' +
+                '<button class="btn-danger-ghost btn-delete-user" data-user-id="' + u.userId + '" style="font-size:11px;padding:5px 8px;" title="Xóa">' +
+                '<i class="fa-solid fa-trash"></i>' +
+                '</button>' +
+                '</div>' +
                 '</td>' +
                 '</tr>';
         }).join('');
@@ -121,24 +121,24 @@
         });
     }
 
-    function openEditUserModal(userId) {
-        if (!userId) {
-            document.getElementById('user-modal-title').innerHTML = '<i class="fa-solid fa-user-plus text-accent" style="margin-right:8px;"></i>Tạo Tài Khoản';
-            document.getElementById('edit-user-id').value = '';
-            document.getElementById('form-edit-user').reset();
-            UI.showModal('modal-edit-user');
-            return;
-        }
+    function openCreateUserModal() {
+        document.getElementById('form-create-user').reset();
+        UI.showModal('modal-create-user');
+    }
 
-        document.getElementById('user-modal-title').innerHTML = '<i class="fa-solid fa-user-pen text-accent" style="margin-right:8px;"></i>Sửa Tài Khoản';
-        var u = _allUsers.find(function(user) { return (user.userId ?? user.UserId) == userId || user.id == userId; });
+    function openEditUserModal(userId) {
+        var u = _allUsers.find(function (user) { return (user.userId ?? user.UserId) == userId || user.id == userId; });
         if (u) {
             document.getElementById('edit-user-id').value = u.userId ?? u.UserId ?? '';
             document.getElementById('edit-user-fullname').value = u.fullName ?? u.FullName ?? '';
             document.getElementById('edit-user-email').value = u.email ?? u.Email ?? '';
             document.getElementById('edit-user-phone').value = u.phoneNumber ?? u.PhoneNumber ?? '';
             document.getElementById('edit-user-role').value = u.role ?? u.Role ?? 'Owner';
-            document.getElementById('edit-user-password').value = '';
+            var isActive = u.isActive ?? u.IsActive;
+            var statusEl = document.getElementById('edit-user-status');
+            if (statusEl) {
+                statusEl.value = isActive ? 'active' : 'locked';
+            }
             UI.showModal('modal-edit-user');
         }
     }
@@ -184,16 +184,16 @@
 
             container.innerHTML =
                 '<div style="margin-bottom:16px;">' +
-                    '<h4 style="font-size:18px;font-weight:700;margin:0 0 4px;">' + fullName + '</h4>' +
-                    '<p style="font-size:13px;color:var(--text-dim);margin:0;">' + email + '</p>' +
+                '<h4 style="font-size:18px;font-weight:700;margin:0 0 4px;">' + fullName + '</h4>' +
+                '<p style="font-size:13px;color:var(--text-dim);margin:0;">' + email + '</p>' +
                 '</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">ID</strong>' + userId + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Vai trò</strong>' + role + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Số điện thoại</strong>' + phoneNumber + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Trạng thái</strong><span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(createdDate) + '</div>' +
-                    '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Đăng nhập gần nhất</strong>' + (lastLoginAt ? Fmt.dateTime(lastLoginAt) : '—') + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">ID</strong>' + userId + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Vai trò</strong>' + role + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Số điện thoại</strong>' + phoneNumber + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Trạng thái</strong><span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Ngày tạo</strong>' + Fmt.date(createdDate) + '</div>' +
+                '<div><strong style="color:var(--text-dim);display:block;margin-bottom:2px;">Đăng nhập gần nhất</strong>' + (lastLoginAt ? Fmt.dateTime(lastLoginAt) : '—') + '</div>' +
                 '</div>';
 
             UI.showModal('modal-user-detail');
@@ -240,8 +240,42 @@
         if (searchInput) searchInput.addEventListener('input', filterUsers);
 
         var btnCreate = document.getElementById('btn-create-user');
-        if (btnCreate) btnCreate.addEventListener('click', function () { openEditUserModal(null); });
+        if (btnCreate) btnCreate.addEventListener('click', function () { openCreateUserModal(); });
 
+        // Bind Create Modal Events
+        var btnCloseCreate = document.getElementById('btn-close-create-user');
+        if (btnCloseCreate) btnCloseCreate.addEventListener('click', function () { UI.hideModal('modal-create-user'); });
+
+        var btnCancelCreate = document.getElementById('btn-cancel-create-user');
+        if (btnCancelCreate) btnCancelCreate.addEventListener('click', function () { UI.hideModal('modal-create-user'); });
+
+        var formCreate = document.getElementById('form-create-user');
+        if (formCreate) {
+            formCreate.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var data = {
+                    FullName: document.getElementById('create-user-fullname').value,
+                    Email: document.getElementById('create-user-email').value,
+                    PhoneNumber: document.getElementById('create-user-phone').value,
+                    Password: document.getElementById('create-user-password').value,
+                    Role: document.getElementById('create-user-role').value,
+                };
+
+                AT.Core.Auth.authFetch('/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).then(function () {
+                    UI.showToast('Đã tạo người dùng mới', 'success');
+                    UI.hideModal('modal-create-user');
+                    loadUsers();
+                }).catch(function (err) {
+                    UI.showToast('Lỗi: ' + err.message, 'error');
+                });
+            });
+        }
+
+        // Bind Edit Modal Events
         var btnCloseEdit = document.getElementById('btn-close-edit-user');
         if (btnCloseEdit) btnCloseEdit.addEventListener('click', function () { UI.hideModal('modal-edit-user'); });
 
@@ -253,28 +287,20 @@
             formEdit.addEventListener('submit', function (e) {
                 e.preventDefault();
                 var id = document.getElementById('edit-user-id').value;
-                var method = id ? 'PUT' : 'POST';
-                var url = id ? '/admin/users/' + id : '/admin/users';
-
                 var data = {
                     FullName: document.getElementById('edit-user-fullname').value,
                     Email: document.getElementById('edit-user-email').value,
                     PhoneNumber: document.getElementById('edit-user-phone').value,
-                    Password: document.getElementById('edit-user-password').value,
-                    Role: document.getElementById('edit-user-role').value
+                    Role: document.getElementById('edit-user-role').value,
+                    IsActive: document.getElementById('edit-user-status').value === 'active'
                 };
 
-                if (!id && !data.Password) {
-                    UI.showToast('Vui lòng nhập mật khẩu cho người dùng mới', 'error');
-                    return;
-                }
-
-                AT.Core.Auth.authFetch(url, {
-                    method: method,
+                AT.Core.Auth.authFetch('/admin/users/' + id, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 }).then(function () {
-                    UI.showToast('Đã lưu thông tin người dùng', 'success');
+                    UI.showToast('Đã cập nhật thông tin người dùng', 'success');
                     UI.hideModal('modal-edit-user');
                     loadUsers();
                 }).catch(function (err) {

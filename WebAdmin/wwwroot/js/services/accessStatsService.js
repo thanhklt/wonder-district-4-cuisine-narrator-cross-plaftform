@@ -37,12 +37,23 @@
 
         /** Get access history (recent sessions) for a date range */
         getAccessHistory: function (fromDate, toDate) {
-            var period = 'all';
-            if (fromDate || toDate) {
-                // Use 'all' and filter client-side if needed
-                period = 'all';
+            var params = [];
+
+            if (fromDate) {
+                params.push('fromDate=' + fromDate);
             }
-            return AT.Core.ApiClient.get('/admin/stats/sessions?period=' + period).then(function (data) {
+            if (toDate) {
+                params.push('toDate=' + toDate);
+            }
+
+            // If no dates provided, use period=all
+            if (params.length === 0) {
+                params.push('period=all');
+            }
+
+            var queryString = '?' + params.join('&');
+
+            return AT.Core.ApiClient.get('/admin/stats/sessions' + queryString).then(function (data) {
                 return (data && data.recentSessions) || [];
             }).catch(function (err) {
                 console.warn('[AccessStats] getAccessHistory error:', err);
