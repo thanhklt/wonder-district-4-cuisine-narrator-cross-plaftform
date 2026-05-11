@@ -15,11 +15,15 @@
     AT.Core = AT.Core || {};
 
     // Replace with real API base URL from config
-    var BASE_URL = 'http://localhost:5184/api';
+    // var BASE_URL = 'http://localhost:5184/api';
+    var BASE_URL = 'https://booth-nag-starlet.ngrok-free.dev/api';
 
     function getAuthHeaders() {
         var session = AT.Core.Storage.getSession();
-        var headers = { 'Content-Type': 'application/json' };
+        var headers = {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        };
         if (session && session.token) {
             headers['Authorization'] = 'Bearer ' + session.token;
         }

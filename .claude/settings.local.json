@@ -12,7 +12,8 @@
       "Read(//c/Users/marcn/.nuget/packages/mapsui/5.0.2/**)",
       "PowerShell(Add-Type -Path \"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"; [Mapsui.MapInfoEventArgs].GetProperties\\(\\) | Select-Object Name, PropertyType)",
       "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"\\); $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); $idx = $text.IndexOf\\(\"MapInfoEventArgs\"\\); $text.Substring\\([Math]::Max\\(0,$idx-20\\), 400\\))",
-      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"\\); $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); $matches = [regex]::Matches\\($text, \"get_\\\\w+\"\\); $matches | Select-Object -ExpandProperty Value -Unique | Where-Object { $_ -match \"MapInfo|Feature|Screen|World|Gesture|Handled\" } | Sort-Object)"
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\marcn\\\\.nuget\\\\packages\\\\mapsui\\\\5.0.2\\\\lib\\\\net8.0\\\\Mapsui.dll\"\\); $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); $matches = [regex]::Matches\\($text, \"get_\\\\w+\"\\); $matches | Select-Object -ExpandProperty Value -Unique | Where-Object { $_ -match \"MapInfo|Feature|Screen|World|Gesture|Handled\" } | Sort-Object)",
+      "Bash(dotnet run *)"
     ]
   }
 }

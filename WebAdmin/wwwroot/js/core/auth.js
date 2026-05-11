@@ -14,14 +14,15 @@
     var Storage = AT.Core.Storage;
     var UI = AT.Core.UI;
 
-    var API_BASE_URL = 'http://localhost:5184/api';
+    // var API_BASE_URL = 'http://localhost:5184/api';
+    var API_BASE_URL = 'https://booth-nag-starlet.ngrok-free.dev/api';
 
     AT.Core.Config = AT.Core.Config || {};
     AT.Core.Config.API_URL = API_BASE_URL;
 
     function getAuthHeaders() {
         var session = Storage.getSession();
-        var headers = {};
+        var headers = { 'ngrok-skip-browser-warning': 'true' };
         if (session && session.token) {
             headers['Authorization'] = 'Bearer ' + session.token;
         }
@@ -128,7 +129,8 @@
             var response = await fetch(API_BASE_URL + '/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
                 },
                 body: JSON.stringify({
                     email: email,
