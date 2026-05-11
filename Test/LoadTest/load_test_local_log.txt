@@ -1,0 +1,204 @@
+﻿LOAD TEST LOG
+=============
+
+Base URL   : http://localhost:5184
+Path       : /api/Poi
+Started at : 2026-05-12 04:07:26
+
+
+================================================================================
+SCENARIO: Warmup
+Requests: 20
+Concurrency: 2
+================================================================================
+
+LOAD TEST REPORT
+================
+
+Target URL       : http://localhost:5184/api/Poi
+Started at       : 2026-05-12 04:07:26
+Finished at      : 2026-05-12 04:07:30
+Total time       : 4.45s
+
+Total requests   : 20
+Concurrency      : 2
+Successful       : 20
+Failed           : 0
+Requests/sec     : 4.5
+
+Latency
+-------
+Average          : 432.7 ms
+Min              : 173 ms
+P50              : 176 ms
+P90              : 202 ms
+P95              : 2260 ms
+P99              : 3154 ms
+Max              : 3154 ms
+
+Status Codes
+------------
+HTTP 200: 20
+
+Failed Samples
+--------------
+
+
+================================================================================
+SCENARIO: Light
+Requests: 50
+Concurrency: 5
+================================================================================
+
+LOAD TEST REPORT
+================
+
+Target URL       : http://localhost:5184/api/Poi
+Started at       : 2026-05-12 04:07:34
+Finished at      : 2026-05-12 04:07:37
+Total time       : 3.22s
+
+Total requests   : 50
+Concurrency      : 5
+Successful       : 50
+Failed           : 0
+Requests/sec     : 15.55
+
+Latency
+-------
+Average          : 310.7 ms
+Min              : 172 ms
+P50              : 178 ms
+P90              : 279 ms
+P95              : 1357 ms
+P99              : 3069 ms
+Max              : 3069 ms
+
+Status Codes
+------------
+HTTP 200: 50
+
+Failed Samples
+--------------
+
+
+================================================================================
+SCENARIO: Normal
+Requests: 100
+Concurrency: 10
+================================================================================
+
+LOAD TEST REPORT
+================
+
+Target URL       : http://localhost:5184/api/Poi
+Started at       : 2026-05-12 04:07:40
+Finished at      : 2026-05-12 04:07:44
+Total time       : 4.58s
+
+Total requests   : 100
+Concurrency      : 10
+Successful       : 100
+Failed           : 0
+Requests/sec     : 21.83
+
+Latency
+-------
+Average          : 400.6 ms
+Min              : 170 ms
+P50              : 188 ms
+P90              : 359 ms
+P95              : 1017 ms
+P99              : 4526 ms
+Max              : 4529 ms
+
+Status Codes
+------------
+HTTP 200: 100
+
+Failed Samples
+--------------
+
+
+================================================================================
+SCENARIO: High
+Requests: 150
+Concurrency: 20
+================================================================================
+
+LOAD TEST REPORT
+================
+
+Target URL       : http://localhost:5184/api/Poi
+Started at       : 2026-05-12 04:07:47
+Finished at      : 2026-05-12 04:07:51
+Total time       : 3.83s
+
+Total requests   : 150
+Concurrency      : 20
+Successful       : 150
+Failed           : 0
+Requests/sec     : 39.18
+
+Latency
+-------
+Average          : 479.74 ms
+Min              : 170 ms
+P50              : 177 ms
+P90              : 974 ms
+P95              : 3733 ms
+P99              : 3757 ms
+Max              : 3761 ms
+
+Status Codes
+------------
+HTTP 200: 150
+
+Failed Samples
+--------------
+
+
+================================================================================
+SCENARIO: Stress
+Requests: 200
+Concurrency: 50
+================================================================================
+
+LOAD TEST REPORT
+================
+
+Target URL       : http://localhost:5184/api/Poi
+Started at       : 2026-05-12 04:07:54
+Finished at      : 2026-05-12 04:08:01
+Total time       : 6.18s
+
+Total requests   : 200
+Concurrency      : 50
+Successful       : 200
+Failed           : 0
+Requests/sec     : 32.38
+
+Latency
+-------
+Average          : 1169.99 ms
+Min              : 171 ms
+P50              : 191 ms
+P90              : 4991 ms
+P95              : 5190 ms
+P99              : 5223 ms
+Max              : 5912 ms
+
+Status Codes
+------------
+HTTP 200: 200
+
+Failed Samples
+--------------
+
+
+================================================================================
+DONE
+================================================================================
+
+Finished at : 2026-05-12 04:08:04
+Total time  : 37.6s
