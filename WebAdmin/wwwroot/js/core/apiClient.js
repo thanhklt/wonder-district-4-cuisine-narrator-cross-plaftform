@@ -16,7 +16,7 @@
 
     // Replace with real API base URL from config
     // var BASE_URL = 'http://localhost:5184/api';
-    var BASE_URL = 'https://booth-nag-starlet.ngrok-free.dev/api';
+    var BASE_URL = 'https://scraggly-plausibly-synthesis.ngrok-free.dev/api';
 
     function getAuthHeaders() {
         var session = AT.Core.Storage.getSession();

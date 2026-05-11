@@ -59,7 +59,7 @@
                                 titleColor: '#a7f3d0',
                                 bodyColor: '#f0fdf4',
                                 callbacks: {
-                                    label: function (ctx) { return ' ' + ctx.parsed.y + ' lượt quét'; }
+                                    label: function (ctx) { return ' ' + (ctx.parsed.y * 100) + ' lượt quét'; }
                                 }
                             }
                         },

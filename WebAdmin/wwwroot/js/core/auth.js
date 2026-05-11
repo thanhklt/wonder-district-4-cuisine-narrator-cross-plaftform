@@ -15,7 +15,7 @@
     var UI = AT.Core.UI;
 
     // var API_BASE_URL = 'http://localhost:5184/api';
-    var API_BASE_URL = 'https://booth-nag-starlet.ngrok-free.dev/api';
+    var API_BASE_URL = 'https://scraggly-plausibly-synthesis.ngrok-free.dev/api';
 
     AT.Core.Config = AT.Core.Config || {};
     AT.Core.Config.API_URL = API_BASE_URL;

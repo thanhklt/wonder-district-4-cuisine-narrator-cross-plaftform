@@ -11,7 +11,7 @@ public class ApiService
     // USB (adb reverse): http://localhost:5184 | Emulator: http://10.0.2.2:5184 | WiFi LAN: http://192.168.1.198:5184
     // private const string BaseUrl = "http://192.168.1.198:5184";
 
-    private const string BaseUrl = "https://booth-nag-starlet.ngrok-free.dev"; // Thay thế = ngrok mới mỗi khi chạy
+    private const string BaseUrl = "https://scraggly-plausibly-synthesis.ngrok-free.dev"; // Thay thế = ngrok mới mỗi khi chạy
 
     public ApiService(SessionService session)
     {
