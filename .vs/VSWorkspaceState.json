@@ -1,9 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Api",
-    "\\Api\\Services"
+    "\\Mobile"
   ],
-  "SelectedNode": "\\Api\\Services\\AuthService.cs",
+  "SelectedNode": "\\Mobile\\Mobile.csproj",
   "PreviewInSolutionExplorer": false
 }
