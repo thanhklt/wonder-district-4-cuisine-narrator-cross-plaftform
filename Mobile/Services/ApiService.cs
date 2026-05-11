@@ -8,8 +8,8 @@ public class ApiService
     private readonly HttpClient _http;
     private readonly SessionService _session;
 
-    // USB (adb reverse): http://localhost:5184 | Emulator: http://10.0.2.2:5184 | WiFi LAN: http://192.168.1.198:5184
-    private const string BaseUrl = "http://localhost:5184";
+    // USB (adb reverse): http://localhost:5184 | Emulator: http://10.0.2.2:5184 | WiFi LAN: http://10.187.140.136:5184
+    private const string BaseUrl = "http://10.187.140.136:5184";
 
     public ApiService(SessionService session)
     {

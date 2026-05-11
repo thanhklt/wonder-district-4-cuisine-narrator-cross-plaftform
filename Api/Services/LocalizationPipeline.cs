@@ -40,7 +40,7 @@ namespace Api.Services
 
         public async Task LocalizePoiAsync(int poiId)
         {
-            var poi = await _context.Pois.FindAsync(poiId);
+            var poi = await _context.Pois.FindAsync(poiId); // Lấy POI gốc 
             if (poi is null) return;
 
             var viText = poi.DescriptionVi;
@@ -82,7 +82,7 @@ namespace Api.Services
                         existing.UpdatedDate = DateTime.UtcNow;
                     }
                     else
-                    {
+                    {   // Nếu chưa có thì insert
                         _context.PoiLocalizations.Add(new PoiLocalization
                         {
                             PoiID = poiId,
