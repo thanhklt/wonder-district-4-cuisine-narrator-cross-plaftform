@@ -27,3 +27,7 @@ out/
 
 # Docker volumes
 postgres_data/
+
+# Mobile artifacts
+*.apk
+Api/wwwroot/mobile-app.apk
