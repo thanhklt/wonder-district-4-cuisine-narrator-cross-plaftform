@@ -62,27 +62,51 @@ namespace Api.Controllers
             return "/images/pois/" + fileName;
         }
 
+        private PoiDto MapToDto(Poi p)
+        {
+            var coverImageUrl = p.Images != null && p.Images.Any() 
+                ? (p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl) 
+                : null;
+
+            return new PoiDto
+            {
+                PoiId = p.PoiID,
+                PoiName = p.PoiName,
+                DescriptionVi = p.DescriptionVi,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
+                Radius = p.Package?.Radius ?? 0,
+                Priority = p.Package?.Priority ?? 0,
+                Status = (p.Status ?? "").ToLower(),
+                StatusText = p.Status ?? "Pending",
+                IsActive = p.IsActive,
+                PackageId = p.PackageId,
+                PackageName = p.Package?.Name ?? "",
+                OwnerId = p.OwnerID,
+                CreatedDate = p.CreatedDate,
+                UpdatedDate = p.UpdatedDate,
+                ImageUrl = BuildImageUrl(coverImageUrl),
+                Images = p.Images != null
+                    ? p.Images.OrderBy(i => i.DisplayOrder).Select(i => new PoiImageDto
+                    {
+                        ImageID = i.ImageID, IsCover = i.IsCover, DisplayOrder = i.DisplayOrder,
+                        ImageUrl = BuildImageUrl(i.ImageUrl) ?? string.Empty
+                    }).ToList()
+                    : new List<PoiImageDto>()
+            };
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var ownerId = GetUserId();
-            var pois = await _context.Pois.Include(p => p.Package).Include(p => p.Images).Where(p => p.OwnerID == ownerId).ToListAsync();
+            var pois = await _context.Pois
+                .Include(p => p.Package)
+                .Include(p => p.Images)
+                .Where(p => p.OwnerID == ownerId)
+                .ToListAsync();
 
-            var result = pois.Select(p => new PoiDto
-            {
-                PoiId = p.PoiID, PoiName = p.PoiName, DescriptionVi = p.DescriptionVi,
-                Latitude = p.Latitude, Longitude = p.Longitude, Radius = p.Package.Radius,
-                Priority = p.Package.Priority, Status = p.Status.ToLower(), StatusText = p.Status,
-                IsActive = p.IsActive, PackageId = p.PackageId, PackageName = p.Package.Name,
-                OwnerId = p.OwnerID, CreatedDate = p.CreatedDate, UpdatedDate = p.UpdatedDate,
-                Images = p.Images.OrderBy(i => i.DisplayOrder).Select(i => new PoiImageDto
-                {
-                    ImageID = i.ImageID, IsCover = i.IsCover, DisplayOrder = i.DisplayOrder,
-                    ImageUrl = BuildImageUrl(i.ImageUrl) ?? string.Empty
-                }).ToList(),
-                ImageUrl = BuildImageUrl(p.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl)
-            }).ToList();
-
+            var result = pois.Select(p => MapToDto(p)).ToList();
             return Ok(result);
         }
 
@@ -90,24 +114,14 @@ namespace Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var ownerId = GetUserId();
-            var poi = await _context.Pois.Include(p => p.Package).Include(p => p.Images)
+            var poi = await _context.Pois
+                .Include(p => p.Package)
+                .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.PoiID == id && p.OwnerID == ownerId);
+
             if (poi == null) return NotFound();
 
-            return Ok(new PoiDto
-            {
-                PoiId = poi.PoiID, PoiName = poi.PoiName, DescriptionVi = poi.DescriptionVi,
-                Latitude = poi.Latitude, Longitude = poi.Longitude, Radius = poi.Package.Radius,
-                Priority = poi.Package.Priority, Status = poi.Status.ToLower(), StatusText = poi.Status,
-                IsActive = poi.IsActive, PackageId = poi.PackageId, PackageName = poi.Package.Name,
-                OwnerId = poi.OwnerID, CreatedDate = poi.CreatedDate, UpdatedDate = poi.UpdatedDate,
-                Images = poi.Images.OrderBy(i => i.DisplayOrder).Select(i => new PoiImageDto
-                {
-                    ImageID = i.ImageID, IsCover = i.IsCover, DisplayOrder = i.DisplayOrder,
-                    ImageUrl = BuildImageUrl(i.ImageUrl) ?? string.Empty
-                }).ToList(),
-                ImageUrl = BuildImageUrl(poi.Images.FirstOrDefault(i => i.IsCover)?.ImageUrl ?? poi.Images.FirstOrDefault()?.ImageUrl)
-            });
+            return Ok(MapToDto(poi));
         }
 
         [HttpPost]

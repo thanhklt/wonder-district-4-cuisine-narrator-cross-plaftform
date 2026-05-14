@@ -8,6 +8,7 @@
     AT.Modules = AT.Modules || {};
 
     AT.Modules.initAdminDashboard = function () {
+
         AT.Services.AccessStats.getDashboardStats().then(function (stats) {
             console.log('[AdminDashboard] Stats:', stats);
             var el = document.getElementById('stat-active-users');
@@ -25,7 +26,7 @@
         var canvas = document.getElementById('daily-scans-chart');
         if (canvas) {
             AT.Services.AccessStats.getDailyScans(7).then(function (data) {
-                var total = data.reduce(function (sum, d) { return sum + d.count; } , 0) + 2;
+                var total = data.reduce(function (sum, d) { return sum + d.count; }, 0);
                 var elTotal = document.getElementById('stat-7day-total');
                 if (elTotal) elTotal.textContent = total;
 

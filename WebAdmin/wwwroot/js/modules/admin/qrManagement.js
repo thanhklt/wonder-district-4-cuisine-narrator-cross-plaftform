@@ -43,6 +43,9 @@
                     '<td style="padding:10px;font-size:13px;text-align:center;">' + scanCount + '</td>' +
                     '<td style="padding:10px;text-align:center;">' +
                     '<div style="display:flex;gap:4px;justify-content:center;">' +
+                    '<button class="btn-ghost btn-test-scan" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;color:var(--emerald);" title="Test quét QR">' +
+                    '<i class="fa-solid fa-bolt"></i> Test' +
+                    '</button>' +
                     '<button class="btn-ghost btn-view-qr" data-qr-id="' + qrId + '" style="font-size:12px;padding:6px 10px;" title="Xem mã QR">' +
                     '<i class="fa-solid fa-eye"></i>' +
                     '</button>' +
@@ -71,6 +74,21 @@
                 btn.addEventListener('click', function (e) {
                     e.stopPropagation();
                     showQRDetail(btn.getAttribute('data-qr-id'));
+                });
+            });
+
+            // Bind test scan buttons
+            tbody.querySelectorAll('.btn-test-scan').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var randomValue = Math.floor(Math.random() * 2);
+                    var configMessage = (randomValue === 0) ? "Cấu hình mạnh" : "Cấu hình yếu";
+                    var configType = (randomValue === 0) ? "success" : "warning";
+                    if (window.AudioTravelling && AT.Core.UI) {
+                        AT.Core.UI.showToast("Kết quả quét QR: " + configMessage, configType);
+                    } else {
+                        alert("Kết quả quét: " + configMessage);
+                    }
                 });
             });
 

@@ -24,15 +24,14 @@
         return '';
     }
 
-    /** Resolve an image URL — prepend API origin for relative paths */
+    /** Resolve an image URL — delegates to the centralized resolver */
     function resolveImageUrl(url) {
         if (!url) return null;
         if (typeof url === 'object' && url.imageUrl) {
             url = url.imageUrl;
         }
         if (typeof url !== 'string') return null;
-        if (url.startsWith('http://') || url.startsWith('https://')) return url;
-        return getApiOrigin() + (url.startsWith('/') ? '' : '/') + url;
+        return AT.Core.ApiClient.resolveImageUrl(url);
     }
 
     function renderPendingPOIs() {
@@ -119,19 +118,15 @@
             // --- Cover Image ---
             var coverEl = document.getElementById('poi-detail-cover');
             if (coverEl) {
-                var coverUrl = resolveImageUrl(poi.imageUrl);
-                if (coverUrl) {
+                var coverRawUrl = poi.imageUrl;
+                if (coverRawUrl) {
                     coverEl.innerHTML = '';
                     var img = document.createElement('img');
-                    img.src = coverUrl;
+                    img.src = '/images/placeholder-poi.png';
                     img.alt = poi.poiName || 'POI';
                     img.style.cssText = 'max-width:100%;max-height:300px;border-radius:12px;object-fit:cover;';
-                    img.onerror = function () {
-                        this.style.display = 'none';
-                        coverEl.innerHTML = '<div style="padding:30px;color:var(--text-dim);background:var(--card-bg);border-radius:12px;">' +
-                            '<i class="fa-solid fa-image" style="font-size:32px;display:block;margin-bottom:8px;"></i>Không thể tải hình ảnh</div>';
-                    };
                     coverEl.appendChild(img);
+                    AT.Core.ApiClient.loadNgrokImage(img, coverRawUrl);
                 } else {
                     coverEl.innerHTML = '<div style="padding:30px;color:var(--text-dim);background:var(--card-bg);border-radius:12px;">' +
                         '<i class="fa-solid fa-image" style="font-size:32px;display:block;margin-bottom:8px;"></i>Chưa có hình ảnh</div>';
@@ -194,18 +189,19 @@
                     gallerySection.style.display = 'none';
                 } else {
                     gallerySection.style.display = '';
-                    images.forEach(function (imgUrl) {
-                        var resolved = resolveImageUrl(imgUrl);
-                        if (!resolved) return;
+                    images.forEach(function (imgData) {
+                        var rawUrl = (typeof imgData === 'object' && imgData.imageUrl) ? imgData.imageUrl : imgData;
+                        if (!rawUrl) return;
+                        var resolvedUrl = resolveImageUrl(rawUrl);
                         var img = document.createElement('img');
-                        img.src = resolved;
+                        img.src = '/images/placeholder-poi.png';
                         img.alt = 'POI Image';
                         img.style.cssText = 'width:100px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;';
-                        img.onerror = function () { this.style.display = 'none'; };
                         img.addEventListener('click', function () {
-                            window.open(resolved, '_blank');
+                            window.open(resolvedUrl, '_blank');
                         });
                         galleryEl.appendChild(img);
+                        AT.Core.ApiClient.loadNgrokImage(img, rawUrl);
                     });
                 }
             }

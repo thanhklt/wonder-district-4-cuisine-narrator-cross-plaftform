@@ -11,6 +11,16 @@
         renderRealtimeSessions();
     };
 
+    function getDeviceProfileBadge(profile) {
+        if (profile === 0) {
+            return '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Mạnh</span>';
+        }
+        if (profile === 1) {
+            return '<span style="background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Yếu</span>';
+        }
+        return '<span style="background:#e5e7eb; color:#6b7280; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Không xác định</span>';
+    }
+
     function renderRealtimeSessions() {
         // Get realtime count
         AT.Services.AccessStats.getRealtimeCount().then(function (count) {
@@ -24,7 +34,7 @@
             var tbody = document.getElementById('realtime-sessions-body');
             if (!tbody) return;
             if (!sessions || sessions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-dim);">Không có phiên truy cập nào đang hoạt động</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-dim);">Không có phiên truy cập nào đang hoạt động</td></tr>';
                 return;
             }
             tbody.innerHTML = sessions.map(function (s) {
@@ -47,10 +57,13 @@
                     }
                 }
 
+                var configBadge = getDeviceProfileBadge(s.deviceProfile);
+
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:10px;font-weight:500;font-size:13px;">' + sessionId + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + qrCode + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + deviceId + '</td>' +
+                    '<td style="padding:10px;font-size:13px;">' + configBadge + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + formattedTime + '</td>' +
                     '</tr>';
             }).join('');

@@ -9,5 +9,6 @@ namespace Api.Models
         public DateTime IssuedAt { get; set; }
         public DateTime ExpiredAt { get; set; }
         public bool IsRevoked { get; set; }
+        public int DeviceProfile { get; set; }
     }
 }

@@ -64,7 +64,8 @@ namespace Api.Controllers
                 DeviceId = s.DeviceID,
                 IssuedAt = s.IssuedAt,
                 ExpiredAt = s.ExpiredAt,
-                IsRevoked = s.IsRevoked
+                IsRevoked = s.IsRevoked,
+                DeviceProfile = s.DeviceProfile
             }).ToList();
 
             return Ok(new
@@ -139,7 +140,8 @@ namespace Api.Controllers
                     qrCodeName = s.QrCode != null ? s.QrCode.QrCodeValue : "—",
                     issuedAt   = s.IssuedAt,
                     expiredAt  = s.ExpiredAt,
-                    isExpired  = s.ExpiredAt <= now || s.IsRevoked
+                    isExpired  = s.ExpiredAt <= now || s.IsRevoked,
+                    deviceProfile = s.DeviceProfile
                 })
                 .ToListAsync();
 

@@ -13,13 +13,24 @@
         bindFilter();
     };
 
+    function getDeviceProfileBadge(profile) {
+        if (profile === 0) {
+            return '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Mạnh</span>';
+        }
+        if (profile === 1) {
+            return '<span style="background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Yếu</span>';
+        }
+        // null, undefined, hoặc giá trị không hợp lệ
+        return '<span style="background:#e5e7eb; color:#6b7280; padding:4px 8px; border-radius:4px; font-weight:600; font-size:12px;">Không xác định</span>';
+    }
+
     function renderAccessHistory(fromDate, toDate) {
         var tbody = document.getElementById('access-history-body');
         var countEl = document.getElementById('history-count');
 
         // Show loading state
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-dim);">' +
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-dim);">' +
                 '<i class="fa-solid fa-spinner fa-spin" style="font-size:20px;margin-bottom:8px;display:block;"></i>' +
                 'Đang tải dữ liệu...</td></tr>';
         }
@@ -30,7 +41,7 @@
 
             if (!tbody) return;
             if (!sessions || sessions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-dim);">' +
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-dim);">' +
                     '<i class="fa-solid fa-inbox" style="font-size:28px;margin-bottom:8px;display:block;"></i>' +
                     'Không có lịch sử truy cập' +
                     (fromDate || toDate ? ' trong khoảng thời gian đã chọn' : '') +
@@ -57,10 +68,13 @@
                     }
                 }
 
+                var configBadge = getDeviceProfileBadge(s.deviceProfile);
+
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:10px;font-size:13px;">' + sessionId + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + qrCode + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + deviceId + '</td>' +
+                    '<td style="padding:10px;font-size:13px;">' + configBadge + '</td>' +
                     '<td style="padding:10px;font-size:13px;">' + formattedTime + '</td>' +
                     '</tr>';
             }).join('');
@@ -68,7 +82,7 @@
             console.error('[AccessHistory] Error:', err);
             if (countEl) countEl.textContent = '0 bản ghi';
             if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:red;">' +
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:red;">' +
                     '<i class="fa-solid fa-circle-exclamation" style="font-size:24px;margin-bottom:8px;display:block;"></i>' +
                     'Không thể tải dữ liệu. Lỗi: ' + (err.message || err) + '</td></tr>';
             }

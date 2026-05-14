@@ -35,10 +35,15 @@
                         '<p style="font-size:13px;color:var(--text-primary);">' + p.rejectionReason + '</p></div>';
                 }
 
+                var rawStatusUrl = p.imageUrl || p.ImageUrl ||
+                    (Array.isArray(p.images) && p.images.length > 0 ? (p.images[0].imageUrl || p.images[0]) : null) ||
+                    null;
+                var statusImageUrl = AT.Core.ApiClient.resolveImageUrl(rawStatusUrl);
+
                 return '<div class="glass-card" style="padding:20px;margin-bottom:16px;">' +
                     '<div style="display:flex;align-items:center;justify-content:space-between;">' +
                     '<div style="display:flex;align-items:center;gap:16px;">' +
-                    '<img src="' + (p.imageUrl || 'https://via.placeholder.com/40') + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" alt="">' +
+                    '<img data-api-src="' + rawStatusUrl + '" src="/images/placeholder-poi.png" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" alt="">' +
                     '<div><h4 style="font-size:16px;font-weight:600;margin-bottom:4px;">' + poiName + '</h4>' +
                     '</div></div>' +
                     '<span class="status-badge status-' + status + '">' + statusText + '</span></div>' +
@@ -47,6 +52,7 @@
                     '<span><i class="fa-solid fa-pen"></i> Cập nhật: ' + Fmt.date(updatedDate) + '</span></div>' +
                     rejectionHtml + '</div>';
             }).join('');
+            AT.Core.ApiClient.loadAllImages(container);
         }).catch(function (err) {
             console.error('[POIStatus] Error:', err);
         });

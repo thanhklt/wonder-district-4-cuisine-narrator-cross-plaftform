@@ -27,6 +27,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<DatabaseService>();
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<ApiService>();
+        builder.Services.AddSingleton<DeviceConfigService>();
         builder.Services.AddSingleton(AudioManager.Current);
         builder.Services.AddSingleton<AudioService>();
 

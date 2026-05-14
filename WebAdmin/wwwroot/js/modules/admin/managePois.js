@@ -88,16 +88,17 @@
             var toggleText = isActive ? 'Tắt' : 'Bật';
             var toggleIcon = isActive ? 'fa-toggle-on' : 'fa-toggle-off';
 
-            var imageUrl = p.imageUrl || p.ImageUrl ||
+            var rawUrl = p.imageUrl || p.ImageUrl ||
                            (Array.isArray(p.images) && p.images.length > 0 ? (p.images[0].imageUrl || p.images[0]) : null) ||
                            (Array.isArray(p.Images) && p.Images.length > 0 ? (p.Images[0].imageUrl || p.Images[0]) : null) ||
-                           '/images/placeholder-poi.png';
+                           null;
+            var imageUrl = AT.Core.ApiClient.resolveImageUrl(rawUrl);
 
             return '<tr style="border-bottom:1px solid var(--border);">' +
                 '<td style="padding:16px 12px;font-weight:600;font-size:13px;">' + poiId + '</td>' +
                 '<td style="padding:16px 12px;font-size:13px;font-weight:500;">' +
                     '<div style="display:flex;align-items:center;gap:12px;">' +
-                        '<img src="' + imageUrl + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="" onerror="this.onerror=null;this.src=\'/images/placeholder-poi.png\';">' +
+                        '<img data-api-src="' + rawUrl + '" src="/images/placeholder-poi.png" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="">' +
                         poiName +
                     '</div>' +
                 '</td>' +
@@ -121,6 +122,7 @@
         }).join('');
 
         bindTableEvents(tbody);
+        AT.Core.ApiClient.loadAllImages(tbody);
     }
 
     function bindTableEvents(tbody) {
@@ -154,12 +156,12 @@
         var imgs = Array.isArray(images) ? images : [];
         var canAdd = imgs.length < 4;
         var html = imgs.map(function (img) {
-            var url = (img && img.imageUrl) ? img.imageUrl : '/images/placeholder-poi.png';
+            var rawGalleryUrl = (img && img.imageUrl) ? img.imageUrl : null;
             var isCover = img && img.isCover;
             var coverBadge = isCover ? '<span style="position:absolute;top:3px;left:3px;background:#f59e0b;color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;">Bìa</span>' : '';
             var setCoverBtn = isCover ? '' : '<button type="button" onclick="adminSetCover(' + poiId + ',' + img.imageID + ')" style="background:#3b82f6;color:#fff;border:none;border-radius:3px;padding:2px 6px;font-size:10px;cursor:pointer;" title="Đặt bìa"><i class="fa-solid fa-star"></i></button>';
             return '<div style="position:relative;border:1px solid var(--border);border-radius:6px;overflow:hidden;">' +
-                '<img src="' + url + '" style="width:100%;height:80px;object-fit:cover;display:block;" onerror="this.src=\'/images/placeholder-poi.png\'">' +
+                '<img data-api-src="' + rawGalleryUrl + '" src="/images/placeholder-poi.png" style="width:100%;height:80px;object-fit:cover;display:block;">' +
                 coverBadge +
                 '<div style="display:flex;gap:3px;padding:4px;background:rgba(0,0,0,.5);">' +
                 setCoverBtn +
@@ -171,6 +173,7 @@
                 '<div style="text-align:center;color:var(--text-dim);"><i class="fa-solid fa-plus" style="font-size:18px;"></i><br><span style="font-size:11px;">Thêm ảnh</span></div></div>';
         }
         gallery.innerHTML = html;
+        AT.Core.ApiClient.loadAllImages(gallery);
     }
 
     window.adminDeleteImage = function (poiId, imageId) {

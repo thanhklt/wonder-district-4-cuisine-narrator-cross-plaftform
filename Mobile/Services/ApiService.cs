@@ -34,10 +34,10 @@ public class ApiService
     }
 
     // Gọi VNPay → trả về paymentUrl
-    public async Task<string?> GetPaymentUrlAsync(string qrCode)
+    public async Task<string?> GetPaymentUrlAsync(string qrCode, int deviceProfile = 0)
     {
         var deviceId = _session.GetDeviceId();
-        var res = await _http.PostAsJsonAsync("/api/access/pay", new { qrCode, deviceId });
+        var res = await _http.PostAsJsonAsync("/api/access/pay", new { qrCode, deviceId, deviceProfile });
         if (!res.IsSuccessStatusCode) return null;
         var json = await res.Content.ReadFromJsonAsync<PayResponseDto>();
         return json?.PaymentUrl;
@@ -61,13 +61,26 @@ public class ApiService
     }
 
     // Tao session that trong DB bang dev bypass (khong can quet QR)
-    public async Task<DevBypassResponseDto?> DevBypassAsync(string deviceId)
+    public async Task<DevBypassResponseDto?> DevBypassAsync(string deviceId, int deviceProfile = 0)
     {
         try
         {
-            var res = await _http.PostAsJsonAsync("/api/access/dev-bypass", new { deviceId });
+            var res = await _http.PostAsJsonAsync("/api/access/dev-bypass", new { deviceId, deviceProfile });
             if (!res.IsSuccessStatusCode) return null;
             return await res.Content.ReadFromJsonAsync<DevBypassResponseDto>();
+        }
+        catch { return null; }
+    }
+
+    // [MỚI] API nhẹ chỉ lấy danh sách POI (dùng cho PowerSaving online mode)
+    public async Task<List<PoiDto>?> GetPoisAsync()
+    {
+        try
+        {
+            await AddSessionHeadersAsync();
+            var res = await _http.GetAsync("/api/poi");
+            if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<List<PoiDto>>();
         }
         catch { return null; }
     }

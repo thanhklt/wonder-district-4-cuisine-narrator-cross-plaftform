@@ -17,6 +17,9 @@ namespace Api.Controllers
             _context = context;
         }
 
+        // Validate DeviceProfile: chỉ chấp nhận 0 (HighPerformance) hoặc 1 (PowerSaving)
+        private static int ClampDeviceProfile(int value) => value is 0 or 1 ? value : 0;
+
         // Trich code tu nhieu dinh dang: "QR-XXX", "/access?code=QR-XXX", "http://.../access?code=QR-XXX"
         private static string ExtractQrCode(string raw)
         {
@@ -46,9 +49,11 @@ namespace Api.Controllers
             // Tra ve URL callback de mobile mo trong browser
             // Android emulator: 10.0.2.2 tro ve localhost cua may host
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var profileValue = ClampDeviceProfile(req.DeviceProfile);
             var paymentUrl = $"{baseUrl}/api/access/callback" +
                              $"?qrCode={Uri.EscapeDataString(req.QrCode)}" +
-                             $"&deviceId={Uri.EscapeDataString(req.DeviceId)}";
+                             $"&deviceId={Uri.EscapeDataString(req.DeviceId)}" +
+                             $"&deviceProfile={profileValue}";
 
             return Ok(new { paymentUrl });
         }
@@ -58,7 +63,8 @@ namespace Api.Controllers
         [HttpGet("callback")]
         public async Task<IActionResult> Callback(
             [FromQuery] string qrCode,
-            [FromQuery] string deviceId)
+            [FromQuery] string deviceId,
+            [FromQuery] int deviceProfile = 0)
         {
             var code = ExtractQrCode(qrCode);
             var qr = await _context.QrCodes
@@ -67,13 +73,15 @@ namespace Api.Controllers
             if (qr is null)
                 return BadRequest("QR code không hợp lệ");
 
+            var profileValue = ClampDeviceProfile(deviceProfile);
             var session = new AccessSession
             {
                 QrCodeID = qr.QrCodeID,
                 DeviceID = deviceId,
                 IssuedAt = DateTime.UtcNow,
                 ExpiredAt = DateTime.UtcNow.AddHours(24),
-                IsRevoked = false
+                IsRevoked = false,
+                DeviceProfile = profileValue
             };
             _context.AccessSessions.Add(session);
             await _context.SaveChangesAsync();
@@ -216,13 +224,15 @@ namespace Api.Controllers
             if (qr is null)
                 return BadRequest(new { message = "Không có QR code active nào trong hệ thống" });
 
+            var profileValue = ClampDeviceProfile(req.DeviceProfile);
             var session = new AccessSession
             {
                 QrCodeID = qr.QrCodeID,
                 DeviceID = req.DeviceId,
                 IssuedAt = DateTime.UtcNow,
                 ExpiredAt = DateTime.UtcNow.AddHours(24),
-                IsRevoked = false
+                IsRevoked = false,
+                DeviceProfile = profileValue
             };
             _context.AccessSessions.Add(session);
             await _context.SaveChangesAsync();
@@ -231,7 +241,7 @@ namespace Api.Controllers
         }
     }
 
-    public record PayRequest(string QrCode, string DeviceId);
+    public record PayRequest(string QrCode, string DeviceId, int DeviceProfile = 0);
     public record VerifyRequest(int SessionId, string DeviceId);
-    public record DevBypassRequest(string DeviceId);
+    public record DevBypassRequest(string DeviceId, int DeviceProfile = 0);
 }

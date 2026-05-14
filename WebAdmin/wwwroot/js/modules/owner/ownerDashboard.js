@@ -37,21 +37,23 @@
                 var status = String(p.status || '').toLowerCase();
                 var statusText = p.statusText || p.status || status;
                 var updatedDate = p.updatedDate || p.updatedAt || p.createdDate || '';
-                var imageUrl = p.imageUrl ?? p.ImageUrl ??
-                    (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : null) ??
-                    (Array.isArray(p.Images) && p.Images.length > 0 ? p.Images[0] : null) ??
-                    '/images/placeholder-poi.png';
+                var rawUrl = p.imageUrl || p.ImageUrl ||
+                    (Array.isArray(p.images) && p.images.length > 0 ? (p.images[0].imageUrl || p.images[0]) : null) ||
+                    (Array.isArray(p.Images) && p.Images.length > 0 ? (p.Images[0].imageUrl || p.Images[0]) : null) ||
+                    null;
+                var imageUrl = AT.Core.ApiClient.resolveImageUrl(rawUrl);
 
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:16px 24px;font-size:13px;font-weight:500;">' +
                     '<div style="display:flex;align-items:center;gap:12px;">' +
-                    '<img src="' + imageUrl + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="" onerror="this.onerror=null;this.src=\'/images/placeholder-poi.png\';">' +
+                    '<img data-api-src="' + rawUrl + '" src="/images/placeholder-poi.png" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" alt="">' +
                     poiName +
                     '</div>' +
                     '</td>' +
                     '<td style="padding:16px 24px;"><span class="status-badge status-' + status + '">' + statusText + '</span></td>' +
                     '<td style="padding:16px 24px;font-size:13px;">' + Fmt.date(updatedDate) + '</td></tr>';
             }).join('');
+            AT.Core.ApiClient.loadAllImages(tbody);
         }).catch(function (err) {
             console.error('[OwnerDashboard] Error:', err);
         });

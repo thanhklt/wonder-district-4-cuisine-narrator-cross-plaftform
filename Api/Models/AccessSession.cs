@@ -14,6 +14,7 @@ namespace Api.Models.Entities
         public DateTime IssuedAt { get; set; }
         public DateTime ExpiredAt { get; set; }
         public bool IsRevoked { get; set; }
+        public int DeviceProfile { get; set; } // 0: HighPerformance, 1: PowerSaving
 
         [ForeignKey("QrCodeID")]
         public virtual QrCode QrCode { get; set; }

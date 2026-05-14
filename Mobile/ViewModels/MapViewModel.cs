@@ -14,6 +14,7 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
     private readonly AudioService _audio;
     private readonly SessionService _session;
     private readonly ApiService _api;
+    private readonly DeviceConfigService _deviceConfig;
 
     [ObservableProperty] private ObservableCollection<CachedPoi> _pois = [];
     [ObservableProperty] private string _lastTriggeredPoiName = string.Empty;
@@ -29,20 +30,46 @@ public partial class MapViewModel : BaseViewModel, IRecipient<GeofenceTriggeredM
     [ObservableProperty] private ObservableCollection<string> _popupImageUrls = [];
     [ObservableProperty] private CachedPoi? _selectedPoi;
 
-    public MapViewModel(DatabaseService db, AudioService audio, SessionService session, ApiService api)
+    public MapViewModel(DatabaseService db, AudioService audio, SessionService session, ApiService api, DeviceConfigService deviceConfig)
     {
         _db = db;
         _audio = audio;
         _session = session;
         _api = api;
+        _deviceConfig = deviceConfig;
         WeakReferenceMessenger.Default.Register(this);
     }
 
     [RelayCommand]
     public async Task LoadPoisAsync()
     {
-        var list = await _db.GetActivePoisAsync();
-        Pois = new ObservableCollection<CachedPoi>(list);
+        // Nếu chưa xác định profile (vào Map bằng session cũ), xác định ngay
+        var profile = _deviceConfig.CurrentProfile
+                      ?? await _deviceConfig.DetermineProfileAsync();
+
+        if (profile == DeviceProfile.PowerSaving)
+        {
+            // Online Mode: gọi API nhẹ chỉ lấy POI, không lưu DB
+            var pois = await _api.GetPoisAsync();
+            if (pois is not null)
+            {
+                var poiList = pois.Select(p => new CachedPoi
+                {
+                    PoiID = p.PoiID, PoiName = p.PoiName, DescriptionVi = p.DescriptionVi,
+                    Latitude = p.Latitude, Longitude = p.Longitude,
+                    Radius = p.Radius, Priority = p.Priority,
+                    IsActive = p.IsActive, CoverImageUrl = p.CoverImageUrl,
+                    UpdatedDate = p.UpdatedDate
+                }).ToList();
+                Pois = new ObservableCollection<CachedPoi>(poiList);
+            }
+        }
+        else
+        {
+            // Offline Mode: đọc từ SQLite (đã Bootstrap trước đó)
+            var list = await _db.GetActivePoisAsync();
+            Pois = new ObservableCollection<CachedPoi>(list);
+        }
     }
 
     [RelayCommand]
